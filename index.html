@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MedoEDUz - Обучение работе с современными ИИ инструментами в различных областях">
+    <meta name="keywords" content="ИИ, обучение, искусственный интеллект, курсы, MedoEDUz">
+    <title>MedoEDUz - Медоеду ВСЁ | Обучение работе с ИИ</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <span class="logo-icon">🐻</span>
+                    <span class="logo-text">MedoEDU<span class="logo-accent">z</span></span>
+                </div>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#home" class="nav-link">Главная</a></li>
+                    <li><a href="#about" class="nav-link">О проекте</a></li>
+                    <li><a href="#benefits" class="nav-link">Преимущества</a></li>
+                    <li><a href="#courses" class="nav-link">Направления</a></li>
+                    <li><a href="#testimonials" class="nav-link">Отзывы</a></li>
+                    <li><a href="#contact" class="nav-link">Контакты</a></li>
+                </ul>
+                <button class="cta-button-nav" onclick="scrollToContact()">Начать обучение</button>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Героическая секция -->
+    <section class="hero" id="home">
+        <div class="hero-background">
+            <div class="hero-gradient"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span>✨ Медоеду ВСЁ - и вам тоже!</span>
+                </div>
+                <h1 class="hero-title">
+                    Освойте <span class="gradient-text">ИИ-инструменты</span><br>
+                    и измените своё будущее
+                </h1>
+                <p class="hero-description">
+                    MedoEDUz - образовательная платформа для всех, кто готов обучаться навыкам работы
+                    с современными инструментами искусственного интеллекта в различных областях
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-primary" onclick="scrollToContact()">
+                        Начать обучение
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                    <button class="btn btn-secondary" onclick="scrollToAbout()">
+                        Узнать больше
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Студентов</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Курсов</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Довольных</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- О проекте -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">О проекте MedoEDUz</h2>
+                <p class="section-subtitle">
+                    Мы делаем обучение ИИ доступным и понятным для каждого
+                </p>
+            </div>
+            <div class="about-content">
+                <div class="about-image">
+                    <div class="image-placeholder">
+                        <div class="ai-icon">🤖</div>
+                    </div>
+                </div>
+                <div class="about-text">
+                    <div class="about-item">
+                        <div class="about-icon">🎯</div>
+                        <div>
+                            <h3>Наша миссия</h3>
+                            <p>Сделать обучение работе с ИИ доступным для всех, независимо от начального уровня подготовки. Медоеду ВСЁ - и вам тоже будет доступно всё!</p>
+                        </div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-icon">💡</div>
+                        <div>
+                            <h3>Наш подход</h3>
+                            <p>Практико-ориентированное обучение с реальными кейсами. Мы не просто учим теории, а показываем, как применять ИИ-инструменты в реальной жизни.</p>
+                        </div>
+                    </div>
+                    <div class="about-item">
+                        <div class="about-icon">🚀</div>
+                        <div>
+                            <h3>Наша цель</h3>
+                            <p>Подготовить новое поколение специалистов, способных эффективно работать с современными ИИ-технологиями в любой сфере деятельности.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Преимущества -->
+    <section class="benefits" id="benefits">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Почему выбирают нас?</h2>
+                <p class="section-subtitle">
+                    Преимущества обучения на платформе MedoEDUz
+                </p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">📚</div>
+                    <h3>Актуальные знания</h3>
+                    <p>Курсы постоянно обновляются в соответствии с последними трендами в области ИИ</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">👨‍🏫</div>
+                    <h3>Опытные наставники</h3>
+                    <p>Обучение ведут практикующие специалисты с реальным опытом работы с ИИ</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎓</div>
+                    <h3>Сертификаты</h3>
+                    <p>После завершения курса вы получаете сертификат, подтверждающий ваши навыки</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💼</div>
+                    <h3>Практические навыки</h3>
+                    <p>Работа над реальными проектами и кейсами из различных индустрий</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🤝</div>
+                    <h3>Сообщество</h3>
+                    <p>Доступ к закрытому сообществу студентов и выпускников для обмена опытом</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">⏰</div>
+                    <h3>Гибкий график</h3>
+                    <p>Обучайтесь в удобном для вас темпе, материалы доступны 24/7</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Направления обучения -->
+    <section class="courses" id="courses">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Направления обучения</h2>
+                <p class="section-subtitle">
+                    Выберите направление, которое вам интересно
+                </p>
+            </div>
+            <div class="courses-grid">
+                <div class="course-card">
+                    <div class="course-header">
+                        <div class="course-icon">✍️</div>
+                        <span class="course-badge">Популярно</span>
+                    </div>
+                    <h3>ИИ для контент-мейкеров</h3>
+                    <p>Создание текстов, изображений и видео с помощью ChatGPT, Midjourney, Stable Diffusion</p>
+                    <ul class="course-features">
+                        <li>Генерация текстового контента</li>
+                        <li>Создание визуального контента</li>
+                        <li>Автоматизация процессов</li>
+                    </ul>
+                    <div class="course-footer">
+                        <span class="course-duration">⏱️ 6 недель</span>
+                        <button class="btn-course">Подробнее</button>
+                    </div>
+                </div>
+
+                <div class="course-card featured">
+                    <div class="course-header">
+                        <div class="course-icon">💻</div>
+                        <span class="course-badge badge-special">Хит</span>
+                    </div>
+                    <h3>ИИ для разработчиков</h3>
+                    <p>GitHub Copilot, ChatGPT для кода, автоматизация разработки и тестирования</p>
+                    <ul class="course-features">
+                        <li>AI-ассистенты для программирования</li>
+                        <li>Автоматизация тестирования</li>
+                        <li>Code review с ИИ</li>
+                    </ul>
+                    <div class="course-footer">
+                        <span class="course-duration">⏱️ 8 недель</span>
+                        <button class="btn-course">Подробнее</button>
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-header">
+                        <div class="course-icon">📊</div>
+                        <span class="course-badge">Новинка</span>
+                    </div>
+                    <h3>ИИ для аналитики</h3>
+                    <p>Анализ данных, прогнозирование, визуализация с помощью современных ИИ-инструментов</p>
+                    <ul class="course-features">
+                        <li>Обработка больших данных</li>
+                        <li>Предиктивная аналитика</li>
+                        <li>Визуализация с помощью ИИ</li>
+                    </ul>
+                    <div class="course-footer">
+                        <span class="course-duration">⏱️ 7 недель</span>
+                        <button class="btn-course">Подробнее</button>
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-header">
+                        <div class="course-icon">🎨</div>
+                        <span class="course-badge">Креатив</span>
+                    </div>
+                    <h3>ИИ для дизайнеров</h3>
+                    <p>Создание дизайна, прототипов и презентаций с использованием ИИ</p>
+                    <ul class="course-features">
+                        <li>Генерация дизайн-концепций</li>
+                        <li>Автоматизация рутинных задач</li>
+                        <li>Создание уникальных визуалов</li>
+                    </ul>
+                    <div class="course-footer">
+                        <span class="course-duration">⏱️ 5 недель</span>
+                        <button class="btn-course">Подробнее</button>
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-header">
+                        <div class="course-icon">📈</div>
+                        <span class="course-badge">Бизнес</span>
+                    </div>
+                    <h3>ИИ для маркетологов</h3>
+                    <p>Автоматизация маркетинга, анализ аудитории, создание рекламных кампаний</p>
+                    <ul class="course-features">
+                        <li>Таргетинг с помощью ИИ</li>
+                        <li>Генерация рекламных креативов</li>
+                        <li>Аналитика и оптимизация</li>
+                    </ul>
+                    <div class="course-footer">
+                        <span class="course-duration">⏱️ 6 недель</span>
+                        <button class="btn-course">Подробнее</button>
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-header">
+                        <div class="course-icon">🎯</div>
+                        <span class="course-badge">Универсальный</span>
+                    </div>
+                    <h3>ИИ для повседневной жизни</h3>
+                    <p>Практическое применение ИИ-инструментов в учебе, работе и личных проектах</p>
+                    <ul class="course-features">
+                        <li>Базовые навыки работы с ИИ</li>
+                        <li>Повышение продуктивности</li>
+                        <li>Решение повседневных задач</li>
+                    </ul>
+                    <div class="course-footer">
+                        <span class="course-duration">⏱️ 4 недели</span>
+                        <button class="btn-course">Подробнее</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Отзывы -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Отзывы студентов</h2>
+                <p class="section-subtitle">
+                    Что говорят наши выпускники
+                </p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        "MedoEDUz полностью изменил моё представление об ИИ. Теперь я использую ChatGPT и Midjourney
+                        в своей работе ежедневно и стал в разы продуктивнее!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">АС</div>
+                        <div>
+                            <div class="author-name">Алексей Смирнов</div>
+                            <div class="author-role">Контент-менеджер</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        "Курс по ИИ для разработчиков - это лучшее вложение в моё профессиональное развитие.
+                        GitHub Copilot теперь мой главный помощник!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">МП</div>
+                        <div>
+                            <div class="author-name">Мария Петрова</div>
+                            <div class="author-role">Frontend Developer</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                    <p class="testimonial-text">
+                        "Преподаватели объясняют сложные вещи простым языком. Практические задания помогли
+                        сразу начать применять знания в работе. Рекомендую!"
+                    </p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">ДК</div>
+                        <div>
+                            <div class="author-name">Дмитрий Козлов</div>
+                            <div class="author-role">Маркетолог</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Контакты и форма -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <h2>Готовы начать обучение?</h2>
+                    <p>Заполните форму, и мы свяжемся с вами в ближайшее время для консультации и подбора подходящего курса.</p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <div class="contact-icon">📧</div>
+                            <div>
+                                <strong>Email</strong>
+                                <p>info@medoeduz.com</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">💬</div>
+                            <div>
+                                <strong>Telegram</strong>
+                                <p>@medoeduz_support</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">⏰</div>
+                            <div>
+                                <strong>Режим работы</strong>
+                                <p>Пн-Пт: 9:00 - 18:00 (МСК)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form-wrapper">
+                    <form class="contact-form" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Ваше имя</label>
+                            <input type="text" id="name" name="name" required placeholder="Введите ваше имя">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+7 (999) 123-45-67">
+                        </div>
+                        <div class="form-group">
+                            <label for="course">Интересующее направление</label>
+                            <select id="course" name="course">
+                                <option value="">Выберите направление</option>
+                                <option value="content">ИИ для контент-мейкеров</option>
+                                <option value="dev">ИИ для разработчиков</option>
+                                <option value="analytics">ИИ для аналитики</option>
+                                <option value="design">ИИ для дизайнеров</option>
+                                <option value="marketing">ИИ для маркетологов</option>
+                                <option value="general">ИИ для повседневной жизни</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Сообщение</label>
+                            <textarea id="message" name="message" rows="4" placeholder="Расскажите о себе и своих целях обучения"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            Отправить заявку
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <span class="logo-icon">🐻</span>
+                        <span class="logo-text">MedoEDU<span class="logo-accent">z</span></span>
+                    </div>
+                    <p>Образовательная платформа для обучения работе с современными ИИ-инструментами</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Telegram">📱</a>
+                        <a href="#" class="social-link" title="YouTube">📺</a>
+                        <a href="#" class="social-link" title="VK">🔵</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Направления</h4>
+                    <ul>
+                        <li><a href="#courses">Контент-мейкинг</a></li>
+                        <li><a href="#courses">Разработка</a></li>
+                        <li><a href="#courses">Аналитика</a></li>
+                        <li><a href="#courses">Дизайн</a></li>
+                        <li><a href="#courses">Маркетинг</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Информация</h4>
+                    <ul>
+                        <li><a href="#about">О проекте</a></li>
+                        <li><a href="#benefits">Преимущества</a></li>
+                        <li><a href="#testimonials">Отзывы</a></li>
+                        <li><a href="#contact">Контакты</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Связаться с нами</h4>
+                    <ul>
+                        <li>📧 info@medoeduz.com</li>
+                        <li>💬 @medoeduz_support</li>
+                        <li>⏰ Пн-Пт: 9:00-18:00</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 MedoEDUz. Все права защищены. Медоеду ВСЁ!</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Кнопка "Наверх" -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">↑</button>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
