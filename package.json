@@ -1,0 +1,49 @@
+{
+  "name": "medoeduz",
+  "version": "1.0.0",
+  "description": "MedoEDUz - Образовательная платформа для обучения работе с современными ИИ-инструментами",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "lint:css": "stylelint 'css/**/*.css'",
+    "lint:js": "eslint 'js/**/*.js'",
+    "format": "prettier --write '**/*.{html,css,js,json,md}'",
+    "validate": "html-validate '*.html'",
+    "build": "npm run validate && npm run lint:css && npm run lint:js",
+    "deploy": "gh-pages -d .",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DemoDaygit/MedoEDUz.git"
+  },
+  "keywords": [
+    "AI",
+    "education",
+    "artificial-intelligence",
+    "courses",
+    "learning",
+    "МедоЕДУз",
+    "обучение",
+    "ИИ"
+  ],
+  "author": "MedoEDUz Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DemoDaygit/MedoEDUz/issues"
+  },
+  "homepage": "https://github.com/DemoDaygit/MedoEDUz#readme",
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "gh-pages": "^6.0.0",
+    "html-validate": "^8.5.0",
+    "prettier": "^3.0.3",
+    "stylelint": "^15.10.3",
+    "stylelint-config-standard": "^34.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

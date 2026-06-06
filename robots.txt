@@ -1,0 +1,27 @@
+# robots.txt for MedoEDUz
+
+User-agent: *
+Allow: /
+
+# Запрещаем индексацию служебных директорий
+Disallow: /api/
+Disallow: /config/
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Указываем путь к sitemap
+Sitemap: https://medoeduz.com/sitemap.xml
+
+# Правила для конкретных ботов
+User-agent: Googlebot
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+# Запрещаем скрейперам
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /

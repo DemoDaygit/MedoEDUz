@@ -1,0 +1,16 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "indentation": 4,
+    "color-hex-case": "lower",
+    "color-hex-length": "long",
+    "selector-class-pattern": null,
+    "custom-property-pattern": null,
+    "no-descending-specificity": null,
+    "font-family-no-missing-generic-family-keyword": true,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "value-keyword-case": ["lower", {
+      "ignoreProperties": ["/font-/"]
+    }]
+  }
+}

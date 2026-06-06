@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # Frontend (статический сайт)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medoeduz-frontend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - medoeduz-network
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./logs:/var/log/nginx
+
+  # Backend API (для будущей разработки)
+  # api:
+  #   build:
+  #     context: ./api
+  #     dockerfile: Dockerfile
+  #   container_name: medoeduz-api
+  #   ports:
+  #     - "3000:3000"
+  #   restart: unless-stopped
+  #   networks:
+  #     - medoeduz-network
+  #   environment:
+  #     - NODE_ENV=production
+  #     - DATABASE_URL=${DATABASE_URL}
+  #   depends_on:
+  #     - database
+
+  # База данных (для будущей разработки)
+  # database:
+  #   image: postgres:15-alpine
+  #   container_name: medoeduz-db
+  #   restart: unless-stopped
+  #   networks:
+  #     - medoeduz-network
+  #   environment:
+  #     - POSTGRES_DB=medoeduz
+  #     - POSTGRES_USER=${DB_USER}
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #   volumes:
+  #     - db-data:/var/lib/postgresql/data
+
+networks:
+  medoeduz-network:
+    driver: bridge
+
+# volumes:
+#   db-data:
