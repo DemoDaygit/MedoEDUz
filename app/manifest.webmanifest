@@ -1,0 +1,22 @@
+{
+  "name": "MedoEDUz — Игровая экосистема",
+  "short_name": "MedoEDUz",
+  "description": "Автономная игровая экосистема обучения ИИ: XP, уровни, эволюция, дерево навыков. Работает офлайн.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "lang": "ru",
+  "dir": "ltr",
+  "categories": ["education", "games"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

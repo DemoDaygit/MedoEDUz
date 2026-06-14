@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MedoEDUz">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="MedoEDUz — автономная игровая экосистема обучения ИИ. Работает офлайн на Android и iOS.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>MedoEDUz — Игровая экосистема</title>
+<style>
+    :root {
+        --bg: #0b1020;
+        --bg2: #131a30;
+        --surface: rgba(255, 255, 255, 0.06);
+        --surface-border: rgba(255, 255, 255, 0.1);
+        --text: #e7ecf6;
+        --text-dim: #9aa6c2;
+        --primary: #6366f1;
+        --accent: #ec4899;
+        --gold: #fbbf24;
+        --success: #10b981;
+        --aura: #6366f1;
+        --radius: 18px;
+        --safe-t: env(safe-area-inset-top, 0px);
+        --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+        height: 100%;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+        overscroll-behavior: none;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    #fx {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+    }
+
+    .app {
+        position: relative;
+        z-index: 1;
+        height: 100dvh;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 12px);
+        overflow-y: auto;
+        background:
+            radial-gradient(120% 80% at 50% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
+            radial-gradient(100% 60% at 50% 110%, rgba(236, 72, 153, 0.15), transparent 60%);
+    }
+
+    /* ---------- Хедер ---------- */
+    .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1rem; }
+    .brand b { color: var(--primary); }
+
+    .level-pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+    .level-pill b { color: var(--gold); }
+
+    /* ---------- Маскот ---------- */
+    .hero {
+        text-align: center;
+        padding: 8px 0 4px;
+    }
+    .mascot {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        display: grid;
+        place-items: center;
+    }
+    .mascot__glow {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: var(--aura);
+        filter: blur(34px);
+        opacity: 0.55;
+        animation: spin 9s linear infinite;
+    }
+    .mascot__emoji {
+        position: relative;
+        font-size: 5.5rem;
+        line-height: 1;
+        animation: bob 3.5s ease-in-out infinite;
+        filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.5));
+    }
+    .stage-name { font-weight: 800; font-size: 1.35rem; margin-top: 6px; }
+    .stage-sub { color: var(--text-dim); font-size: 0.85rem; }
+
+    /* ---------- XP бар ---------- */
+    .xp {
+        margin: 14px 4px 6px;
+    }
+    .xp__row { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 6px; }
+    .xp__bar { height: 14px; background: rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; border: 1px solid var(--surface-border); }
+    .xp__fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 8px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        background-size: 200% 100%;
+        animation: shimmer 2.5s linear infinite;
+        transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ---------- Кнопка изучения ---------- */
+    .tap-wrap { display: grid; place-items: center; padding: 10px 0; }
+    .tap {
+        position: relative;
+        width: 168px;
+        height: 168px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.05rem;
+        letter-spacing: 0.04em;
+        background: radial-gradient(circle at 30% 30%, var(--primary), #3b3fb3 70%);
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.45), inset 0 -6px 16px rgba(0, 0, 0, 0.3), inset 0 6px 14px rgba(255, 255, 255, 0.25);
+        touch-action: manipulation;
+        transition: transform 0.08s ease;
+        overflow: hidden;
+    }
+    .tap:active { transform: scale(0.94); }
+    .tap__label { position: relative; z-index: 2; display: block; }
+    .tap__hint { display: block; font-size: 0.7rem; opacity: 0.75; font-weight: 600; margin-top: 4px; }
+
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.35);
+        transform: translate(-50%, -50%) scale(0);
+        pointer-events: none;
+        animation: ripple 0.6s ease-out forwards;
+        z-index: 1;
+    }
+
+    /* ---------- Сетка навыков ---------- */
+    .skills-label { font-size: 0.8rem; color: var(--text-dim); margin: 12px 4px 8px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+    .skills {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding-bottom: 8px;
+    }
+    .skill {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: var(--radius);
+        background: var(--surface);
+        border: 1px solid var(--surface-border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        cursor: pointer;
+        transition: transform 0.15s ease, border-color 0.3s ease, background 0.3s ease;
+        touch-action: manipulation;
+    }
+    .skill:active { transform: scale(0.95); }
+    .skill__icon { font-size: 1.8rem; line-height: 1; }
+    .skill__name { font-size: 0.7rem; color: var(--text-dim); text-align: center; padding: 0 4px; }
+    .skill__lock { position: absolute; top: 6px; right: 8px; font-size: 0.7rem; opacity: 0.8; }
+
+    .skill.is-locked { opacity: 0.5; }
+    .skill.is-available { border-color: var(--accent); animation: pulse-border 2s ease-in-out infinite; }
+    .skill.is-available .skill__name { color: var(--text); }
+    .skill.is-done {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(99, 102, 241, 0.15));
+        border-color: var(--success);
+    }
+    .skill.is-done .skill__name { color: var(--text); font-weight: 700; }
+    .skill.is-done .skill__lock { content: '✓'; }
+
+    .footer-note { text-align: center; color: var(--text-dim); font-size: 0.72rem; margin-top: auto; padding-top: 10px; }
+    .footer-note button { background: none; border: none; color: var(--text-dim); text-decoration: underline; font-size: 0.72rem; cursor: pointer; }
+
+    /* ---------- Плавающий +XP ---------- */
+    .float-xp {
+        position: fixed;
+        z-index: 50;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: var(--gold);
+        pointer-events: none;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+        animation: floatup 0.9s ease-out forwards;
+    }
+    .float-xp.crit { color: var(--accent); font-size: 1.5rem; }
+
+    /* ---------- Оверлеи церемоний ---------- */
+    .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        background: rgba(7, 11, 25, 0.8);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        pointer-events: none;
+        text-align: center;
+        padding: 24px;
+    }
+    .overlay.show { opacity: 1; }
+    .burst {
+        position: absolute;
+        width: 320px; height: 320px;
+        background: conic-gradient(from 0deg, transparent, var(--primary), transparent, var(--accent), transparent);
+        border-radius: 50%;
+        animation: spin 4s linear infinite;
+        opacity: 0.5;
+    }
+    .ceremony { position: relative; transform: scale(0.7); transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .overlay.show .ceremony { transform: scale(1); }
+    .ceremony__badge {
+        width: 110px; height: 110px; margin: 0 auto 16px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: grid; place-items: center; font-size: 3rem; font-weight: 800;
+        box-shadow: 0 0 40px var(--primary);
+    }
+    .ceremony__title { font-size: 2rem; font-weight: 800; margin-bottom: 6px;
+        background: linear-gradient(135deg, var(--gold), var(--accent)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .ceremony__sub { color: var(--text-dim); }
+    .ceremony__morph { font-size: 3.5rem; display: flex; gap: 14px; align-items: center; justify-content: center; margin-bottom: 14px; }
+
+    #confetti { position: fixed; inset: 0; z-index: 120; pointer-events: none; }
+    .flash { position: fixed; inset: 0; z-index: 110; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; mix-blend-mode: screen; }
+    .flash.show { opacity: 0.55; }
+
+    /* ---------- Анимации ---------- */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes shimmer { to { background-position: 200% 0; } }
+    @keyframes ripple { to { transform: translate(-50%, -50%) scale(6); opacity: 0; } }
+    @keyframes floatup { to { transform: translateY(-60px); opacity: 0; } }
+    @keyframes pulse-border { 0%,100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); } 50% { box-shadow: 0 0 0 6px rgba(236, 72, 153, 0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+        .mascot__emoji, .mascot__glow, .xp__fill, .burst, .skill.is-available { animation: none !important; }
+    }
+
+    .install-tip {
+        position: fixed; left: 12px; right: 12px; bottom: calc(var(--safe-b) + 12px);
+        z-index: 90; background: var(--bg2); border: 1px solid var(--surface-border);
+        border-radius: 14px; padding: 12px 14px; display: none; align-items: center; gap: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-size: 0.82rem;
+    }
+    .install-tip.show { display: flex; }
+    .install-tip button { margin-left: auto; background: var(--primary); color: #fff; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+
+<div class="app">
+    <div class="top">
+        <div class="brand">🐻 MedoEDU<b>z</b></div>
+        <div class="level-pill">⚡ Ур. <b id="lvl">1</b></div>
+    </div>
+
+    <div class="hero">
+        <div class="mascot">
+            <div class="mascot__glow"></div>
+            <div class="mascot__emoji" id="mascot">🐻</div>
+        </div>
+        <div class="stage-name" id="stageName">Медвежонок</div>
+        <div class="stage-sub" id="stageSub">Только начал свой путь</div>
+    </div>
+
+    <div class="xp">
+        <div class="xp__row"><span>Опыт</span><span id="xpText">0 / 60 XP</span></div>
+        <div class="xp__bar"><div class="xp__fill" id="xpFill"></div></div>
+    </div>
+
+    <div class="tap-wrap">
+        <button class="tap" id="tapBtn">
+            <span class="tap__label">ИЗУЧАТЬ</span>
+            <span class="tap__hint">нажимай и расти 🚀</span>
+        </button>
+    </div>
+
+    <div class="skills-label">Дерево навыков</div>
+    <div class="skills" id="skills"></div>
+
+    <div class="footer-note">
+        Медоеду ВСЁ! · Прогресс сохраняется на устройстве ·
+        <button id="resetBtn">сброс</button>
+    </div>
+</div>
+
+<div class="install-tip" id="installTip">
+    <span>📲 Установить как приложение для офлайн-доступа</span>
+    <button id="installBtn">Установить</button>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var $ = function (id) { return document.getElementById(id); };
+
+    // ---------- Модель ----------
+    var STAGES = [
+        { e: '🐻', n: 'Медвежонок', s: 'Только начал свой путь', a: '#a3a3a3', lvl: 1 },
+        { e: '🧸', n: 'Любопытный', s: 'Исследует экосистему', a: '#6366f1', lvl: 3 },
+        { e: '🤖', n: 'Ученик ИИ', s: 'Освоил первые инструменты', a: '#0ea5e9', lvl: 5 },
+        { e: '🦾', n: 'Нейро-Мастер', s: 'Уверенно владеет ИИ', a: '#ec4899', lvl: 8 },
+        { e: '🧠', n: 'Гуру ИИ', s: 'Видит матрицу насквозь', a: '#f59e0b', lvl: 11 },
+        { e: '👑', n: 'Медоед ВСЁ', s: 'Легенда экосистемы', a: '#f43f5e', lvl: 14 }
+    ];
+
+    var SKILLS = [
+        { id: 'prompt', e: '⌨️', n: 'Промпты', lvl: 1, xp: 30 },
+        { id: 'text', e: '📝', n: 'Тексты', lvl: 2, xp: 40 },
+        { id: 'image', e: '🖼️', n: 'Картинки', lvl: 3, xp: 50 },
+        { id: 'code', e: '🧑‍💻', n: 'Код', lvl: 4, xp: 60 },
+        { id: 'data', e: '🔢', n: 'Данные', lvl: 6, xp: 70 },
+        { id: 'design', e: '🎨', n: 'Дизайн', lvl: 7, xp: 70 },
+        { id: 'video', e: '🎬', n: 'Видео', lvl: 9, xp: 90 },
+        { id: 'agents', e: '🦾', n: 'Агенты', lvl: 11, xp: 110 },
+        { id: 'apex', e: '👑', n: 'Мастер', lvl: 14, xp: 200 }
+    ];
+
+    var KEY = 'medoeduz_app_v1';
+    var S = load();
+
+    function load() {
+        try {
+            var d = JSON.parse(localStorage.getItem(KEY) || '{}');
+            return { xp: d.xp || 0, level: d.level || 1, skills: d.skills || [] };
+        } catch (e) { return { xp: 0, level: 1, skills: [] }; }
+    }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+    function need(l) { return Math.round(60 * Math.pow(1.3, l - 1)); }
+    function totalFor(l) { var t = 0; for (var i = 1; i < l; i++) t += need(i); return t; }
+    function progress() {
+        var base = totalFor(S.level), next = totalFor(S.level + 1);
+        return { cur: S.xp - base, total: next - base, pct: Math.min(100, (S.xp - base) / (next - base) * 100) };
+    }
+    function stage() { var r = STAGES[0]; for (var i = 0; i < STAGES.length; i++) if (S.level >= STAGES[i].lvl) r = STAGES[i]; return r; }
+    function stageIndex() { var idx = 0; for (var i = 0; i < STAGES.length; i++) if (S.level >= STAGES[i].lvl) idx = i; return idx; }
+
+    // ---------- XP / уровни / эволюция ----------
+    function addXP(n, x, y, crit) {
+        var prevLevel = S.level, prevStage = stageIndex();
+        S.xp += n;
+        while (S.xp >= totalFor(S.level + 1)) S.level++;
+
+        floatXP(n, x, y, crit);
+        if (S.level > prevLevel) { levelCeremony(S.level); haptic([20, 40, 20]); }
+        var ns = stageIndex();
+        if (ns > prevStage) evolveCeremony(STAGES[prevStage], STAGES[ns]);
+
+        save();
+        render();
+    }
+
+    function masterSkill(sk, el) {
+        if (S.skills.indexOf(sk.id) !== -1) return;
+        if (S.level < sk.lvl) { shake(el); return; }
+        S.skills.push(sk.id);
+        var r = el.getBoundingClientRect();
+        addXP(sk.xp, r.left + r.width / 2, r.top + r.height / 2, true);
+        if (sk.id === 'apex') { confetti(); flash('#f43f5e'); }
+        haptic(15);
+    }
+
+    // ---------- Рендер ----------
+    function render() {
+        var st = stage(), p = progress();
+        document.documentElement.style.setProperty('--aura', st.a);
+        $('mascot').textContent = st.e;
+        $('stageName').textContent = st.n;
+        $('stageSub').textContent = st.s;
+        $('lvl').textContent = S.level;
+        $('xpText').textContent = Math.floor(p.cur) + ' / ' + p.total + ' XP';
+        $('xpFill').style.width = p.pct + '%';
+
+        for (var i = 0; i < SKILLS.length; i++) {
+            var sk = SKILLS[i], el = document.getElementById('sk-' + sk.id);
+            if (!el) continue;
+            var done = S.skills.indexOf(sk.id) !== -1;
+            var avail = !done && S.level >= sk.lvl;
+            el.className = 'skill ' + (done ? 'is-done' : avail ? 'is-available' : 'is-locked');
+            el.querySelector('.skill__lock').textContent = done ? '✓' : (avail ? '' : 'ур.' + sk.lvl);
+        }
+    }
+
+    function buildSkills() {
+        var wrap = $('skills');
+        SKILLS.forEach(function (sk) {
+            var el = document.createElement('div');
+            el.className = 'skill';
+            el.id = 'sk-' + sk.id;
+            el.innerHTML = '<span class="skill__lock"></span><span class="skill__icon">' + sk.e +
+                '</span><span class="skill__name">' + sk.n + '</span>';
+            el.addEventListener('click', function () { masterSkill(sk, el); });
+            wrap.appendChild(el);
+        });
+    }
+
+    // ---------- Визуальные эффекты ----------
+    function floatXP(n, x, y, crit) {
+        if (x == null) { x = window.innerWidth / 2; y = window.innerHeight / 2; }
+        var f = document.createElement('div');
+        f.className = 'float-xp' + (crit ? ' crit' : '');
+        f.textContent = '+' + n + ' XP';
+        f.style.left = x + 'px';
+        f.style.top = y + 'px';
+        f.style.transform = 'translate(-50%,-50%)';
+        document.body.appendChild(f);
+        setTimeout(function () { f.remove(); }, 900);
+    }
+
+    function shake(el) {
+        if (reduce) return;
+        el.animate(
+            [{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }],
+            { duration: 350 }
+        );
+    }
+
+    function levelCeremony(lvl) {
+        var o = document.createElement('div');
+        o.className = 'overlay';
+        o.innerHTML = '<div class="burst"></div><div class="ceremony"><div class="ceremony__badge">' + lvl +
+            '</div><div class="ceremony__title">Новый уровень!</div><div class="ceremony__sub">Ты достиг ' + lvl + ' уровня</div></div>';
+        document.body.appendChild(o);
+        requestAnimationFrame(function () { o.classList.add('show'); });
+        confetti();
+        setTimeout(function () { o.classList.remove('show'); setTimeout(function () { o.remove(); }, 400); }, 2200);
+    }
+
+    function evolveCeremony(from, to) {
+        var o = document.createElement('div');
+        o.className = 'overlay';
+        o.innerHTML = '<div class="burst"></div><div class="ceremony"><div class="ceremony__morph"><span>' + from.e +
+            '</span><span>⟶</span><span>' + to.e + '</span></div><div class="ceremony__title">ЭВОЛЮЦИЯ!</div>' +
+            '<div class="ceremony__sub">' + from.n + ' → <b>' + to.n + '</b></div></div>';
+        document.body.appendChild(o);
+        requestAnimationFrame(function () { o.classList.add('show'); });
+        confetti(); flash(to.a); haptic([30, 50, 30, 50, 60]);
+        setTimeout(function () { o.classList.remove('show'); setTimeout(function () { o.remove(); }, 400); }, 3000);
+    }
+
+    function confetti() {
+        if (reduce) return;
+        var c = document.createElement('canvas');
+        c.id = 'confetti';
+        c.width = innerWidth; c.height = innerHeight;
+        document.body.appendChild(c);
+        var ctx = c.getContext('2d');
+        var colors = ['#6366f1', '#ec4899', '#fbbf24', '#10b981', '#0ea5e9'];
+        var P = [];
+        for (var i = 0; i < 120; i++) P.push({
+            x: Math.random() * c.width, y: -20 - Math.random() * c.height * 0.3,
+            r: Math.random() * 7 + 3, col: colors[(Math.random() * colors.length) | 0],
+            vx: (Math.random() - 0.5) * 6, vy: Math.random() * 4 + 3, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3
+        });
+        var frames = 0;
+        (function draw() {
+            ctx.clearRect(0, 0, c.width, c.height);
+            for (var i = 0; i < P.length; i++) {
+                var p = P[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.08; p.rot += p.vr;
+                ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.col;
+                ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r * 0.6); ctx.restore();
+            }
+            if (++frames < 180) requestAnimationFrame(draw); else c.remove();
+        })();
+    }
+
+    function flash(color) {
+        if (reduce) return;
+        var f = document.createElement('div');
+        f.className = 'flash';
+        f.style.background = color;
+        document.body.appendChild(f);
+        requestAnimationFrame(function () { f.classList.add('show'); });
+        setTimeout(function () { f.classList.remove('show'); setTimeout(function () { f.remove(); }, 300); }, 450);
+    }
+
+    function haptic(pattern) {
+        try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+    }
+
+    // ---------- Кнопка изучения ----------
+    var tap = $('tapBtn');
+    tap.addEventListener('click', function (e) {
+        var rect = tap.getBoundingClientRect();
+        var rip = document.createElement('span');
+        rip.className = 'ripple';
+        var size = 40;
+        rip.style.width = rip.style.height = size + 'px';
+        rip.style.left = (e.clientX - rect.left) + 'px';
+        rip.style.top = (e.clientY - rect.top) + 'px';
+        tap.appendChild(rip);
+        setTimeout(function () { rip.remove(); }, 600);
+
+        var crit = Math.random() < 0.12;
+        var gain = crit ? 25 : (3 + (Math.random() * 5 | 0));
+        haptic(crit ? [10, 30, 10] : 8);
+        addXP(gain, e.clientX, e.clientY - 30, crit);
+    });
+
+    // ---------- Фоновые частицы ----------
+    (function particles() {
+        if (reduce) return;
+        var canvas = $('fx'), ctx = canvas.getContext('2d');
+        var ps = [], W, H;
+        function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+        resize(); addEventListener('resize', resize);
+        var count = Math.min(60, Math.floor(innerWidth / 8));
+        for (var i = 0; i < count; i++) ps.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, r: Math.random() * 2 + 1 });
+        var pointer = { x: W / 2, y: H / 2 };
+        addEventListener('pointermove', function (e) { pointer.x = e.clientX; pointer.y = e.clientY; }, { passive: true });
+
+        function rgba(hex, a) {
+            hex = hex.replace('#', ''); if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+            return 'rgba(' + parseInt(hex.substr(0,2),16) + ',' + parseInt(hex.substr(2,2),16) + ',' + parseInt(hex.substr(4,2),16) + ',' + a + ')';
+        }
+        (function loop() {
+            ctx.clearRect(0, 0, W, H);
+            var accent = getComputedStyle(document.documentElement).getPropertyValue('--aura').trim() || '#6366f1';
+            for (var i = 0; i < ps.length; i++) {
+                var p = ps[i]; p.x += p.vx; p.y += p.vy;
+                var dx = pointer.x - p.x, dy = pointer.y - p.y, d = Math.hypot(dx, dy);
+                if (d < 160) { p.x += dx / d * 0.3; p.y += dy / d * 0.3; }
+                if (p.x < 0 || p.x > W) p.vx *= -1;
+                if (p.y < 0 || p.y > H) p.vy *= -1;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fillStyle = rgba(accent, 0.6); ctx.fill();
+                for (var j = i + 1; j < ps.length; j++) {
+                    var q = ps[j], dd = Math.hypot(p.x - q.x, p.y - q.y);
+                    if (dd < 110) { ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.strokeStyle = rgba(accent, 0.12 * (1 - dd / 110)); ctx.lineWidth = 1; ctx.stroke(); }
+                }
+            }
+            requestAnimationFrame(loop);
+        })();
+    })();
+
+    // ---------- Сброс ----------
+    $('resetBtn').addEventListener('click', function () {
+        if (confirm('Сбросить весь прогресс?')) { S = { xp: 0, level: 1, skills: [] }; save(); render(); }
+    });
+
+    // ---------- Установка PWA ----------
+    var deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault(); deferredPrompt = e; $('installTip').classList.add('show');
+    });
+    $('installBtn').addEventListener('click', function () {
+        $('installTip').classList.remove('show');
+        if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+    });
+
+    // ---------- Service Worker (офлайн), только по http(s) ----------
+    if ('serviceWorker' in navigator &&
+        (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+    }
+
+    // ---------- Старт ----------
+    buildSkills();
+    render();
+})();
+</script>
+</body>
+</html>
