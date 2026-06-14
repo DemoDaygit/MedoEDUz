@@ -1,0 +1,452 @@
+/**
+ * ============================================================
+ *  MedoEDUz Skill Tree — Стили «Карты знаний»
+ * ============================================================
+ */
+
+.roadmap-wrap {
+    max-width: 1200px;
+    margin: 110px auto 40px;
+    padding: 0 20px;
+}
+
+.roadmap-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.roadmap-header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.roadmap-header p {
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+/* ---------- Сводка прогресса ---------- */
+.st-summary {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.st-summary__item {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.st-summary__item strong {
+    color: var(--text-primary);
+    font-weight: 800;
+}
+
+.st-summary__bar {
+    flex: 1;
+    min-width: 180px;
+    height: 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.st-summary__fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Легенда веток ---------- */
+.st-legend {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.st-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.st-legend__dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+/* ---------- Контейнер карты ---------- */
+.st-stage {
+    position: relative;
+    height: 70vh;
+    min-height: 520px;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.06), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.06), transparent 40%),
+        var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+}
+
+.st-host {
+    position: absolute;
+    inset: 0;
+}
+
+.st-svg {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: none;
+}
+
+.st-svg.is-grabbing {
+    cursor: grabbing;
+}
+
+/* ---------- Рёбра ---------- */
+.st-edge {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 2.5;
+    transition: stroke 0.4s ease, stroke-width 0.4s ease;
+}
+
+.st-edge.is-active {
+    stroke: var(--primary-light);
+    stroke-width: 3;
+}
+
+.st-edge.is-full {
+    stroke: var(--primary-color);
+    stroke-width: 3.5;
+    stroke-dasharray: 8 6;
+    animation: st-flow 1s linear infinite;
+}
+
+@keyframes st-flow {
+    to { stroke-dashoffset: -14; }
+}
+
+/* ---------- Узлы ---------- */
+.st-node {
+    cursor: pointer;
+    outline: none;
+}
+
+.st-node__halo {
+    fill: var(--branch);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.st-node__circle {
+    fill: var(--bg-primary);
+    stroke: var(--border-color);
+    stroke-width: 3;
+    transition: stroke 0.3s ease, fill 0.3s ease, transform 0.3s ease;
+}
+
+.st-node__icon {
+    font-size: 30px;
+    pointer-events: none;
+    user-select: none;
+}
+
+.st-node__label {
+    fill: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.st-node__badge circle {
+    fill: var(--text-light);
+    stroke: var(--bg-primary);
+    stroke-width: 2;
+    transition: fill 0.3s ease;
+}
+
+.st-node__badge-text {
+    fill: white;
+    font-size: 12px;
+    font-weight: 800;
+    pointer-events: none;
+}
+
+/* Состояние: закрыт */
+.st-node.is-locked .st-node__circle {
+    fill: var(--bg-secondary);
+    stroke: var(--border-color);
+}
+
+.st-node.is-locked .st-node__icon {
+    opacity: 0.5;
+}
+
+.st-node.is-locked .st-node__label {
+    opacity: 0.55;
+}
+
+/* Состояние: доступен */
+.st-node.is-available .st-node__circle {
+    stroke: var(--branch);
+    stroke-dasharray: 6 5;
+    animation: st-rotate-dash 16s linear infinite;
+}
+
+.st-node.is-available .st-node__halo {
+    opacity: 0.18;
+    animation: st-breathe 2.5s ease-in-out infinite;
+}
+
+.st-node.is-available .st-node__badge circle {
+    fill: var(--branch);
+}
+
+@keyframes st-rotate-dash {
+    to { stroke-dashoffset: -100; }
+}
+
+@keyframes st-breathe {
+    0%, 100% { opacity: 0.12; }
+    50% { opacity: 0.28; }
+}
+
+/* Состояние: освоен */
+.st-node.is-mastered .st-node__circle {
+    fill: var(--branch);
+    stroke: var(--branch);
+}
+
+.st-node.is-mastered .st-node__icon {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.st-node.is-mastered .st-node__label {
+    fill: var(--text-primary);
+    font-weight: 700;
+}
+
+.st-node.is-mastered .st-node__badge circle {
+    fill: var(--success-color);
+}
+
+/* Hover/focus */
+.st-node:hover .st-node__circle,
+.st-node:focus-visible .st-node__circle {
+    stroke: var(--branch);
+    transform: scale(1.08);
+}
+
+.st-node:hover .st-node__halo,
+.st-node:focus-visible .st-node__halo {
+    opacity: 0.3;
+}
+
+.st-node:focus-visible {
+    outline: none;
+}
+
+.st-node:focus-visible .st-node__halo {
+    opacity: 0.4;
+}
+
+/* Анимации активации */
+.st-pulse .st-node__halo {
+    animation: st-pulse-ring 0.7s ease-out;
+}
+
+.st-pulse--success .st-node__halo {
+    fill: var(--success-color);
+}
+
+@keyframes st-pulse-ring {
+    0% { opacity: 0.6; transform: scale(0.6); }
+    100% { opacity: 0; transform: scale(1.8); }
+}
+
+.st-shake .st-node__inner {
+    animation: st-shake 0.5s ease;
+}
+
+@keyframes st-shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+/* ---------- Кнопки управления ---------- */
+.st-controls {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 2;
+}
+
+.st-controls button {
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-sm);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.st-controls button:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.st-hint {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    background: var(--bg-primary);
+    padding: 0.4rem 0.75rem;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* ---------- Тултип ---------- */
+.st-tooltip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10005;
+    width: 280px;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    will-change: transform;
+}
+
+.st-tooltip.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.st-tip__head {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.st-tip__emoji {
+    font-size: 2rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--branch) 15%, transparent);
+}
+
+.st-tip__title {
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.st-tip__branch {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.st-tip__desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.st-tip__meta {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+.st-tip__state {
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 50px;
+}
+
+.st-tip__state--mastered { background: rgba(16, 185, 129, 0.15); color: var(--success-color); }
+.st-tip__state--available { background: rgba(99, 102, 241, 0.15); color: var(--primary-color); }
+.st-tip__state--locked { background: var(--bg-secondary); color: var(--text-light); }
+
+.st-tip__locked {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+.st-error {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 3rem;
+}
+
+/* ---------- Адаптивность ---------- */
+@media (max-width: 640px) {
+    .roadmap-header h1 { font-size: 2rem; }
+    .st-stage { height: 65vh; min-height: 440px; }
+    .st-tooltip { width: 230px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .st-edge.is-full,
+    .st-node.is-available .st-node__circle,
+    .st-node.is-available .st-node__halo {
+        animation: none !important;
+    }
+}
