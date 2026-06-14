@@ -1,0 +1,254 @@
+/**
+ * ============================================================
+ *  MedoEDUz Animation Engine — Стили эффектов
+ * ============================================================
+ */
+
+/* ---------- Фоновая система частиц ---------- */
+.fx-particles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Контент должен быть над слоем частиц.
+   ВАЖНО: .navbar сюда НЕ включаем — у него собственный z-index:1000,
+   и понижать его нельзя, иначе фиксированная навигация уйдёт под контент. */
+section,
+.footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------- Реактивный курсор ---------- */
+.fx-cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--primary-color), transparent 70%);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 9998;
+    mix-blend-mode: multiply;
+    transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease;
+    will-change: transform;
+}
+
+.fx-cursor-glow.is-active {
+    width: 64px;
+    height: 64px;
+    margin: -32px 0 0 -32px;
+    opacity: 0.35;
+}
+
+/* ---------- 3D-tilt блики на карточках ---------- */
+.fx-tilt {
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+    position: relative;
+}
+
+.fx-tilt::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        circle at var(--shine-x, 50%) var(--shine-y, 50%),
+        rgba(255, 255, 255, 0.35),
+        transparent 45%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.fx-tilt:hover::after {
+    opacity: 1;
+}
+
+/* ---------- Scroll-reveal ---------- */
+.reveal-prep {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+    filter: blur(4px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.7s ease;
+    will-change: opacity, transform;
+}
+
+.reveal-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+/* ---------- Конфетти ---------- */
+.fx-confetti {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    pointer-events: none;
+}
+
+/* ---------- Вспышка экрана ---------- */
+.fx-flash {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    mix-blend-mode: screen;
+}
+
+.fx-flash.show {
+    opacity: 0.6;
+}
+
+/* ---------- Полоса прогресса чтения ---------- */
+.fx-reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 0%;
+    z-index: 1001;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color), var(--secondary-color));
+    background-size: 200% 100%;
+    animation: progress-shimmer 3s linear infinite;
+    box-shadow: 0 0 10px var(--primary-color);
+    transition: width 0.1s linear;
+}
+
+@keyframes progress-shimmer {
+    to {
+        background-position: 200% 0;
+    }
+}
+
+/* ============================================================
+ *  ЭВОЛЮЦИЯ ИНТЕРФЕЙСА
+ *  Чем выше стадия игрока, тем "богаче" визуал страницы.
+ *  Управляется атрибутом data-evolution на <html>.
+ * ============================================================ */
+
+/* Стадия 1+ : появляется лёгкое свечение у кнопок */
+html[data-evolution='1'] .btn-primary,
+html[data-evolution='2'] .btn-primary,
+html[data-evolution='3'] .btn-primary,
+html[data-evolution='4'] .btn-primary,
+html[data-evolution='5'] .btn-primary {
+    box-shadow: var(--shadow-md), 0 0 20px rgba(99, 102, 241, 0.35);
+}
+
+/* Стадия 2+ : пульсация бейджа в hero */
+html[data-evolution='2'] .hero-badge,
+html[data-evolution='3'] .hero-badge,
+html[data-evolution='4'] .hero-badge,
+html[data-evolution='5'] .hero-badge {
+    animation: badge-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+    50% { transform: scale(1.04); box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+}
+
+/* Стадия 3+ : анимированный градиент заголовков секций */
+html[data-evolution='3'] .section-title,
+html[data-evolution='4'] .section-title,
+html[data-evolution='5'] .section-title {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color), var(--secondary-color));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: title-flow 5s linear infinite;
+}
+
+@keyframes title-flow {
+    to { background-position: 200% center; }
+}
+
+/* Стадия 4+ : плавающие карточки */
+html[data-evolution='4'] .course-card,
+html[data-evolution='5'] .course-card {
+    animation: card-float 6s ease-in-out infinite;
+}
+
+html[data-evolution='4'] .course-card:nth-child(even),
+html[data-evolution='5'] .course-card:nth-child(even) {
+    animation-delay: -3s;
+}
+
+@keyframes card-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Стадия 5 (максимум) : "аврора" на фоне hero */
+html[data-evolution='5'] .hero-background {
+    opacity: 0.12;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f59e0b);
+    background-size: 300% 300%;
+    animation: aurora 12s ease infinite;
+}
+
+@keyframes aurora {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ---------- Глобальные утилиты анимации ---------- */
+@keyframes float-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes spin-slow {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pop-in {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ---------- Уважение к prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .fx-particles,
+    .fx-cursor-glow,
+    .fx-reading-progress {
+        display: none !important;
+    }
+
+    .reveal-prep {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
