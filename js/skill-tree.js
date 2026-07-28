@@ -166,8 +166,10 @@ const SkillTree = (() => {
 
         host.appendChild(svg);
 
-        // viewBox под контент, transform для pan/zoom
-        svg.setAttribute('viewBox', `0 0 ${contentW} ${contentH}`);
+        // ВАЖНО: viewBox намеренно НЕ задаём. Без него пользовательские единицы
+        // SVG равны CSS-пикселям 1:1, и весь масштаб задаёт transform из
+        // fitToView/zoom. С viewBox масштабирование было бы двойным (viewBox
+        // вписывает контент, а transform сжимал бы его ещё раз).
         svg.dataset.contentW = contentW;
         svg.dataset.contentH = contentH;
 

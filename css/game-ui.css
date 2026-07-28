@@ -34,6 +34,16 @@
     transform: scale(1.1) rotate(-5deg);
 }
 
+/* Пока показан баннер cookies — приподнимаем плавающие элементы,
+   иначе аватар игрока и тосты XP оказываются под ним. */
+body.cookie-banner-visible .game-fab {
+    bottom: calc(var(--cookie-banner-h, 0px) + 1.5rem);
+}
+
+body.cookie-banner-visible .xp-toast {
+    bottom: calc(var(--cookie-banner-h, 0px) + 6rem);
+}
+
 .game-fab.is-hidden {
     opacity: 0;
     transform: scale(0);
@@ -668,15 +678,30 @@
         font-size: 1.6rem;
     }
 
+    /* На мобильных тосты докируем снизу и выстраиваем в стек над аватаром:
+       сверху они перекрывали заголовок страницы, а между собой — сталкивались.
+       Раскладка снизу вверх: FAB (1–4.5rem) → XP (5–8.8rem) → достижение (9.5rem+). */
     .xp-toast {
-        bottom: 5.5rem;
+        bottom: 5rem;
         left: 1rem;
     }
 
     .ach-toast {
+        top: auto;
+        bottom: 9.5rem;
         right: 1rem;
         left: 1rem;
         max-width: none;
+        transform: translateY(140%);
+    }
+
+    .ach-toast.show {
+        transform: translateY(0);
+    }
+
+    /* Пока виден баннер cookies — поднимаем весь стек над ним */
+    body.cookie-banner-visible .ach-toast {
+        bottom: calc(var(--cookie-banner-h, 0px) + 10rem);
     }
 
     .levelup-title {

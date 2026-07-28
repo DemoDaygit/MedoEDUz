@@ -169,6 +169,7 @@
     justify-content: center;
     align-items: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .pagination-btn {
@@ -433,8 +434,17 @@
         font-size: 1rem;
     }
 
+    .blog-pagination {
+        gap: 0.5rem;
+    }
+
     .pagination-btn {
-        font-size: 0.875rem;
-        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .pagination-number {
+        width: 36px;
+        height: 36px;
     }
 }

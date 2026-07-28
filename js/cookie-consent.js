@@ -69,6 +69,13 @@ class CookieConsent {
             const banner = document.getElementById('cookie-consent-banner');
             if (banner) {
                 banner.classList.add('show');
+                // Сообщаем остальному интерфейсу реальную высоту баннера,
+                // чтобы плавающие элементы (аватар игрока, тосты XP)
+                // приподнялись и не оказались под ним.
+                document.documentElement.style.setProperty(
+                    '--cookie-banner-h', banner.offsetHeight + 'px'
+                );
+                document.body.classList.add('cookie-banner-visible');
             }
         }, 1000);
     }
@@ -77,6 +84,8 @@ class CookieConsent {
         const banner = document.getElementById('cookie-consent-banner');
         if (banner) {
             banner.classList.remove('show');
+            document.body.classList.remove('cookie-banner-visible');
+            document.documentElement.style.setProperty('--cookie-banner-h', '0px');
             setTimeout(() => {
                 banner.remove();
             }, 300);
