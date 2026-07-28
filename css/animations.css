@@ -62,7 +62,7 @@ section,
     border-radius: inherit;
     background: radial-gradient(
         circle at var(--shine-x, 50%) var(--shine-y, 50%),
-        rgba(34, 211, 238, 0.14),
+        rgba(34, 224, 200, 0.14),
         transparent 45%
     );
     opacity: 0;
@@ -147,7 +147,7 @@ html[data-evolution='2'] .btn-primary,
 html[data-evolution='3'] .btn-primary,
 html[data-evolution='4'] .btn-primary,
 html[data-evolution='5'] .btn-primary {
-    box-shadow: var(--shadow-md), 0 0 22px rgba(34, 211, 238, 0.4);
+    box-shadow: var(--shadow-md), 0 0 22px rgba(34, 224, 200, 0.4);
 }
 
 /* Стадия 2+ : пульсация бейджа в hero */
@@ -159,8 +159,8 @@ html[data-evolution='5'] .hero-badge {
 }
 
 @keyframes badge-pulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.4); }
-    50% { transform: scale(1.04); box-shadow: 0 0 0 10px rgba(34, 211, 238, 0); }
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 224, 200, 0.4); }
+    50% { transform: scale(1.04); box-shadow: 0 0 0 10px rgba(34, 224, 200, 0); }
 }
 
 /* Стадия 3+ : анимированный градиент заголовков секций */

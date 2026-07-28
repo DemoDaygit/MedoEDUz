@@ -109,7 +109,7 @@
 
 .back-link:hover {
     background: var(--primary-color);
-    color: #04222b;
+    color: var(--on-accent);
 }
 
 /* Адаптивность */

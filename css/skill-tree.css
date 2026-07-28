@@ -103,8 +103,8 @@
     height: 70vh;
     min-height: 520px;
     background:
-        radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.09), transparent 45%),
-        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.09), transparent 45%),
+        radial-gradient(circle at 20% 20%, rgba(34, 224, 200, 0.09), transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(139, 124, 255, 0.09), transparent 45%),
         var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: var(--border-radius-lg);
@@ -122,8 +122,8 @@
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+        linear-gradient(rgba(158, 173, 196, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(158, 173, 196, 0.05) 1px, transparent 1px);
     background-size: 44px 44px;
     pointer-events: none;
 }
@@ -217,6 +217,10 @@
 
 .st-node.is-locked .st-node__icon {
     opacity: 0.5;
+    /* Эмодзи-замок 🔒 сам по себе золотой. На карте из 16 закрытых узлов
+       он заливает экран тёплым цветом, который зарезервирован под бренд
+       (мёд = только медоед). Обесцвечиваем, чтобы мёд остался уникальным. */
+    filter: grayscale(1);
 }
 
 .st-node.is-locked .st-node__label {
@@ -338,7 +342,7 @@
 
 .st-controls button:hover {
     background: var(--primary-color);
-    color: #04222b;
+    color: var(--on-accent);
     transform: translateY(-2px);
 }
 

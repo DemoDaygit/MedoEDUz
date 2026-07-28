@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 GameEngine.unlock('konami');
                 if (window.AnimationEngine) {
                     AnimationEngine.confetti();
-                    AnimationEngine.flash('#10b981');
+                    AnimationEngine.flash('#3FD87A');
                 }
             }
         } else {

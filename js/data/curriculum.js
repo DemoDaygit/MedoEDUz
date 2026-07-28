@@ -25,14 +25,21 @@
 'use strict';
 
 const CURRICULUM = (() => {
+    // Категориальная шкала веток.
+    // ВАЖНО: жёлто-оранжевый диапазон намеренно оставлен пустым — мёд #FFB020
+    // зарезервирован под бренд (логотип, аура маскота). Если использовать его
+    // здесь, он перестаёт быть уникальным маркером медоеда, поэтому ветка
+    // «Дизайн» переехала на лаймовый.
+    // Все значения проверены на фонах --bg-surface и --bg-elevated,
+    // тёмный текст --on-accent поверх заливки везде даёт ≥7.6:1.
     const BRANCHES = {
-        core:      { name: 'Основы',      color: '#22d3ee', emoji: '🌱' },
-        content:   { name: 'Контент',     color: '#f472b6', emoji: '✍️' },
-        dev:       { name: 'Разработка',  color: '#38bdf8', emoji: '💻' },
-        analytics: { name: 'Аналитика',   color: '#34d399', emoji: '📊' },
-        design:    { name: 'Дизайн',      color: '#f5a524', emoji: '🎨' },
-        marketing: { name: 'Маркетинг',   color: '#a78bfa', emoji: '📈' },
-        apex:      { name: 'Мастерство',  color: '#fb7185', emoji: '👑' },
+        core:      { name: 'Основы',      color: '#22E0C8', emoji: '🌱' },
+        content:   { name: 'Контент',     color: '#FF8FD0', emoji: '✍️' },
+        dev:       { name: 'Разработка',  color: '#57C7FF', emoji: '💻' },
+        analytics: { name: 'Аналитика',   color: '#3FD87A', emoji: '📊' },
+        design:    { name: 'Дизайн',      color: '#9FE870', emoji: '🎨' },
+        marketing: { name: 'Маркетинг',   color: '#A99CFF', emoji: '📈' },
+        apex:      { name: 'Мастерство',  color: '#FF7A85', emoji: '👑' },
     };
 
     const NODES = [

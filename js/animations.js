@@ -242,7 +242,7 @@ const AnimationEngine = (() => {
         document.body.appendChild(canvas);
         const ctx = canvas.getContext('2d');
 
-        const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#0ea5e9'];
+        const colors = ['#8B7CFF', '#FF8FD0', '#FFB020', '#3FD87A', '#57C7FF'];
         const pieces = Array.from({ length: 140 }, () => ({
             x: Math.random() * canvas.width,
             y: -20 - Math.random() * canvas.height * 0.3,

@@ -29,7 +29,7 @@ const GameEngine = (() => {
             name: 'Любопытный',
             emoji: '⚡',
             title: 'Исследует экосистему ИИ',
-            aura: '#6366f1',
+            aura: '#8B7CFF',
             minLevel: 3,
         },
         {
@@ -37,7 +37,7 @@ const GameEngine = (() => {
             name: 'Ученик ИИ',
             emoji: '🤖',
             title: 'Освоил первые инструменты',
-            aura: '#0ea5e9',
+            aura: '#57C7FF',
             minLevel: 6,
         },
         {
@@ -45,7 +45,7 @@ const GameEngine = (() => {
             name: 'Нейро-Мастер',
             emoji: '🦾',
             title: 'Уверенно владеет ИИ',
-            aura: '#ec4899',
+            aura: '#FF8FD0',
             minLevel: 10,
         },
         {
@@ -53,7 +53,7 @@ const GameEngine = (() => {
             name: 'Гуру ИИ',
             emoji: '🧠',
             title: 'Видит матрицу насквозь',
-            aura: '#f59e0b',
+            aura: '#FFB020',
             minLevel: 15,
         },
         {
@@ -63,7 +63,7 @@ const GameEngine = (() => {
             name: 'Медоед ВСЁ',
             emoji: '👑',
             title: 'Легенда экосистемы',
-            aura: '#f59e0b',
+            aura: '#FFB020',
             minLevel: 20,
         },
     ];

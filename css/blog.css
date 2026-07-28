@@ -54,7 +54,7 @@
 .category-btn.active {
     background: var(--accent);
     border-color: var(--accent);
-    color: #04222b;
+    color: var(--on-accent);
 }
 
 /* Сетка статей */
@@ -95,7 +95,7 @@
     align-items: center;
     justify-content: center;
     font-size: 4rem;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(139, 92, 246, 0.12));
+    background: linear-gradient(135deg, rgba(34, 224, 200, 0.12), rgba(139, 124, 255, 0.12));
 }
 
 .blog-card-category {
@@ -218,7 +218,7 @@
 .pagination-number.active {
     background: var(--accent);
     border-color: var(--accent);
-    color: #04222b;
+    color: var(--on-accent);
 }
 
 /* Страница статьи */
@@ -236,7 +236,7 @@
     display: inline-block;
     padding: 0.5rem 1rem;
     background: var(--primary-color);
-    color: #04222b;
+    color: var(--on-accent);
     border-radius: 50px;
     font-size: 0.875rem;
     font-weight: 600;
@@ -274,7 +274,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #04222b;
+    color: var(--on-accent);
     font-weight: 700;
 }
 
@@ -303,7 +303,7 @@
     border-radius: var(--border-radius);
     overflow: hidden;
     margin: 3rem 0;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(139, 92, 246, 0.12));
+    background: linear-gradient(135deg, rgba(34, 224, 200, 0.12), rgba(139, 124, 255, 0.12));
     display: flex;
     align-items: center;
     justify-content: center;

@@ -150,7 +150,7 @@ function showNotification(message, type = 'info') {
         right: '20px',
         padding: '1rem 1.5rem',
         borderRadius: '8px',
-        backgroundColor: type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6',
+        backgroundColor: type === 'success' ? '#3FD87A' : type === 'error' ? '#FF6B70' : '#8B7CFF',
         color: 'white',
         fontWeight: '600',
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',

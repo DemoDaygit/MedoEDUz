@@ -7,40 +7,72 @@
  *  ломает тёмную тему — для светлых поверхностей есть токены.
  * ============================================================ */
 :root {
-    /* ---------- Слои поверхности ---------- */
-    --bg-deep: #06080f;        /* фон страницы, самый глубокий слой */
-    --bg-surface: #0a0e18;     /* секции, чередование ритма */
-    --bg-elevated: #101725;    /* карточки, поднятые панели */
-    --bg-inset: #070a11;       /* поля ввода и «углубления» */
+    /* Нативные контролы (скроллбары, select, автозаполнение Chrome)
+       перекрашиваются в тёмное — без этого форма получает белые плашки. */
+    color-scheme: dark;
+    accent-color: #22E0C8;
+
+    /* ---------- Слои поверхности ----------
+       Нейтральный холодный, БЕЗ синего подтона: синь читается как web3.
+       Разница elevated/surface ничтожна намеренно — иерархию несёт рамка. */
+    --bg-deep: #07080B;        /* фон страницы, самый глубокий слой */
+    --bg-surface: #0D0F14;     /* секции, чередование ритма */
+    --bg-elevated: #151921;    /* карточки, поднятые панели */
+    --bg-inset: #05060A;       /* поля ввода — темнее панели, «врезано» */
+
+    /* Стекло: только закрытый список поверхностей
+       (navbar, форма, шторка профиля, тосты, cookie) */
+    --glass: rgba(21, 25, 33, 0.72);
+    --glass-solid: #12161E;    /* фолбэк без backdrop-filter */
 
     /* ---------- Текст ---------- */
-    --text-primary: #e9eef8;   /* 16.8:1 на --bg-deep */
-    --text-secondary: #9fadc4; /* 8.1:1 */
-    --text-muted: #7d8b9f;     /* 5.2:1 — минимум для вторичного текста */
+    --text-primary: #E8EDF5;   /* 17.0:1 на deep; не чисто белый — halation */
+    --text-secondary: #9FADC0; /* 8.4:1 на surface — AAA */
+    --text-muted: #7E8B9E;     /* 5.1:1 даже на elevated — AA */
+    --on-accent: #04120F;      /* ЕДИНСТВЕННЫЙ цвет текста на акцентных заливках */
+    --bone: #E8E0CE;           /* костяная полоса спины медоеда: только .stripe-rule */
 
-    /* ---------- Акценты ---------- */
-    --accent: #22d3ee;         /* циан — доминирующий акцент ИИ-агентов */
-    --accent-soft: #67e8f9;
-    --accent-deep: #0e7490;
-    --violet: #8b5cf6;         /* второй акцент, глубина и объём */
-    --signature: #f5a524;      /* мёд — фирменный цвет медоеда */
+    /* ---------- Акценты: заливка + «краска» для мелкого ----------
+       agent-cyan = «система работает», inference-violet = «модель думает»,
+       мёд = ТОЛЬКО бренд и НИКОГДА состояние UI — запрет делает его подписью. */
+    --accent: #22E0C8;
+    --accent-soft: #6BF0DE;
+    --accent-deep: #12C4AE;
+    --accent-ghost: rgba(34, 224, 200, 0.08);
+    --violet: #8B7CFF;
+    --violet-soft: #B3A8FF;
+    --violet-ghost: rgba(139, 124, 255, 0.10);
+    --signature: #FFB020;
+    --signature-soft: #FFC24B;
+    --signature-deep: #E89A12;
+    --signature-ghost: rgba(255, 176, 32, 0.10);
 
     /* ---------- Семантика ---------- */
-    --success: #34d399;
-    --warning: #fbbf24;
-    --danger: #f87171;
+    --success: #3FD87A;
+    --warning: #E5C07B;        /* десатурирован, чтобы не спорить с мёдом */
+    --danger: #FF6B70;
 
-    /* ---------- Границы и свечение ---------- */
-    --border: rgba(148, 163, 184, 0.14);
-    --border-strong: rgba(148, 163, 184, 0.3);
-    --glow-accent: 0 0 24px rgba(34, 211, 238, 0.35);
-    --glow-signature: 0 0 24px rgba(245, 165, 36, 0.32);
-    --glow-violet: 0 0 26px rgba(139, 92, 246, 0.3);
+    /* ---------- Границы ----------
+       --border-strong НАМЕРЕННО непрозрачный hex: любая rgba при α≤0.4
+       даёт максимум ~2.3:1 и проваливает WCAG 1.4.11. Обязателен для
+       инпутов, кнопок-призраков и прочих интерактивных рамок. */
+    --border: rgba(158, 173, 196, 0.14);
+    --border-hair: rgba(158, 173, 196, 0.10);
+    --border-strong: #5A667C;
+    --border-accent: rgba(34, 224, 200, 0.42);
+    --border-signature: rgba(255, 176, 32, 0.38);
+
+    /* ---------- Свечения: только hover/focus, никогда в покое ---------- */
+    --glow-accent: 0 0 28px -6px rgba(34, 224, 200, 0.55);
+    --glow-signature: 0 0 24px -5px rgba(255, 176, 32, 0.5);
+    --glow-violet: 0 0 26px -6px rgba(139, 124, 255, 0.5);
 
     /* ---------- Типографика ---------- */
     --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --fs-label: 0.72rem;       /* технические моно-метки */
+    --ls-label: 0.08em;
 
     /* ============================================================
      *  Обратная совместимость.
@@ -48,27 +80,26 @@
      *  ВАЖНО: значения должны быть литеральным hex, а не var(...):
      *  js/animations.js читает --primary-color и парсит его как hex.
      * ============================================================ */
-    --primary-color: #22d3ee;
-    --primary-dark: #0e7490;
-    --primary-light: #67e8f9;
-    --secondary-color: #f5a524;
-    --accent-color: #8b5cf6;
-    --success-color: #34d399;
+    --primary-color: #22E0C8;
+    --primary-dark: #12C4AE;
+    --primary-light: #6BF0DE;
+    --secondary-color: #FFB020;
+    --accent-color: #8B7CFF;
+    --success-color: #3FD87A;
 
-    --text-light: #7d8b9f;
+    --text-light: #7E8B9E;
 
-    --bg-primary: #0a0e18;
-    --bg-secondary: #06080f;
-    --bg-dark: #06080f;
+    --bg-primary: #0D0F14;
+    --bg-secondary: #07080B;
+    --bg-dark: #040508;        /* футер: единственное место темнее body */
 
-    --border-color: rgba(148, 163, 184, 0.14);
+    --border-color: rgba(158, 173, 196, 0.14);
 
-    /* Тени на тёмном фоне работают иначе: нужна глубокая чернота,
-       а «подъём» элемента даёт не тень, а светлая кромка сверху. */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-    --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.6);
-    --shadow-lg: 0 12px 28px -6px rgba(0, 0, 0, 0.7);
-    --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.8);
+    /* На почти-чёрном тень не читается — «подъём» даёт гало + кольцо */
+    --shadow-sm: 0 0 0 1px rgba(158, 173, 196, 0.05);
+    --shadow-md: 0 8px 24px -14px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(158, 173, 196, 0.05);
+    --shadow-lg: 0 18px 44px -22px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(158, 173, 196, 0.06);
+    --shadow-xl: 0 32px 70px -30px #000, 0 0 0 1px rgba(34, 224, 200, 0.10);
 
     --transition: all 0.3s ease;
     --border-radius: 14px;
@@ -105,8 +136,8 @@ body::before {
     z-index: -2;
     background-color: var(--bg-deep);
     background-image:
-        linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+        linear-gradient(rgba(158, 173, 196, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(158, 173, 196, 0.045) 1px, transparent 1px);
     background-size: 56px 56px;
     pointer-events: none;
 }
@@ -118,9 +149,9 @@ body::after {
     inset: 0;
     z-index: -1;
     background:
-        radial-gradient(60% 45% at 15% 0%, rgba(34, 211, 238, 0.1), transparent 70%),
-        radial-gradient(55% 45% at 85% 10%, rgba(139, 92, 246, 0.1), transparent 70%),
-        radial-gradient(50% 40% at 50% 100%, rgba(245, 165, 36, 0.06), transparent 70%);
+        radial-gradient(60% 45% at 15% 0%, rgba(34, 224, 200, 0.1), transparent 70%),
+        radial-gradient(55% 45% at 85% 10%, rgba(139, 124, 255, 0.1), transparent 70%),
+        radial-gradient(50% 40% at 50% 100%, rgba(255, 176, 32, 0.06), transparent 70%);
     pointer-events: none;
 }
 
@@ -142,7 +173,7 @@ body::after {
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(6, 8, 15, 0.72);
+    background: rgba(7, 8, 11, 0.72);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     border-bottom: 1px solid transparent;
@@ -151,7 +182,7 @@ body::after {
 }
 
 .navbar.scrolled {
-    background: rgba(6, 8, 15, 0.9);
+    background: rgba(7, 8, 11, 0.9);
     border-bottom-color: var(--border);
     box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.9);
 }
@@ -183,12 +214,12 @@ body::after {
     height: 38px;
     display: block;
     flex-shrink: 0;
-    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.35));
+    filter: drop-shadow(0 0 10px rgba(34, 224, 200, 0.35));
     transition: var(--transition);
 }
 
 .logo:hover .logo-icon {
-    filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.6));
+    filter: drop-shadow(0 0 16px rgba(34, 224, 200, 0.6));
     transform: translateY(-1px);
 }
 
@@ -238,10 +269,13 @@ body::after {
 }
 
 .cta-button-nav {
+    /* Медовая кнопка — РОВНО ОДНА на страницу. Мёд зарезервирован под бренд,
+       поэтому он достаётся именно фирменному действию «Начать честно»:
+       единственное тёплое пятно на сайте, глаз находит его мгновенно. */
     position: relative;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.16), rgba(139, 92, 246, 0.16));
-    color: var(--text-primary);
-    border: 1px solid var(--border-strong);
+    background: linear-gradient(180deg, var(--signature), var(--signature-deep));
+    color: var(--on-accent);
+    border: 1px solid var(--border-signature);
     padding: 0.65rem 1.25rem;
     border-radius: var(--border-radius-sm);
     font-family: var(--font-body);
@@ -255,9 +289,8 @@ body::after {
 }
 
 .cta-button-nav:hover {
-    border-color: var(--accent);
-    color: var(--accent-soft);
-    box-shadow: var(--glow-accent);
+    box-shadow: var(--glow-signature);
+    filter: brightness(1.06);
     transform: translateY(-1px);
 }
 
@@ -314,8 +347,8 @@ body::after {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(90% 60% at 50% 108%, rgba(34, 211, 238, 0.22), transparent 70%),
-        radial-gradient(70% 50% at 50% 118%, rgba(139, 92, 246, 0.2), transparent 70%);
+        radial-gradient(90% 60% at 50% 108%, rgba(34, 224, 200, 0.22), transparent 70%),
+        radial-gradient(70% 50% at 50% 118%, rgba(139, 124, 255, 0.2), transparent 70%);
     opacity: 1;
 }
 
@@ -326,9 +359,9 @@ body::after {
     background: linear-gradient(
         180deg,
         transparent 0%,
-        rgba(34, 211, 238, 0.05) 45%,
-        rgba(34, 211, 238, 0.09) 50%,
-        rgba(34, 211, 238, 0.05) 55%,
+        rgba(34, 224, 200, 0.05) 45%,
+        rgba(34, 224, 200, 0.09) 50%,
+        rgba(34, 224, 200, 0.05) 55%,
         transparent 100%
     );
     background-size: 100% 220%;
@@ -353,8 +386,8 @@ body::after {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    background: rgba(34, 211, 238, 0.07);
-    border: 1px solid rgba(34, 211, 238, 0.28);
+    background: rgba(34, 224, 200, 0.07);
+    border: 1px solid rgba(34, 224, 200, 0.28);
     padding: 0.5rem 1.2rem;
     border-radius: 50px;
     margin-bottom: 2rem;
@@ -393,12 +426,41 @@ body::after {
 }
 
 .gradient-text {
-    background: linear-gradient(110deg, var(--accent) 0%, var(--violet) 55%, var(--signature) 100%);
+    /* Градиент МОНОТОНОВЫЙ (только бирюза). Трёхтоновый бирюза→фиолет→мёд
+       расходовал брендовый мёд на декор и делал заголовок пёстрым.
+       color задан первым как фолбэк: если background-clip не сработает,
+       текст останется читаемым, а не прозрачным. */
+    color: var(--accent);
+    background: linear-gradient(110deg, var(--accent-soft) 0%, var(--accent) 45%, var(--accent-deep) 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     animation: gradient-flow 7s linear infinite;
+}
+
+/* Каретка терминала — РОВНО ОДНА на страницу, в конце заголовка hero.
+   Больше одной превращает страницу в хаос мигающих точек. */
+.hero-title::after {
+    content: '';
+    display: inline-block;
+    width: 0.55ch;
+    height: 0.82em;
+    margin-left: 0.18em;
+    background: var(--accent);
+    vertical-align: -0.06em;
+    box-shadow: 0 0 10px rgba(34, 224, 200, 0.7);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-title::after {
+        animation: caret-blink 1.05s steps(1, end) infinite;
+    }
+}
+
+@keyframes caret-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
 }
 
 @keyframes gradient-flow {
@@ -444,25 +506,25 @@ body::after {
    Тёмный текст на циане даёт контраст ~9:1 — читается лучше белого. */
 .btn-primary {
     background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
-    color: #04222b;
+    color: var(--on-accent);
     font-weight: 700;
-    box-shadow: 0 8px 26px -8px rgba(34, 211, 238, 0.65);
+    box-shadow: 0 8px 26px -8px rgba(34, 224, 200, 0.65);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 34px -8px rgba(34, 211, 238, 0.8), var(--glow-accent);
+    box-shadow: 0 14px 34px -8px rgba(34, 224, 200, 0.8), var(--glow-accent);
 }
 
 .btn-secondary {
-    background: rgba(148, 163, 184, 0.06);
+    background: rgba(158, 173, 196, 0.06);
     color: var(--text-primary);
     border: 1px solid var(--border-strong);
     backdrop-filter: blur(8px);
 }
 
 .btn-secondary:hover {
-    background: rgba(34, 211, 238, 0.1);
+    background: rgba(34, 224, 200, 0.1);
     border-color: var(--accent);
     color: var(--accent-soft);
 }
@@ -520,15 +582,48 @@ body::after {
     color: var(--text-primary);
 }
 
-/* Тонкая акцентная черта под заголовком секции вместо «пустого» центра */
+/* Разделитель-«мантия» под заголовком: буквальная цитата спинной полосы
+   медоеда — мёд по краям, кость в пике. Брендовый элемент, поэтому пик
+   именно КОСТЯНОЙ, а не бирюзовый. */
 .section-header .section-title::after {
     content: '';
     display: block;
-    width: 54px;
+    width: 72px;
     height: 2px;
     margin: 1rem auto 0;
-    background: linear-gradient(90deg, var(--accent), var(--violet));
-    box-shadow: var(--glow-accent);
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--signature) 18%,
+        var(--bone) 50%,
+        var(--signature) 82%,
+        transparent 100%);
+    opacity: 0.8;
+}
+
+/* Бровка секции: моноширинный машинный индекс + дорожка с «паяльной точкой».
+   Самый дешёвый по коду приём, который превращает страницу из лендинга
+   в оболочку, где работает агент. */
+.section-kicker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+}
+
+.section-kicker::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+    box-shadow: 24px 0 0 -0.5px var(--signature);
+    flex: none;
 }
 
 .section-subtitle {
@@ -559,7 +654,7 @@ body::after {
 .image-placeholder {
     position: relative;
     background:
-        radial-gradient(70% 70% at 50% 40%, rgba(34, 211, 238, 0.16), transparent 70%),
+        radial-gradient(70% 70% at 50% 40%, rgba(34, 224, 200, 0.16), transparent 70%),
         var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--border-radius-lg);
@@ -577,8 +672,8 @@ body::after {
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(245, 165, 36, 0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(245, 165, 36, 0.07) 1px, transparent 1px);
+        linear-gradient(rgba(255, 176, 32, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 176, 32, 0.07) 1px, transparent 1px);
     background-size: 34px 34px;
     mask-image: radial-gradient(circle at 50% 45%, #000 30%, transparent 72%);
     -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 30%, transparent 72%);
@@ -587,7 +682,7 @@ body::after {
 .ai-icon {
     position: relative;
     font-size: 8rem;
-    filter: drop-shadow(0 0 30px rgba(34, 211, 238, 0.4));
+    filter: drop-shadow(0 0 30px rgba(34, 224, 200, 0.4));
 }
 
 .about-text {
@@ -647,7 +742,7 @@ body::after {
     left: 10%;
     right: 10%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.55), transparent);
+    background: linear-gradient(90deg, transparent, rgba(34, 224, 200, 0.55), transparent);
     opacity: 0;
     transition: var(--transition);
 }
@@ -656,7 +751,7 @@ body::after {
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
     border-color: var(--border-strong);
-    background: linear-gradient(180deg, rgba(34, 211, 238, 0.07), rgba(255, 255, 255, 0.01));
+    background: linear-gradient(180deg, rgba(34, 224, 200, 0.07), rgba(255, 255, 255, 0.01));
 }
 
 .benefit-card:hover::before {
@@ -666,7 +761,7 @@ body::after {
 .benefit-icon {
     font-size: 2.6rem;
     margin-bottom: 1rem;
-    filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.3));
+    filter: drop-shadow(0 0 14px rgba(34, 224, 200, 0.3));
 }
 
 .benefit-card h3 {
@@ -715,8 +810,8 @@ body::after {
 
 /* Выделенный курс: акцентная кромка сверху вместо толстой рамки */
 .course-card.featured {
-    border-color: rgba(34, 211, 238, 0.35);
-    background: linear-gradient(180deg, rgba(34, 211, 238, 0.08), rgba(139, 92, 246, 0.03));
+    border-color: rgba(34, 224, 200, 0.35);
+    background: linear-gradient(180deg, rgba(34, 224, 200, 0.08), rgba(139, 124, 255, 0.03));
 }
 
 .course-card.featured::before {
@@ -739,7 +834,7 @@ body::after {
 
 .course-icon {
     font-size: 2.3rem;
-    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.28));
+    filter: drop-shadow(0 0 12px rgba(34, 224, 200, 0.28));
 }
 
 .course-badge {
@@ -749,14 +844,14 @@ body::after {
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.03em;
-    background: rgba(34, 211, 238, 0.12);
-    border: 1px solid rgba(34, 211, 238, 0.3);
+    background: rgba(34, 224, 200, 0.12);
+    border: 1px solid rgba(34, 224, 200, 0.3);
     color: var(--accent-soft);
 }
 
 .badge-special {
-    background: rgba(245, 165, 36, 0.13);
-    border-color: rgba(245, 165, 36, 0.35);
+    background: rgba(255, 176, 32, 0.13);
+    border-color: rgba(255, 176, 32, 0.35);
     color: var(--signature);
 }
 
@@ -809,9 +904,9 @@ body::after {
 
 .btn-course {
     padding: 0.55rem 1.3rem;
-    background: rgba(34, 211, 238, 0.1);
+    background: rgba(34, 224, 200, 0.1);
     color: var(--accent-soft);
-    border: 1px solid rgba(34, 211, 238, 0.3);
+    border: 1px solid rgba(34, 224, 200, 0.3);
     border-radius: var(--border-radius-sm);
     font-family: var(--font-body);
     font-weight: 600;
@@ -825,7 +920,7 @@ body::after {
 .btn-course:hover {
     background: var(--accent);
     border-color: var(--accent);
-    color: #04222b;
+    color: var(--on-accent);
     box-shadow: var(--glow-accent);
 }
 
@@ -854,7 +949,7 @@ body::after {
 .testimonial-rating {
     font-size: 1.4rem;
     margin-bottom: 1rem;
-    filter: drop-shadow(0 0 10px rgba(245, 165, 36, 0.35));
+    filter: drop-shadow(0 0 10px rgba(255, 176, 32, 0.35));
 }
 
 .testimonial-text {
@@ -877,10 +972,10 @@ body::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #04222b;
+    color: var(--on-accent);
     font-weight: 800;
     flex-shrink: 0;
-    box-shadow: 0 0 18px -4px rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 18px -4px rgba(34, 224, 200, 0.5);
 }
 
 .author-name {
@@ -897,7 +992,7 @@ body::after {
 .contact {
     position: relative;
     background:
-        radial-gradient(70% 60% at 50% 0%, rgba(139, 92, 246, 0.1), transparent 70%),
+        radial-gradient(70% 60% at 50% 0%, rgba(139, 124, 255, 0.1), transparent 70%),
         var(--bg-surface);
     border-top: 1px solid var(--border);
 }
@@ -1007,7 +1102,7 @@ body::after {
 .form-group textarea:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+    box-shadow: 0 0 0 3px rgba(34, 224, 200, 0.15);
 }
 
 .btn-full {
@@ -1032,7 +1127,7 @@ body::after {
     left: 20%;
     right: 20%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(34, 224, 200, 0.5), transparent);
 }
 
 .footer-content {
@@ -1087,7 +1182,7 @@ body::after {
     width: 42px;
     height: 42px;
     border-radius: 12px;
-    background: rgba(148, 163, 184, 0.07);
+    background: rgba(158, 173, 196, 0.07);
     border: 1px solid var(--border);
     display: flex;
     align-items: center;
@@ -1098,7 +1193,7 @@ body::after {
 }
 
 .social-link:hover {
-    background: rgba(34, 211, 238, 0.12);
+    background: rgba(34, 224, 200, 0.12);
     border-color: var(--accent);
     transform: translateY(-2px);
     box-shadow: var(--glow-accent);
@@ -1139,7 +1234,7 @@ body::after {
 }
 
 .scroll-top:hover {
-    background: rgba(34, 211, 238, 0.15);
+    background: rgba(34, 224, 200, 0.15);
     border-color: var(--accent);
     box-shadow: var(--glow-accent);
     transform: translateY(-3px);
@@ -1152,7 +1247,7 @@ body::after {
         top: 66px;
         left: -100%;
         flex-direction: column;
-        background: rgba(6, 8, 15, 0.97);
+        background: rgba(7, 8, 11, 0.97);
         backdrop-filter: blur(18px);
         border-bottom: 1px solid var(--border);
         width: 100%;
@@ -1327,5 +1422,53 @@ body::after {
 
     .contact-icon {
         font-size: 1.25rem;
+    }
+}
+
+/* ============================================================
+ *  HEX-SLOT — сота как слот для эмодзи
+ *  Цветные эмодзи на почти-чёрном фоне выглядят инородными
+ *  наклейками. Слот-сота с приглушённой подложкой вписывает их
+ *  в систему: форма соты — отсылка к мёду медоеда.
+ * ============================================================ */
+.benefit-icon,
+.about-icon,
+.course-icon,
+.contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 64px;
+    font-size: 1.7rem;
+    line-height: 1;
+    background: var(--accent-ghost);
+    box-shadow: inset 0 0 0 1px var(--border);
+    /* сота: соотношение 1 / 1.1547 */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    /* приглушаем кислотность эмодзи, чтобы они не спорили с палитрой */
+    filter: saturate(0.72) brightness(0.94);
+    transition: var(--transition);
+}
+
+.benefit-card:hover .benefit-icon,
+.course-card:hover .course-icon {
+    background: var(--signature-ghost);
+    filter: saturate(1) brightness(1);
+}
+
+.contact-icon {
+    width: 44px;
+    height: 50px;
+    font-size: 1.3rem;
+}
+
+@media (max-width: 640px) {
+    .benefit-icon,
+    .about-icon,
+    .course-icon {
+        width: 48px;
+        height: 55px;
+        font-size: 1.45rem;
     }
 }

@@ -163,7 +163,7 @@
 
 .cookie-settings-close:hover {
     background: var(--accent);
-    color: #04222b;
+    color: var(--on-accent);
 }
 
 .cookie-settings-body {
@@ -230,7 +230,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(148, 163, 184, 0.25);
+    background-color: rgba(158, 173, 196, 0.25);
     transition: 0.3s;
     border-radius: 34px;
 }
