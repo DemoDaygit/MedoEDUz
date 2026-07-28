@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Часто задаваемые вопросы о MedoEDUz">
+    <title>FAQ - MedoEDUz</title>
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/game-ui.css">
+    <link rel="stylesheet" href="../fonts/fonts.css">
+    <style>
+        .faq-container {
+            max-width: 900px;
+            margin: 120px auto 60px;
+            padding: 0 20px;
+        }
+
+        .faq-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .faq-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .faq-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+        }
+
+        .faq-item {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .faq-item:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            user-select: none;
+        }
+
+        .faq-question:hover {
+            background: rgba(34, 211, 238, 0.06);
+        }
+
+        .faq-icon {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            background: var(--accent);
+            color: #04222b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация (копия из главной страницы) -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="../index.html" class="logo">
+                    <img src="../images/logo-medoed.svg" alt="" class="logo-icon" width="38" height="38">
+                    <span class="logo-text">MedoEDU<span class="logo-accent">z</span></span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="faq-container">
+        <div class="faq-header">
+            <h1 class="faq-title">Часто задаваемые вопросы</h1>
+            <p class="faq-subtitle">Ответы на популярные вопросы о MedoEDUz</p>
+        </div>
+
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Что такое MedoEDUz?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    MedoEDUz - это образовательная платформа, созданная для обучения работе с современными инструментами искусственного интеллекта. Наш слоган "Медоеду ВСЁ - и вам тоже!" отражает нашу миссию сделать ИИ-технологии доступными для каждого.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Нужен ли опыт программирования для прохождения курсов?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Нет, большинство наших курсов не требуют опыта программирования. У нас есть курсы для разных уровней подготовки - от начинающих до продвинутых пользователей. Курс "ИИ для повседневной жизни" подходит даже для тех, кто никогда не работал с технологиями.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Сколько времени занимает прохождение одного курса?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Длительность курсов варьируется от 4 до 8 недель в зависимости от направления. При этом вы можете учиться в удобном для вас темпе - все материалы доступны 24/7. В среднем студенты занимаются 3-5 часов в неделю.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Какие ИИ-инструменты изучаются на курсах?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Мы обучаем работе с самыми актуальными ИИ-инструментами: ChatGPT, Claude, Midjourney, DALL-E, Stable Diffusion, GitHub Copilot, различными AI-инструментами для анализа данных, маркетинга и дизайна. Программы постоянно обновляются с учетом новых технологий.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Выдается ли сертификат после окончания курса?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Честно: системы сертификации у нас пока нет — проект только запускается, и мы не хотим выдавать «бумажки», за которыми ничего не стоит. Ценность здесь — в реальных навыках и работах, которые вы сделаете. Когда сертификация появится, мы об этом прямо сообщим.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Какова стоимость обучения?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Фиксированного прайса пока нет, и мы не рисуем «скидку 40%» от выдуманной старой цены. Стоимость обсуждается индивидуально: зависит от объёма и ваших задач. Напишите напрямую — <a href="https://t.me/MedoeduZ" target="_blank" rel="noopener">@MedoeduZ</a> — и всё честно обсудим.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Есть ли поддержка преподавателей во время обучения?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Да, и это как раз сильная сторона маленького проекта: вы общаетесь напрямую с автором курса, без «кураторов» из числа вчерашних студентов. Формат и частота разбора работ обсуждаются лично — обещать «еженедельные вебинары» на потоке мы не будем, пока не сможем это стабильно выполнять.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Можно ли получить возврат средств?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Условия возврата обсуждаются индивидуально при договорённости об обучении — публичной оферты с фиксированным сроком у нас пока нет, и придумывать её «для красоты» мы не станем. Если обучение вам не подошло, напишите напрямую: мы разберёмся по-человечески.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Помогаете ли вы с трудоустройством после курса?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Нет — и мы скажем это прямо, а не будем обещать «базу вакансий от партнёров», которой не существует. Мы даём навыки и практику; трудоустройство остаётся за вами. Помочь советом по резюме или разобрать тестовое задание — всегда пожалуйста.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Как начать обучение?</span>
+                    <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Чтобы начать обучение, заполните форму обратной связи на главной странице, выбрав интересующее вас направление. Наш менеджер свяжется с вами в течение 24 часов, расскажет подробности о курсе и поможет с регистрацией.
+                </div>
+            </div>
+        </div>
+
+        <a href="../index.html" class="back-link">
+            ← Вернуться на главную
+        </a>
+    </div>
+
+    <script>
+        // FAQ аккордеон
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const isActive = item.classList.contains('active');
+
+                // Закрыть все другие
+                document.querySelectorAll('.faq-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+
+                // Открыть текущий, если был закрыт
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Navbar скролл эффект
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.pageYOffset > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+
+    <!-- Игровой движок (прогресс синхронизируется через localStorage) -->
+    <script src="../js/animations.js"></script>
+    <script src="../js/gamification.js"></script>
+    <script src="../js/game-ui.js"></script>
+    <script src="../js/game-integration.js"></script>
+</body>
+</html>

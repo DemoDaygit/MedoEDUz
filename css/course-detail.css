@@ -1,0 +1,529 @@
+/* Стили для детальных страниц курсов */
+
+/* Хедер курса */
+.course-hero {
+    padding: 120px 0 60px;
+    background:
+        radial-gradient(80% 60% at 50% 0%, rgba(34, 224, 200, 0.12), transparent 70%),
+        var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.course-hero-content {
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.course-meta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.course-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.badge-popular {
+    background: rgba(255, 176, 32, 0.14);
+    border: 1px solid rgba(255, 176, 32, 0.35);
+    color: var(--signature);
+}
+
+.course-level {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.course-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    /* Фолбэк-цвет обязателен: если background-clip не сработает,
+       заголовок останется читаемым, а не прозрачным. */
+    color: var(--accent);
+    background: linear-gradient(135deg, var(--accent-soft), var(--accent), var(--accent-deep));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.course-tagline {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    line-height: 1.7;
+}
+
+.course-stats {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    /* Приглушаем кислотность эмодзи (особенно ✅), чтобы они не спорили
+       с палитрой — тот же приём, что и в слотах-сотах на главной. */
+    filter: saturate(0.7) brightness(0.95);
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.course-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-large {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.125rem;
+}
+
+/* Секции курса */
+.course-section {
+    padding: 4rem 0;
+}
+
+.bg-light {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+/* Результаты обучения */
+.learning-outcomes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.outcome-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.5rem;
+    background: var(--bg-elevated);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.outcome-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.outcome-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--success);
+    color: var(--on-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.outcome-item p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Программа курса */
+.curriculum {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.curriculum-week {
+    background: var(--bg-elevated);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.week-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.week-header h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.week-duration {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.week-lessons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.lesson-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
+}
+
+.lesson-item:hover {
+    background: rgba(34, 224, 200, 0.07);
+}
+
+.lesson-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: var(--on-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.lesson-info {
+    flex: 1;
+}
+
+.lesson-info h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.lesson-info p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.lesson-duration {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+/* Преподаватель */
+.instructor-card {
+    display: flex;
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: var(--bg-elevated);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+}
+
+.instructor-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-accent);
+    font-size: 3rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.instructor-info {
+    flex: 1;
+}
+
+.instructor-info h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.instructor-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.instructor-bio {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.instructor-stats {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.instructor-stats span {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Отзывы */
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.review-card {
+    padding: 2rem;
+    background: var(--bg-elevated);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.review-rating {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.review-text {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.review-author {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.review-author strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.review-author span {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Секция записи */
+.enroll-section {
+    background:
+        radial-gradient(70% 80% at 50% 0%, rgba(34, 224, 200, 0.14), transparent 70%),
+        var(--bg-surface);
+    border-top: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.enroll-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-lg);
+}
+
+.enroll-info h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.price-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.price-old {
+    font-size: 1.5rem;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.price-current {
+    font-size: 3rem;
+    font-weight: 800;
+}
+
+/* Текстовая цена («по договорённости») вместо числа: 3rem не помещается
+   в узкие экраны и вызывает горизонтальное переполнение. */
+.price-current--text {
+    font-size: 1.75rem;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+}
+
+.price-discount {
+    padding: 0.5rem 1rem;
+    background: rgba(34, 224, 200, 0.16);
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+.enroll-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.enroll-features li {
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+.enroll-form {
+    background: var(--bg-elevated);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+}
+
+.enroll-form h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.enroll-form input {
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.form-note {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Адаптивность */
+@media (max-width: 968px) {
+    .course-title {
+        font-size: 2.5rem;
+    }
+
+    .course-stats {
+        gap: 2rem;
+    }
+
+    .instructor-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .instructor-avatar {
+        margin: 0 auto;
+    }
+
+    .instructor-stats {
+        justify-content: center;
+    }
+
+    .enroll-card {
+        grid-template-columns: 1fr;
+        padding: 2rem;
+    }
+
+    .week-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .course-title {
+        font-size: 2rem;
+    }
+
+    .course-tagline {
+        font-size: 1rem;
+    }
+
+    .course-stats {
+        gap: 1rem;
+    }
+
+    .course-actions {
+        flex-direction: column;
+    }
+
+    .btn-large {
+        width: 100%;
+    }
+
+    .lesson-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .lesson-duration {
+        width: 100%;
+    }
+
+    .price-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

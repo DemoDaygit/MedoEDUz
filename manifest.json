@@ -1,0 +1,39 @@
+{
+  "name": "MedoEDUz - Обучение ИИ",
+  "short_name": "MedoEDUz",
+  "description": "Образовательная платформа для обучения работе с современными ИИ-инструментами. Медоеду ВСЁ - и вам тоже!",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#07080B",
+  "theme_color": "#07080B",
+  "orientation": "portrait-primary",
+  "lang": "ru",
+  "dir": "ltr",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "images/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Карта знаний",
+      "short_name": "Карта",
+      "description": "Интерактивное дерево навыков",
+      "url": "pages/roadmap.html"
+    },
+    {
+      "name": "Курсы",
+      "short_name": "Курсы",
+      "description": "Просмотр доступных направлений",
+      "url": "index.html#courses"
+    }
+  ]
+}

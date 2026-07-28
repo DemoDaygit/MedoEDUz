@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="MedoEDUz">
+  <!--
+    Иконка автономного приложения MedoEDUz.
+    Тот же знак, что и в фавиконе сайта: светлая «мантия» медоеда
+    и светящийся визир кибермедоеда. Эмодзи не используется намеренно —
+    он по-разному рисуется на разных платформах и ломает узнаваемость.
+  -->
+  <defs>
+    <linearGradient id="apBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#151d33"/>
+      <stop offset="1" stop-color="#070a12"/>
+    </linearGradient>
+    <linearGradient id="apCape" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f8ff"/>
+      <stop offset="1" stop-color="#9fb0cc"/>
+    </linearGradient>
+    <radialGradient id="apGlow" cx="0.5" cy="0.55" r="0.5">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="115" fill="url(#apBg)"/>
+  <circle cx="256" cy="285" r="190" fill="url(#apGlow)"/>
+
+  <!-- мантия -->
+  <path d="M64 352 C 96 176, 224 80, 416 96 L 416 200 C 264 192, 176 256, 152 376 Z"
+        fill="url(#apCape)"/>
+
+  <!-- визир -->
+  <rect x="240" y="272" width="160" height="52" rx="26" fill="#22d3ee"/>
+</svg>

@@ -1,0 +1,1474 @@
+/* ============================================================
+ *  MedoEDUz — дизайн-система «Кибермедоед»
+ *  Тёмная тема по умолчанию: это язык, на котором говорят
+ *  современные ИИ-агентные продукты, и он же читается как «кибер».
+ *
+ *  Правило: цвета берём ТОЛЬКО отсюда. Захардкоженный white/#fff
+ *  ломает тёмную тему — для светлых поверхностей есть токены.
+ * ============================================================ */
+:root {
+    /* Нативные контролы (скроллбары, select, автозаполнение Chrome)
+       перекрашиваются в тёмное — без этого форма получает белые плашки. */
+    color-scheme: dark;
+    accent-color: #22E0C8;
+
+    /* ---------- Слои поверхности ----------
+       Нейтральный холодный, БЕЗ синего подтона: синь читается как web3.
+       Разница elevated/surface ничтожна намеренно — иерархию несёт рамка. */
+    --bg-deep: #07080B;        /* фон страницы, самый глубокий слой */
+    --bg-surface: #0D0F14;     /* секции, чередование ритма */
+    --bg-elevated: #151921;    /* карточки, поднятые панели */
+    --bg-inset: #05060A;       /* поля ввода — темнее панели, «врезано» */
+
+    /* Стекло: только закрытый список поверхностей
+       (navbar, форма, шторка профиля, тосты, cookie) */
+    --glass: rgba(21, 25, 33, 0.72);
+    --glass-solid: #12161E;    /* фолбэк без backdrop-filter */
+
+    /* ---------- Текст ---------- */
+    --text-primary: #E8EDF5;   /* 17.0:1 на deep; не чисто белый — halation */
+    --text-secondary: #9FADC0; /* 8.4:1 на surface — AAA */
+    --text-muted: #7E8B9E;     /* 5.1:1 даже на elevated — AA */
+    --on-accent: #04120F;      /* ЕДИНСТВЕННЫЙ цвет текста на акцентных заливках */
+    --bone: #E8E0CE;           /* костяная полоса спины медоеда: только .stripe-rule */
+
+    /* ---------- Акценты: заливка + «краска» для мелкого ----------
+       agent-cyan = «система работает», inference-violet = «модель думает»,
+       мёд = ТОЛЬКО бренд и НИКОГДА состояние UI — запрет делает его подписью. */
+    --accent: #22E0C8;
+    --accent-soft: #6BF0DE;
+    --accent-deep: #12C4AE;
+    --accent-ghost: rgba(34, 224, 200, 0.08);
+    --violet: #8B7CFF;
+    --violet-soft: #B3A8FF;
+    --violet-ghost: rgba(139, 124, 255, 0.10);
+    --signature: #FFB020;
+    --signature-soft: #FFC24B;
+    --signature-deep: #E89A12;
+    --signature-ghost: rgba(255, 176, 32, 0.10);
+
+    /* ---------- Семантика ---------- */
+    --success: #3FD87A;
+    --warning: #E5C07B;        /* десатурирован, чтобы не спорить с мёдом */
+    --danger: #FF6B70;
+
+    /* ---------- Границы ----------
+       --border-strong НАМЕРЕННО непрозрачный hex: любая rgba при α≤0.4
+       даёт максимум ~2.3:1 и проваливает WCAG 1.4.11. Обязателен для
+       инпутов, кнопок-призраков и прочих интерактивных рамок. */
+    --border: rgba(158, 173, 196, 0.14);
+    --border-hair: rgba(158, 173, 196, 0.10);
+    --border-strong: #5A667C;
+    --border-accent: rgba(34, 224, 200, 0.42);
+    --border-signature: rgba(255, 176, 32, 0.38);
+
+    /* ---------- Свечения: только hover/focus, никогда в покое ---------- */
+    --glow-accent: 0 0 28px -6px rgba(34, 224, 200, 0.55);
+    --glow-signature: 0 0 24px -5px rgba(255, 176, 32, 0.5);
+    --glow-violet: 0 0 26px -6px rgba(139, 124, 255, 0.5);
+
+    /* ---------- Типографика ---------- */
+    --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --fs-label: 0.72rem;       /* технические моно-метки */
+    --ls-label: 0.08em;
+
+    /* ============================================================
+     *  Обратная совместимость.
+     *  На эти имена опираются 8 CSS-файлов, поэтому они остаются.
+     *  ВАЖНО: значения должны быть литеральным hex, а не var(...):
+     *  js/animations.js читает --primary-color и парсит его как hex.
+     * ============================================================ */
+    --primary-color: #22E0C8;
+    --primary-dark: #12C4AE;
+    --primary-light: #6BF0DE;
+    --secondary-color: #FFB020;
+    --accent-color: #8B7CFF;
+    --success-color: #3FD87A;
+
+    --text-light: #7E8B9E;
+
+    --bg-primary: #0D0F14;
+    --bg-secondary: #07080B;
+    --bg-dark: #040508;        /* футер: единственное место темнее body */
+
+    --border-color: rgba(158, 173, 196, 0.14);
+
+    /* На почти-чёрном тень не читается — «подъём» даёт гало + кольцо */
+    --shadow-sm: 0 0 0 1px rgba(158, 173, 196, 0.05);
+    --shadow-md: 0 8px 24px -14px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(158, 173, 196, 0.05);
+    --shadow-lg: 0 18px 44px -22px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(158, 173, 196, 0.06);
+    --shadow-xl: 0 32px 70px -30px #000, 0 0 0 1px rgba(34, 224, 200, 0.10);
+
+    --transition: all 0.3s ease;
+    --border-radius: 14px;
+    --border-radius-sm: 10px;
+    --border-radius-lg: 20px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background-color: var(--bg-deep);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Техническая «сетка» на фоне страницы — базовый слой кибер-эстетики.
+   Живёт в ::before у body, чтобы не добавлять разметку на 7 страниц. */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-color: var(--bg-deep);
+    background-image:
+        linear-gradient(rgba(158, 173, 196, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(158, 173, 196, 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    pointer-events: none;
+}
+
+/* Мягкое цветное свечение поверх сетки: даёт глубину и «живой» фон */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(60% 45% at 15% 0%, rgba(34, 224, 200, 0.1), transparent 70%),
+        radial-gradient(55% 45% at 85% 10%, rgba(139, 124, 255, 0.1), transparent 70%),
+        radial-gradient(50% 40% at 50% 100%, rgba(255, 176, 32, 0.06), transparent 70%);
+    pointer-events: none;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 15px;
+    }
+}
+
+/* ===== НАВИГАЦИЯ ===== */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(7, 8, 11, 0.72);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid transparent;
+    z-index: 1000;
+    transition: var(--transition);
+}
+
+.navbar.scrolled {
+    background: rgba(7, 8, 11, 0.9);
+    border-bottom-color: var(--border);
+    box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.9);
+}
+
+.nav-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 0.9rem 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+/* .logo-icon теперь <img> со знаком медоеда, а не эмодзи:
+   размер задаём габаритами, не font-size. */
+.logo-icon {
+    width: 38px;
+    height: 38px;
+    display: block;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgba(34, 224, 200, 0.35));
+    transition: var(--transition);
+}
+
+.logo:hover .logo-icon {
+    filter: drop-shadow(0 0 16px rgba(34, 224, 200, 0.6));
+    transform: translateY(-1px);
+}
+
+.logo-accent {
+    color: var(--accent);
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+/* nowrap обязателен: в меню 7 пунктов + CTA, без него на 1440px
+   длинные пункты ломаются на две строки и навигация «разъезжается». */
+.nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.92rem;
+    white-space: nowrap;
+    transition: var(--transition);
+    position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text-primary);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    box-shadow: var(--glow-accent);
+    transition: var(--transition);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+.cta-button-nav {
+    /* Медовая кнопка — РОВНО ОДНА на страницу. Мёд зарезервирован под бренд,
+       поэтому он достаётся именно фирменному действию «Начать честно»:
+       единственное тёплое пятно на сайте, глаз находит его мгновенно. */
+    position: relative;
+    background: linear-gradient(180deg, var(--signature), var(--signature-deep));
+    color: var(--on-accent);
+    border: 1px solid var(--border-signature);
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.cta-button-nav:hover {
+    box-shadow: var(--glow-signature);
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition: var(--transition);
+}
+
+/* Ссылка «назад»: живёт в ядре, а не в course-detail.css — её
+   используют блог и карта знаний, которые тот файл не подключают. */
+.back-to-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.back-to-home:hover {
+    border-color: var(--accent);
+    color: var(--accent-soft);
+    box-shadow: var(--glow-accent);
+}
+
+/* ===== ГЕРОИЧЕСКАЯ СЕКЦИЯ ===== */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding-top: 80px;
+    overflow: hidden;
+}
+
+/* Горизонт: широкое свечение у нижней кромки экрана — «восход» системы */
+.hero-background {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(90% 60% at 50% 108%, rgba(34, 224, 200, 0.22), transparent 70%),
+        radial-gradient(70% 50% at 50% 118%, rgba(139, 124, 255, 0.2), transparent 70%);
+    opacity: 1;
+}
+
+/* Скан-луч: медленно проходит по геройскому экрану, оживляя статику */
+.hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(34, 224, 200, 0.05) 45%,
+        rgba(34, 224, 200, 0.09) 50%,
+        rgba(34, 224, 200, 0.05) 55%,
+        transparent 100%
+    );
+    background-size: 100% 220%;
+    animation: hero-scan 9s linear infinite;
+}
+
+@keyframes hero-scan {
+    0% { background-position: 0 -110%; }
+    100% { background-position: 0 110%; }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Бейдж-«статус агента»: моноширинный, с пульсирующим индикатором */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(34, 224, 200, 0.07);
+    border: 1px solid rgba(34, 224, 200, 0.28);
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--accent-soft);
+}
+
+.hero-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: badge-blink 2.2s ease-in-out infinite;
+}
+
+@keyframes badge-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+}
+
+.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.gradient-text {
+    /* Градиент МОНОТОНОВЫЙ (только бирюза). Трёхтоновый бирюза→фиолет→мёд
+       расходовал брендовый мёд на декор и делал заголовок пёстрым.
+       color задан первым как фолбэк: если background-clip не сработает,
+       текст останется читаемым, а не прозрачным. */
+    color: var(--accent);
+    background: linear-gradient(110deg, var(--accent-soft) 0%, var(--accent) 45%, var(--accent-deep) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-flow 7s linear infinite;
+}
+
+/* Каретка терминала — РОВНО ОДНА на страницу, в конце заголовка hero.
+   Больше одной превращает страницу в хаос мигающих точек. */
+.hero-title::after {
+    content: '';
+    display: inline-block;
+    width: 0.55ch;
+    height: 0.82em;
+    margin-left: 0.18em;
+    background: var(--accent);
+    vertical-align: -0.06em;
+    box-shadow: 0 0 10px rgba(34, 224, 200, 0.7);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-title::after {
+        animation: caret-blink 1.05s steps(1, end) infinite;
+    }
+}
+
+@keyframes caret-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+@keyframes gradient-flow {
+    to { background-position: 200% center; }
+}
+
+.hero-description {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1rem;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 4rem;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius-sm);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+/* Основная кнопка: заливка акцентом + внешнее свечение.
+   Тёмный текст на циане даёт контраст ~9:1 — читается лучше белого. */
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
+    color: var(--on-accent);
+    font-weight: 700;
+    box-shadow: 0 8px 26px -8px rgba(34, 224, 200, 0.65);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px -8px rgba(34, 224, 200, 0.8), var(--glow-accent);
+}
+
+.btn-secondary {
+    background: rgba(158, 173, 196, 0.06);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    backdrop-filter: blur(8px);
+}
+
+.btn-secondary:hover {
+    background: rgba(34, 224, 200, 0.1);
+    border-color: var(--accent);
+    color: var(--accent-soft);
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3.5rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+    position: relative;
+    padding: 0 0.5rem;
+}
+
+.stat-number {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* ===== СЕКЦИИ ===== */
+.about, .benefits, .courses, .testimonials, .contact {
+    padding: 6rem 0;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+/* Разделитель-«мантия» под заголовком: буквальная цитата спинной полосы
+   медоеда — мёд по краям, кость в пике. Брендовый элемент, поэтому пик
+   именно КОСТЯНОЙ, а не бирюзовый. */
+.section-header .section-title::after {
+    content: '';
+    display: block;
+    width: 72px;
+    height: 2px;
+    margin: 1rem auto 0;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        var(--signature) 18%,
+        var(--bone) 50%,
+        var(--signature) 82%,
+        transparent 100%);
+    opacity: 0.8;
+}
+
+/* Бровка секции: моноширинный машинный индекс + дорожка с «паяльной точкой».
+   Самый дешёвый по коду приём, который превращает страницу из лендинга
+   в оболочку, где работает агент. */
+.section-kicker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.85rem;
+}
+
+.section-kicker::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+    box-shadow: 24px 0 0 -0.5px var(--signature);
+    flex: none;
+}
+
+.section-subtitle {
+    font-size: 1.08rem;
+    color: var(--text-secondary);
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+/* ===== О ПРОЕКТЕ ===== */
+.about {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+.about-image {
+    position: relative;
+}
+
+.image-placeholder {
+    position: relative;
+    background:
+        radial-gradient(70% 70% at 50% 40%, rgba(34, 224, 200, 0.16), transparent 70%),
+        var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-lg);
+    padding: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    overflow: hidden;
+}
+
+/* Гексагональная «сота» на подложке — отсылка к мёду и к схемотехнике */
+.image-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 176, 32, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 176, 32, 0.07) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: radial-gradient(circle at 50% 45%, #000 30%, transparent 72%);
+    -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 30%, transparent 72%);
+}
+
+.ai-icon {
+    position: relative;
+    font-size: 8rem;
+    filter: drop-shadow(0 0 30px rgba(34, 224, 200, 0.4));
+}
+
+.about-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.about-item {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.about-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.about-item h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.about-item p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* ===== ПРЕИМУЩЕСТВА ===== */
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+/* Стеклянная панель — базовый строительный блок интерфейса.
+   Светлая кромка сверху имитирует «подъём» элемента: на тёмном фоне
+   это работает лучше, чем тень. */
+.benefit-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.benefit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 224, 200, 0.55), transparent);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.benefit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-strong);
+    background: linear-gradient(180deg, rgba(34, 224, 200, 0.07), rgba(255, 255, 255, 0.01));
+}
+
+.benefit-card:hover::before {
+    opacity: 1;
+}
+
+.benefit-icon {
+    font-size: 2.6rem;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 14px rgba(34, 224, 200, 0.3));
+}
+
+.benefit-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.benefit-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+/* ===== КУРСЫ ===== */
+.courses {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.course-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012));
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--border-strong);
+}
+
+/* Выделенный курс: акцентная кромка сверху вместо толстой рамки */
+.course-card.featured {
+    border-color: rgba(34, 224, 200, 0.35);
+    background: linear-gradient(180deg, rgba(34, 224, 200, 0.08), rgba(139, 124, 255, 0.03));
+}
+
+.course-card.featured::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--violet), var(--signature));
+    box-shadow: var(--glow-accent);
+}
+
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.course-icon {
+    font-size: 2.3rem;
+    filter: drop-shadow(0 0 12px rgba(34, 224, 200, 0.28));
+}
+
+.course-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 50px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    background: rgba(34, 224, 200, 0.12);
+    border: 1px solid rgba(34, 224, 200, 0.3);
+    color: var(--accent-soft);
+}
+
+.badge-special {
+    background: rgba(255, 176, 32, 0.13);
+    border-color: rgba(255, 176, 32, 0.35);
+    color: var(--signature);
+}
+
+.course-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.course-card > p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.course-features {
+    list-style: none;
+    margin-bottom: 1.5rem;
+}
+
+.course-features li {
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.course-features li::before {
+    content: '✓';
+    color: var(--success-color);
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.course-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.course-duration {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.btn-course {
+    padding: 0.55rem 1.3rem;
+    background: rgba(34, 224, 200, 0.1);
+    color: var(--accent-soft);
+    border: 1px solid rgba(34, 224, 200, 0.3);
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.btn-course:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--on-accent);
+    box-shadow: var(--glow-accent);
+}
+
+/* ===== ОТЗЫВЫ ===== */
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.testimonial-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.testimonial-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-4px);
+}
+
+.testimonial-rating {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 10px rgba(255, 176, 32, 0.35));
+}
+
+.testimonial-text {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+}
+
+.testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--on-accent);
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 0 18px -4px rgba(34, 224, 200, 0.5);
+}
+
+.author-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.author-role {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* ===== КОНТАКТЫ ===== */
+.contact {
+    position: relative;
+    background:
+        radial-gradient(70% 60% at 50% 0%, rgba(139, 124, 255, 0.1), transparent 70%),
+        var(--bg-surface);
+    border-top: 1px solid var(--border);
+}
+
+.contact-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.contact-info h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.contact-info > p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.contact-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.contact-item strong {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.contact-item p {
+    color: var(--text-secondary);
+}
+
+.contact-form-wrapper {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: var(--bg-inset);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-sm);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* Выпадающий список: браузер рисует опции системными цветами,
+   поэтому фон и текст задаём явно — иначе на тёмной теме
+   получается белый список с белым текстом. */
+.form-group select option {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(34, 224, 200, 0.15);
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ===== ФУТЕР ===== */
+.footer {
+    position: relative;
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 3.5rem 0 1.5rem;
+}
+
+/* Светящаяся кромка — визуально «заземляет» страницу */
+.footer::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 224, 200, 0.5), transparent);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h4 {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.1rem;
+}
+
+.footer-section p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    line-height: 1.7;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.55rem;
+    color: var(--text-secondary);
+}
+
+.footer-section ul li a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-section ul li a:hover {
+    color: var(--accent);
+}
+
+.social-links {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.social-link {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(158, 173, 196, 0.07);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: var(--transition);
+    font-size: 1.2rem;
+}
+
+.social-link:hover {
+    background: rgba(34, 224, 200, 0.12);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: var(--glow-accent);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ===== КНОПКА НАВЕРХ ===== */
+.scroll-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(10, 14, 24, 0.85);
+    backdrop-filter: blur(10px);
+    color: var(--accent);
+    border: 1px solid var(--border-strong);
+    font-size: 1.4rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    box-shadow: var(--shadow-lg);
+    z-index: 999;
+}
+
+.scroll-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.scroll-top:hover {
+    background: rgba(34, 224, 200, 0.15);
+    border-color: var(--accent);
+    box-shadow: var(--glow-accent);
+    transform: translateY(-3px);
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 968px) {
+    .nav-menu {
+        position: fixed;
+        top: 66px;
+        left: -100%;
+        flex-direction: column;
+        background: rgba(7, 8, 11, 0.97);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
+        width: 100%;
+        padding: 2rem;
+        gap: 1.5rem;
+        box-shadow: var(--shadow-xl);
+        transition: var(--transition);
+    }
+
+    .nav-menu.active {
+        left: 0;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+
+    .cta-button-nav {
+        display: none;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .about-content,
+    .contact-wrapper {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .hero-stats {
+        gap: 2rem;
+    }
+
+    .contact-wrapper {
+        gap: 2rem;
+    }
+
+    .contact-info h2 {
+        font-size: 2rem;
+    }
+
+    .contact-form-wrapper {
+        padding: 1.5rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .scroll-top {
+        bottom: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-wrapper {
+        gap: 2rem;
+    }
+
+    .contact-info h2 {
+        font-size: 2rem;
+    }
+
+    .contact-form-wrapper {
+        padding: 1.5rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .scroll-top {
+        bottom: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 0.95rem;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .benefits-grid,
+    .courses-grid,
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+
+    .contact-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .contact-info h2 {
+        font-size: 1.75rem;
+    }
+
+    .contact-form-wrapper {
+        padding: 1.25rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px;
+    }
+
+    .hero-stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .stat-item {
+        flex: 1;
+    }
+
+    .scroll-top {
+        bottom: 1rem;
+        right: 1rem;
+        width: 45px;
+        height: 45px;
+        font-size: 1.25rem;
+    }
+
+    .contact-item {
+        gap: 0.75rem;
+    }
+
+    .contact-icon {
+        font-size: 1.25rem;
+    }
+}
+
+/* ============================================================
+ *  HEX-SLOT — сота как слот для эмодзи
+ *  Цветные эмодзи на почти-чёрном фоне выглядят инородными
+ *  наклейками. Слот-сота с приглушённой подложкой вписывает их
+ *  в систему: форма соты — отсылка к мёду медоеда.
+ * ============================================================ */
+.benefit-icon,
+.about-icon,
+.course-icon,
+.contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 64px;
+    font-size: 1.7rem;
+    line-height: 1;
+    background: var(--accent-ghost);
+    box-shadow: inset 0 0 0 1px var(--border);
+    /* сота: соотношение 1 / 1.1547 */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    /* приглушаем кислотность эмодзи, чтобы они не спорили с палитрой */
+    filter: saturate(0.72) brightness(0.94);
+    transition: var(--transition);
+}
+
+.benefit-card:hover .benefit-icon,
+.course-card:hover .course-icon {
+    background: var(--signature-ghost);
+    filter: saturate(1) brightness(1);
+}
+
+.contact-icon {
+    width: 44px;
+    height: 50px;
+    font-size: 1.3rem;
+}
+
+@media (max-width: 640px) {
+    .benefit-icon,
+    .about-icon,
+    .course-icon {
+        width: 48px;
+        height: 55px;
+        font-size: 1.45rem;
+    }
+}

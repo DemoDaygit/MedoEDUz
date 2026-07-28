@@ -1,0 +1,729 @@
+/**
+ * ============================================================
+ *  MedoEDUz Game UI — Стили игрового интерфейса
+ * ============================================================
+ */
+
+:root {
+    --game-aura: #22d3ee;
+}
+
+/* ============================================================
+ *  ПЛАВАЮЩАЯ КНОПКА (FAB) — аватар игрока
+ * ============================================================ */
+.game-fab {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    z-index: 998;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+    --fab-progress: 0%;
+}
+
+.game-fab:hover {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+/* Пока показан баннер cookies — приподнимаем плавающие элементы,
+   иначе аватар игрока и тосты XP оказываются под ним. */
+body.cookie-banner-visible .game-fab {
+    bottom: calc(var(--cookie-banner-h, 0px) + 1.5rem);
+}
+
+body.cookie-banner-visible .xp-toast {
+    bottom: calc(var(--cookie-banner-h, 0px) + 6rem);
+}
+
+.game-fab.is-hidden {
+    opacity: 0;
+    transform: scale(0);
+    pointer-events: none;
+}
+
+/* Кольцо прогресса вокруг аватара */
+.game-fab__ring {
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--game-aura) var(--fab-progress),
+        rgba(0, 0, 0, 0.08) var(--fab-progress)
+    );
+    z-index: -1;
+    transition: background 0.5s ease;
+}
+
+.game-fab__ring::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: var(--bg-elevated);
+    border-radius: 50%;
+}
+
+.game-fab__avatar {
+    font-size: 1.9rem;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.game-fab__level {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 5px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: var(--on-accent);
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-elevated);
+    z-index: 2;
+}
+
+.game-fab.pulse .game-fab__ring {
+    animation: fab-pulse 0.7s ease;
+}
+
+@keyframes fab-pulse {
+    0% { box-shadow: 0 0 0 0 var(--game-aura); }
+    100% { box-shadow: 0 0 0 18px transparent; }
+}
+
+/* ============================================================
+ *  ВЫДВИЖНАЯ ПАНЕЛЬ ПРОФИЛЯ
+ * ============================================================ */
+.game-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.game-panel.is-open {
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.game-panel__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.5);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.game-panel.is-open .game-panel__overlay {
+    opacity: 1;
+}
+
+.game-panel__sheet {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 380px;
+    max-width: 90vw;
+    background: var(--bg-primary);
+    box-shadow: var(--shadow-xl);
+    padding: 2rem 1.5rem;
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.game-panel.is-open .game-panel__sheet {
+    transform: translateX(0);
+}
+
+.game-panel__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.game-panel__close:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+    transform: rotate(90deg);
+}
+
+/* Герой панели — большой аватар */
+.game-panel__hero {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.game-avatar-big {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-avatar-big__emoji {
+    font-size: 4.5rem;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    animation: float-soft 4s ease-in-out infinite;
+}
+
+.game-avatar-big__glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--game-aura);
+    filter: blur(28px);
+    opacity: 0.45;
+    z-index: 0;
+    animation: spin-slow 8s linear infinite;
+}
+
+.game-stage-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.game-stage-title {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Блок уровня и XP */
+.game-level-block {
+    margin-bottom: 1.5rem;
+}
+
+.game-level-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.game-level-row strong {
+    color: var(--primary-color);
+}
+
+.game-xpbar {
+    height: 12px;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.game-xpbar__fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    background-size: 200% 100%;
+    animation: shimmer 2.5s linear infinite;
+    transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Сетка статистики */
+.game-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.game-stat {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    padding: 1rem 0.5rem;
+    text-align: center;
+}
+
+.game-stat__value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.game-stat__label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+/* Трек эволюции */
+.game-evolution-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+}
+
+.game-evo-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    opacity: 0.35;
+    filter: grayscale(1);
+    transition: var(--transition);
+}
+
+.game-evo-node.is-done {
+    opacity: 1;
+    filter: grayscale(0);
+}
+
+.game-evo-node.is-active {
+    transform: scale(1.25);
+}
+
+.game-evo-node.is-active .game-evo-node__emoji {
+    animation: float-soft 2s ease-in-out infinite;
+}
+
+.game-evo-node__emoji {
+    font-size: 1.4rem;
+}
+
+.game-evo-node__lvl {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+.game-evo-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border-color);
+    margin: 0 2px;
+    align-self: flex-start;
+    margin-top: 14px;
+}
+
+/* Достижения */
+.game-section-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.game-achievements {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.game-ach {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border-radius: var(--border-radius-sm);
+    background: var(--bg-secondary);
+    font-size: 0.8rem;
+    transition: var(--transition);
+}
+
+.game-ach.is-unlocked {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+    border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.game-ach.is-locked {
+    opacity: 0.55;
+}
+
+.game-ach__icon {
+    font-size: 1.2rem;
+}
+
+.game-ach__name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.game-reset {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    border-radius: var(--border-radius-sm);
+    color: var(--text-light);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.game-reset:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* ============================================================
+ *  ТОСТ ПОЛУЧЕНИЯ XP
+ * ============================================================ */
+.xp-toast {
+    position: fixed;
+    bottom: 6.5rem;
+    left: 2rem;
+    z-index: 9997;
+    background: rgba(17, 24, 39, 0.92);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 50px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+}
+
+.xp-toast.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.xp-toast__amount {
+    font-weight: 800;
+    color: #fbbf24;
+    font-size: 0.95rem;
+}
+
+.xp-toast__reason {
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+/* ============================================================
+ *  ЦЕРЕМОНИЯ ЛЕВЕЛ-АПА
+ * ============================================================ */
+.levelup-overlay,
+.evolve-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(17, 24, 39, 0.75);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.levelup-overlay.show,
+.evolve-overlay.show {
+    opacity: 1;
+}
+
+.levelup-card {
+    text-align: center;
+    color: white;
+    transform: scale(0.7);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+.levelup-overlay.show .levelup-card {
+    transform: scale(1);
+}
+
+.levelup-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    margin: -150px 0 0 -150px;
+    background: conic-gradient(
+        from 0deg,
+        transparent,
+        var(--primary-color),
+        transparent,
+        var(--accent-color),
+        transparent
+    );
+    border-radius: 50%;
+    animation: spin-slow 4s linear infinite;
+    opacity: 0.6;
+}
+
+.levelup-badge {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    font-weight: 800;
+    box-shadow: 0 0 40px var(--primary-color);
+    animation: pop-in 0.6s ease;
+}
+
+.levelup-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fbbf24, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.levelup-sub {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* ============================================================
+ *  ЦЕРЕМОНИЯ ЭВОЛЮЦИИ
+ * ============================================================ */
+.evolve-scene {
+    text-align: center;
+    color: white;
+    position: relative;
+    transform: scale(0.7);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.evolve-overlay.show .evolve-scene {
+    transform: scale(1);
+}
+
+.evolve-rays {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    height: 500px;
+    margin: -250px 0 0 -250px;
+    background: repeating-conic-gradient(
+        from 0deg,
+        rgba(255, 255, 255, 0.15) 0deg 10deg,
+        transparent 10deg 20deg
+    );
+    border-radius: 50%;
+    animation: spin-slow 10s linear infinite;
+    opacity: 0.5;
+}
+
+.evolve-morph {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.evolve-from {
+    animation: evolve-out 1.5s ease forwards;
+}
+
+.evolve-to {
+    animation: evolve-in 1.5s ease 0.5s both;
+}
+
+.evolve-arrow {
+    font-size: 2rem;
+    opacity: 0.7;
+    animation: float-soft 1.5s ease-in-out infinite;
+}
+
+@keyframes evolve-out {
+    0% { transform: scale(1); filter: brightness(1); }
+    60% { transform: scale(1.2); filter: brightness(2); }
+    100% { transform: scale(0.9); filter: brightness(1); opacity: 0.6; }
+}
+
+@keyframes evolve-in {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    60% { transform: scale(1.3) rotate(10deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.evolve-title {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #f59e0b, #ec4899, #6366f1);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: title-flow 2s linear infinite;
+}
+
+.evolve-sub {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+/* ============================================================
+ *  ТОСТ ДОСТИЖЕНИЯ
+ * ============================================================ */
+.ach-toast {
+    position: fixed;
+    top: 5.5rem;
+    right: 2rem;
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow-xl);
+    border-left: 4px solid var(--secondary-color);
+    max-width: 340px;
+    transform: translateX(120%);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ach-toast.show {
+    transform: translateX(0);
+}
+
+.ach-toast__icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+    animation: pop-in 0.6s ease;
+}
+
+.ach-toast__body {
+    display: flex;
+    flex-direction: column;
+}
+
+.ach-toast__label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--secondary-color);
+    font-weight: 700;
+}
+
+.ach-toast__name {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.ach-toast__desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================================
+ *  АДАПТИВНОСТЬ
+ * ============================================================ */
+@media (max-width: 640px) {
+    .game-fab {
+        bottom: 1rem;
+        left: 1rem;
+        width: 56px;
+        height: 56px;
+    }
+
+    .game-fab__avatar {
+        font-size: 1.6rem;
+    }
+
+    /* На мобильных тосты докируем снизу и выстраиваем в стек над аватаром:
+       сверху они перекрывали заголовок страницы, а между собой — сталкивались.
+       Раскладка снизу вверх: FAB (1–4.5rem) → XP (5–8.8rem) → достижение (9.5rem+). */
+    .xp-toast {
+        bottom: 5rem;
+        left: 1rem;
+    }
+
+    .ach-toast {
+        top: auto;
+        bottom: 9.5rem;
+        right: 1rem;
+        left: 1rem;
+        max-width: none;
+        transform: translateY(140%);
+    }
+
+    .ach-toast.show {
+        transform: translateY(0);
+    }
+
+    /* Пока виден баннер cookies — поднимаем весь стек над ним */
+    body.cookie-banner-visible .ach-toast {
+        bottom: calc(var(--cookie-banner-h, 0px) + 10rem);
+    }
+
+    .levelup-title {
+        font-size: 2rem;
+    }
+
+    .evolve-title {
+        font-size: 2.2rem;
+    }
+
+    .evolve-morph {
+        font-size: 3rem;
+    }
+}
+
+/* Не перекрывать кнопку "Наверх" (она справа) — FAB слева, ок */
+@media (prefers-reduced-motion: reduce) {
+    .game-avatar-big__emoji,
+    .game-avatar-big__glow,
+    .levelup-burst,
+    .evolve-rays,
+    .game-xpbar__fill {
+        animation: none !important;
+    }
+}
