@@ -276,6 +276,29 @@ body::after {
     transition: var(--transition);
 }
 
+/* Ссылка «назад»: живёт в ядре, а не в course-detail.css — её
+   используют блог и карта знаний, которые тот файл не подключают. */
+.back-to-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.back-to-home:hover {
+    border-color: var(--accent);
+    color: var(--accent-soft);
+    box-shadow: var(--glow-accent);
+}
+
 /* ===== ГЕРОИЧЕСКАЯ СЕКЦИЯ ===== */
 .hero {
     position: relative;

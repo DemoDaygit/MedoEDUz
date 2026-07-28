@@ -1,16 +1,5 @@
 /* Стили для детальных страниц курсов */
 
-.back-to-home {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-    transition: var(--transition);
-}
-
-.back-to-home:hover {
-    color: var(--primary-dark);
-}
-
 /* Хедер курса */
 .course-hero {
     padding: 120px 0 60px;
