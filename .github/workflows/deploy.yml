@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+  # Позволяет запустить деплой вручную из любой ветки:
+  # вкладка Actions -> Deploy to GitHub Pages -> Run workflow
   workflow_dispatch:
 
 permissions:
@@ -16,27 +18,36 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci || npm install
-
-      - name: Lint CSS
-        run: npm run lint:css || true
-
-      - name: Lint JavaScript
-        run: npm run lint:js || true
+      # Собираем чистую директорию для публикации.
+      # Важно: НЕ выгружаем весь репозиторий — иначе в артефакт попадают
+      # node_modules, .git и служебные файлы (это раздувает деплой).
+      - name: Build site directory
+        run: |
+          mkdir -p _site
+          rsync -a \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'node_modules' \
+            --exclude 'dist' \
+            --exclude '_site' \
+            --exclude '*.zip' \
+            --exclude '*.tar.gz' \
+            --exclude 'Dockerfile' \
+            --exclude 'docker-compose.yml' \
+            --exclude 'nginx.conf' \
+            --exclude 'build-app.sh' \
+            --exclude '.env*' \
+            ./ _site/
+          # Отключаем обработку Jekyll (иначе игнорируются файлы с _ и .)
+          touch _site/.nojekyll
+          echo "--- содержимое _site ---"
+          find _site -maxdepth 1 | sort
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -44,9 +55,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: '_site'
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
