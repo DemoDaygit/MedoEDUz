@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
+<meta name="theme-color" content="#06080f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MedoEDUz">
@@ -16,17 +16,17 @@
 <title>MedoEDUz — Игровая экосистема</title>
 <style>
     :root {
-        --bg: #0b1020;
-        --bg2: #131a30;
+        --bg: #06080f;
+        --bg2: #101725;
         --surface: rgba(255, 255, 255, 0.06);
         --surface-border: rgba(255, 255, 255, 0.1);
         --text: #e7ecf6;
         --text-dim: #9aa6c2;
-        --primary: #6366f1;
-        --accent: #ec4899;
-        --gold: #fbbf24;
+        --primary: #22d3ee;
+        --accent: #8b5cf6;
+        --gold: #f5a524;
         --success: #10b981;
-        --aura: #6366f1;
+        --aura: #22d3ee;
         --radius: 18px;
         --safe-t: env(safe-area-inset-top, 0px);
         --safe-b: env(safe-area-inset-bottom, 0px);
@@ -150,8 +150,8 @@
         font-weight: 800;
         font-size: 1.05rem;
         letter-spacing: 0.04em;
-        background: radial-gradient(circle at 30% 30%, var(--primary), #3b3fb3 70%);
-        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.45), inset 0 -6px 16px rgba(0, 0, 0, 0.3), inset 0 6px 14px rgba(255, 255, 255, 0.25);
+        background: radial-gradient(circle at 30% 30%, var(--primary), #0e7490 70%);
+        box-shadow: 0 12px 30px rgba(34, 211, 238, 0.45), inset 0 -6px 16px rgba(0, 0, 0, 0.3), inset 0 6px 14px rgba(255, 255, 255, 0.25);
         touch-action: manipulation;
         transition: transform 0.08s ease;
         overflow: hidden;
@@ -341,11 +341,11 @@
     // ---------- Модель ----------
     var STAGES = [
         { e: '🦡', n: 'Медоедёнок', s: 'Только начал свой путь', a: '#a3a3a3', lvl: 1 },
-        { e: '⚡', n: 'Любопытный', s: 'Исследует экосистему', a: '#6366f1', lvl: 3 },
-        { e: '🤖', n: 'Ученик ИИ', s: 'Освоил первые инструменты', a: '#0ea5e9', lvl: 5 },
-        { e: '🦾', n: 'Нейро-Мастер', s: 'Уверенно владеет ИИ', a: '#ec4899', lvl: 8 },
-        { e: '🧠', n: 'Гуру ИИ', s: 'Видит матрицу насквозь', a: '#f59e0b', lvl: 11 },
-        { e: '👑', n: 'Медоед ВСЁ', s: 'Легенда экосистемы', a: '#f43f5e', lvl: 14 }
+        { e: '⚡', n: 'Любопытный', s: 'Исследует экосистему', a: '#22d3ee', lvl: 3 },
+        { e: '🤖', n: 'Ученик ИИ', s: 'Освоил первые инструменты', a: '#38bdf8', lvl: 5 },
+        { e: '🦾', n: 'Нейро-Мастер', s: 'Уверенно владеет ИИ', a: '#8b5cf6', lvl: 8 },
+        { e: '🧠', n: 'Гуру ИИ', s: 'Видит матрицу насквозь', a: '#f5a524', lvl: 11 },
+        { e: '👑', n: 'Медоед ВСЁ', s: 'Легенда экосистемы', a: '#fb7185', lvl: 14 }
     ];
 
     var SKILLS = [

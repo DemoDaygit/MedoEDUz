@@ -5,12 +5,15 @@
   "start_url": ".",
   "scope": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#6366f1",
+  "background_color": "#06080f",
+  "theme_color": "#06080f",
   "orientation": "portrait-primary",
   "lang": "ru",
   "dir": "ltr",
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "images/favicon.svg",
