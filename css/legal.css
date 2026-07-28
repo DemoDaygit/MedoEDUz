@@ -109,7 +109,7 @@
 
 .back-link:hover {
     background: var(--primary-color);
-    color: white;
+    color: #04222b;
 }
 
 /* Адаптивность */

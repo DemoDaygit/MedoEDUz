@@ -5,7 +5,9 @@
     bottom: -100%;
     left: 0;
     right: 0;
-    background: white;
+    background: rgba(10, 14, 24, 0.96);
+    backdrop-filter: blur(18px);
+    border-top: 1px solid var(--border);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
     z-index: 9999;
     transition: bottom 0.3s ease;
@@ -111,7 +113,8 @@
 
 .cookie-settings-content {
     position: relative;
-    background: white;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
     border-radius: var(--border-radius-lg);
     max-width: 600px;
     width: 90%;
@@ -159,8 +162,8 @@
 }
 
 .cookie-settings-close:hover {
-    background: var(--primary-color);
-    color: white;
+    background: var(--accent);
+    color: #04222b;
 }
 
 .cookie-settings-body {
@@ -227,7 +230,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: rgba(148, 163, 184, 0.25);
     transition: 0.3s;
     border-radius: 34px;
 }
@@ -239,7 +242,7 @@
     width: 20px;
     left: 4px;
     bottom: 4px;
-    background-color: white;
+    background-color: #e9eef8;
     transition: 0.3s;
     border-radius: 50%;
 }

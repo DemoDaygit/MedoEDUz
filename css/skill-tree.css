@@ -103,10 +103,10 @@
     height: 70vh;
     min-height: 520px;
     background:
-        radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.06), transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.06), transparent 40%),
-        var(--bg-secondary);
-    border: 1px solid var(--border-color);
+        radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.09), transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.09), transparent 45%),
+        var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: var(--border-radius-lg);
     overflow: hidden;
 }
@@ -114,6 +114,18 @@
 .st-host {
     position: absolute;
     inset: 0;
+}
+
+/* Техническая сетка внутри сцены карты */
+.st-stage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
 }
 
 .st-svg {
@@ -326,7 +338,7 @@
 
 .st-controls button:hover {
     background: var(--primary-color);
-    color: white;
+    color: #04222b;
     transform: translateY(-2px);
 }
 

@@ -14,7 +14,10 @@
 /* Хедер курса */
 .course-hero {
     padding: 120px 0 60px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
+    background:
+        radial-gradient(80% 60% at 50% 0%, rgba(34, 211, 238, 0.12), transparent 70%),
+        var(--bg-surface);
+    border-bottom: 1px solid var(--border);
 }
 
 .course-hero-content {
@@ -39,8 +42,9 @@
 }
 
 .badge-popular {
-    background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-    color: white;
+    background: rgba(245, 165, 36, 0.14);
+    border: 1px solid rgba(245, 165, 36, 0.35);
+    color: var(--signature);
 }
 
 .course-level {
@@ -117,7 +121,9 @@
 }
 
 .bg-light {
-    background: var(--bg-secondary);
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 
 /* Результаты обучения */
@@ -134,7 +140,7 @@
     gap: 1rem;
     align-items: flex-start;
     padding: 1.5rem;
-    background: white;
+    background: var(--bg-elevated);
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
     transition: var(--transition);
@@ -149,8 +155,8 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: var(--success-color);
-    color: white;
+    background: var(--success);
+    color: #04222b;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -170,7 +176,7 @@
 }
 
 .curriculum-week {
-    background: white;
+    background: var(--bg-elevated);
     border-radius: var(--border-radius);
     padding: 2rem;
     margin-bottom: 2rem;
@@ -183,7 +189,7 @@
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 1px solid var(--border);
 }
 
 .week-header h3 {
@@ -214,7 +220,7 @@
 }
 
 .lesson-item:hover {
-    background: rgba(99, 102, 241, 0.05);
+    background: rgba(34, 211, 238, 0.07);
 }
 
 .lesson-number {
@@ -222,7 +228,7 @@
     height: 50px;
     border-radius: 50%;
     background: var(--primary-color);
-    color: white;
+    color: #04222b;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -259,7 +265,7 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 2rem;
-    background: white;
+    background: var(--bg-elevated);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-md);
 }
@@ -268,11 +274,11 @@
     width: 150px;
     height: 150px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    background: linear-gradient(135deg, var(--accent), var(--violet));
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #04222b;
     font-size: 3rem;
     font-weight: 700;
     flex-shrink: 0;
@@ -322,7 +328,7 @@
 
 .review-card {
     padding: 2rem;
-    background: white;
+    background: var(--bg-elevated);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
 }
@@ -357,8 +363,11 @@
 
 /* Секция записи */
 .enroll-section {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
+    background:
+        radial-gradient(70% 80% at 50% 0%, rgba(34, 211, 238, 0.14), transparent 70%),
+        var(--bg-surface);
+    border-top: 1px solid var(--border);
+    color: var(--text-primary);
 }
 
 .enroll-card {
@@ -368,7 +377,8 @@
     max-width: 1000px;
     margin: 0 auto;
     padding: 3rem;
-    background: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.015));
+    border: 1px solid var(--border);
     backdrop-filter: blur(10px);
     border-radius: var(--border-radius-lg);
 }
@@ -406,7 +416,7 @@
 
 .price-discount {
     padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(34, 211, 238, 0.16);
     border-radius: 50px;
     font-weight: 600;
 }
@@ -424,7 +434,7 @@
 }
 
 .enroll-form {
-    background: white;
+    background: var(--bg-elevated);
     padding: 2rem;
     border-radius: var(--border-radius);
 }

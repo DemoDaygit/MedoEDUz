@@ -26,13 +26,13 @@
 
 const CURRICULUM = (() => {
     const BRANCHES = {
-        core:      { name: 'Основы',      color: '#6366f1', emoji: '🌱' },
-        content:   { name: 'Контент',     color: '#ec4899', emoji: '✍️' },
-        dev:       { name: 'Разработка',  color: '#0ea5e9', emoji: '💻' },
-        analytics: { name: 'Аналитика',   color: '#10b981', emoji: '📊' },
-        design:    { name: 'Дизайн',      color: '#f59e0b', emoji: '🎨' },
-        marketing: { name: 'Маркетинг',   color: '#8b5cf6', emoji: '📈' },
-        apex:      { name: 'Мастерство',  color: '#f43f5e', emoji: '👑' },
+        core:      { name: 'Основы',      color: '#22d3ee', emoji: '🌱' },
+        content:   { name: 'Контент',     color: '#f472b6', emoji: '✍️' },
+        dev:       { name: 'Разработка',  color: '#38bdf8', emoji: '💻' },
+        analytics: { name: 'Аналитика',   color: '#34d399', emoji: '📊' },
+        design:    { name: 'Дизайн',      color: '#f5a524', emoji: '🎨' },
+        marketing: { name: 'Маркетинг',   color: '#a78bfa', emoji: '📈' },
+        apex:      { name: 'Мастерство',  color: '#fb7185', emoji: '👑' },
     };
 
     const NODES = [

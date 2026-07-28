@@ -37,8 +37,8 @@
 
 .category-btn {
     padding: 0.75rem 1.5rem;
-    border: 2px solid var(--border-color);
-    background: white;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
     border-radius: 50px;
     font-weight: 600;
     cursor: pointer;
@@ -52,9 +52,9 @@
 }
 
 .category-btn.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #04222b;
 }
 
 /* Сетка статей */
@@ -66,7 +66,7 @@
 }
 
 .blog-card {
-    background: white;
+    background: var(--bg-elevated);
     border-radius: var(--border-radius);
     overflow: hidden;
     box-shadow: var(--shadow-sm);
@@ -95,7 +95,7 @@
     align-items: center;
     justify-content: center;
     font-size: 4rem;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(139, 92, 246, 0.12));
 }
 
 .blog-card-category {
@@ -103,7 +103,7 @@
     top: 1rem;
     left: 1rem;
     padding: 0.5rem 1rem;
-    background: white;
+    background: var(--bg-elevated);
     border-radius: 50px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -174,8 +174,8 @@
 
 .pagination-btn {
     padding: 0.75rem 1.5rem;
-    border: 2px solid var(--border-color);
-    background: white;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
     border-radius: var(--border-radius-sm);
     font-weight: 600;
     cursor: pointer;
@@ -201,8 +201,8 @@
 .pagination-number {
     width: 40px;
     height: 40px;
-    border: 2px solid var(--border-color);
-    background: white;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
     border-radius: 50%;
     font-weight: 600;
     cursor: pointer;
@@ -216,9 +216,9 @@
 }
 
 .pagination-number.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #04222b;
 }
 
 /* Страница статьи */
@@ -236,7 +236,7 @@
     display: inline-block;
     padding: 0.5rem 1rem;
     background: var(--primary-color);
-    color: white;
+    color: #04222b;
     border-radius: 50px;
     font-size: 0.875rem;
     font-weight: 600;
@@ -270,11 +270,11 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    background: linear-gradient(135deg, var(--accent), var(--violet));
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #04222b;
     font-weight: 700;
 }
 
@@ -303,7 +303,7 @@
     border-radius: var(--border-radius);
     overflow: hidden;
     margin: 3rem 0;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12), rgba(139, 92, 246, 0.12));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -347,8 +347,8 @@
 .article-content blockquote {
     padding: 1.5rem 2rem;
     margin: 2rem 0;
-    background: var(--bg-secondary);
-    border-left: 4px solid var(--primary-color);
+    background: var(--bg-surface);
+    border-left: 3px solid var(--accent);
     border-radius: var(--border-radius-sm);
     font-style: italic;
 }
@@ -362,8 +362,9 @@
 }
 
 .article-content pre {
-    background: var(--bg-dark);
-    color: white;
+    background: var(--bg-inset);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
     padding: 1.5rem;
     border-radius: var(--border-radius-sm);
     overflow-x: auto;

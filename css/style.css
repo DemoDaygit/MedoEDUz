@@ -1,30 +1,79 @@
-/* ===== ГЛОБАЛЬНЫЕ СТИЛИ ===== */
+/* ============================================================
+ *  MedoEDUz — дизайн-система «Кибермедоед»
+ *  Тёмная тема по умолчанию: это язык, на котором говорят
+ *  современные ИИ-агентные продукты, и он же читается как «кибер».
+ *
+ *  Правило: цвета берём ТОЛЬКО отсюда. Захардкоженный white/#fff
+ *  ломает тёмную тему — для светлых поверхностей есть токены.
+ * ============================================================ */
 :root {
-    --primary-color: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #818cf8;
-    --secondary-color: #f59e0b;
-    --accent-color: #ec4899;
-    --success-color: #10b981;
+    /* ---------- Слои поверхности ---------- */
+    --bg-deep: #06080f;        /* фон страницы, самый глубокий слой */
+    --bg-surface: #0a0e18;     /* секции, чередование ритма */
+    --bg-elevated: #101725;    /* карточки, поднятые панели */
+    --bg-inset: #070a11;       /* поля ввода и «углубления» */
 
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
-    --text-light: #9ca3af;
+    /* ---------- Текст ---------- */
+    --text-primary: #e9eef8;   /* 16.8:1 на --bg-deep */
+    --text-secondary: #9fadc4; /* 8.1:1 */
+    --text-muted: #7d8b9f;     /* 5.2:1 — минимум для вторичного текста */
 
-    --bg-primary: #ffffff;
-    --bg-secondary: #f9fafb;
-    --bg-dark: #111827;
+    /* ---------- Акценты ---------- */
+    --accent: #22d3ee;         /* циан — доминирующий акцент ИИ-агентов */
+    --accent-soft: #67e8f9;
+    --accent-deep: #0e7490;
+    --violet: #8b5cf6;         /* второй акцент, глубина и объём */
+    --signature: #f5a524;      /* мёд — фирменный цвет медоеда */
 
-    --border-color: #e5e7eb;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    /* ---------- Семантика ---------- */
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+
+    /* ---------- Границы и свечение ---------- */
+    --border: rgba(148, 163, 184, 0.14);
+    --border-strong: rgba(148, 163, 184, 0.3);
+    --glow-accent: 0 0 24px rgba(34, 211, 238, 0.35);
+    --glow-signature: 0 0 24px rgba(245, 165, 36, 0.32);
+    --glow-violet: 0 0 26px rgba(139, 92, 246, 0.3);
+
+    /* ---------- Типографика ---------- */
+    --font-display: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+    /* ============================================================
+     *  Обратная совместимость.
+     *  На эти имена опираются 8 CSS-файлов, поэтому они остаются.
+     *  ВАЖНО: значения должны быть литеральным hex, а не var(...):
+     *  js/animations.js читает --primary-color и парсит его как hex.
+     * ============================================================ */
+    --primary-color: #22d3ee;
+    --primary-dark: #0e7490;
+    --primary-light: #67e8f9;
+    --secondary-color: #f5a524;
+    --accent-color: #8b5cf6;
+    --success-color: #34d399;
+
+    --text-light: #7d8b9f;
+
+    --bg-primary: #0a0e18;
+    --bg-secondary: #06080f;
+    --bg-dark: #06080f;
+
+    --border-color: rgba(148, 163, 184, 0.14);
+
+    /* Тени на тёмном фоне работают иначе: нужна глубокая чернота,
+       а «подъём» элемента даёт не тень, а светлая кромка сверху. */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 12px 28px -6px rgba(0, 0, 0, 0.7);
+    --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.8);
 
     --transition: all 0.3s ease;
-    --border-radius: 12px;
-    --border-radius-sm: 8px;
-    --border-radius-lg: 16px;
+    --border-radius: 14px;
+    --border-radius-sm: 10px;
+    --border-radius-lg: 20px;
 }
 
 * {
@@ -38,11 +87,41 @@ html {
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: var(--font-body);
     color: var(--text-primary);
-    background-color: var(--bg-primary);
+    background-color: var(--bg-deep);
     line-height: 1.6;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Техническая «сетка» на фоне страницы — базовый слой кибер-эстетики.
+   Живёт в ::before у body, чтобы не добавлять разметку на 7 страниц. */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-color: var(--bg-deep);
+    background-image:
+        linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    pointer-events: none;
+}
+
+/* Мягкое цветное свечение поверх сетки: даёт глубину и «живой» фон */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(60% 45% at 15% 0%, rgba(34, 211, 238, 0.1), transparent 70%),
+        radial-gradient(55% 45% at 85% 10%, rgba(139, 92, 246, 0.1), transparent 70%),
+        radial-gradient(50% 40% at 50% 100%, rgba(245, 165, 36, 0.06), transparent 70%);
+    pointer-events: none;
 }
 
 .container {
@@ -63,90 +142,123 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-sm);
+    background: rgba(6, 8, 15, 0.72);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid transparent;
     z-index: 1000;
     transition: var(--transition);
 }
 
 .navbar.scrolled {
-    box-shadow: var(--shadow-md);
+    background: rgba(6, 8, 15, 0.9);
+    border-bottom-color: var(--border);
+    box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.9);
 }
 
 .nav-wrapper {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 0;
+    gap: 2rem;
+    padding: 0.9rem 0;
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 1.5rem;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-size: 1.35rem;
     font-weight: 800;
+    letter-spacing: -0.02em;
     color: var(--text-primary);
     text-decoration: none;
 }
 
+/* .logo-icon теперь <img> со знаком медоеда, а не эмодзи:
+   размер задаём габаритами, не font-size. */
 .logo-icon {
-    font-size: 2rem;
+    width: 38px;
+    height: 38px;
+    display: block;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.35));
+    transition: var(--transition);
+}
+
+.logo:hover .logo-icon {
+    filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.6));
+    transform: translateY(-1px);
 }
 
 .logo-accent {
-    color: var(--primary-color);
+    color: var(--accent);
 }
 
 .nav-menu {
     display: flex;
     list-style: none;
-    gap: 2rem;
+    gap: 1.5rem;
     align-items: center;
 }
 
+/* nowrap обязателен: в меню 7 пунктов + CTA, без него на 1440px
+   длинные пункты ломаются на две строки и навигация «разъезжается». */
 .nav-link {
     color: var(--text-secondary);
     text-decoration: none;
     font-weight: 500;
+    font-size: 0.92rem;
+    white-space: nowrap;
     transition: var(--transition);
     position: relative;
 }
 
-.nav-link:hover {
-    color: var(--primary-color);
+.nav-link:hover,
+.nav-link.active {
+    color: var(--text-primary);
 }
 
 .nav-link::after {
     content: '';
     position: absolute;
-    bottom: -4px;
+    bottom: -6px;
     left: 0;
     width: 0;
     height: 2px;
-    background: var(--primary-color);
+    background: var(--accent);
+    box-shadow: var(--glow-accent);
     transition: var(--transition);
 }
 
-.nav-link:hover::after {
+.nav-link:hover::after,
+.nav-link.active::after {
     width: 100%;
 }
 
 .cta-button-nav {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
+    position: relative;
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.16), rgba(139, 92, 246, 0.16));
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    padding: 0.65rem 1.25rem;
     border-radius: var(--border-radius-sm);
-    font-weight: 600;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    flex-shrink: 0;
     cursor: pointer;
+    text-decoration: none;
     transition: var(--transition);
 }
 
 .cta-button-nav:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+    color: var(--accent-soft);
+    box-shadow: var(--glow-accent);
+    transform: translateY(-1px);
 }
 
 .hamburger {
@@ -174,18 +286,35 @@ body {
     overflow: hidden;
 }
 
+/* Горизонт: широкое свечение у нижней кромки экрана — «восход» системы */
 .hero-background {
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-    opacity: 0.05;
+    background:
+        radial-gradient(90% 60% at 50% 108%, rgba(34, 211, 238, 0.22), transparent 70%),
+        radial-gradient(70% 50% at 50% 118%, rgba(139, 92, 246, 0.2), transparent 70%);
+    opacity: 1;
 }
 
+/* Скан-луч: медленно проходит по геройскому экрану, оживляя статику */
 .hero-gradient {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 30% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 70% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(34, 211, 238, 0.05) 45%,
+        rgba(34, 211, 238, 0.09) 50%,
+        rgba(34, 211, 238, 0.05) 55%,
+        transparent 100%
+    );
+    background-size: 100% 220%;
+    animation: hero-scan 9s linear infinite;
+}
+
+@keyframes hero-scan {
+    0% { background-position: 0 -110%; }
+    100% { background-position: 0 110%; }
 }
 
 .hero-content {
@@ -196,35 +325,61 @@ body {
     margin: 0 auto;
 }
 
+/* Бейдж-«статус агента»: моноширинный, с пульсирующим индикатором */
 .hero-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    padding: 0.5rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(34, 211, 238, 0.07);
+    border: 1px solid rgba(34, 211, 238, 0.28);
+    padding: 0.5rem 1.2rem;
     border-radius: 50px;
     margin-bottom: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
     font-weight: 500;
-    color: var(--primary-color);
+    letter-spacing: 0.02em;
+    color: var(--accent-soft);
+}
+
+.hero-badge::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: badge-blink 2.2s ease-in-out infinite;
+}
+
+@keyframes badge-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
 }
 
 .hero-title {
-    font-size: 4rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 6vw, 4.4rem);
     font-weight: 800;
-    line-height: 1.1;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
     margin-bottom: 1.5rem;
-    background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-primary);
     word-break: break-word;
     overflow-wrap: break-word;
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    background: linear-gradient(110deg, var(--accent) 0%, var(--violet) 55%, var(--signature) 100%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    animation: gradient-flow 7s linear infinite;
+}
+
+@keyframes gradient-flow {
+    to { background-position: 200% center; }
 }
 
 .hero-description {
@@ -262,50 +417,63 @@ body {
     text-decoration: none;
 }
 
+/* Основная кнопка: заливка акцентом + внешнее свечение.
+   Тёмный текст на циане даёт контраст ~9:1 — читается лучше белого. */
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: white;
-    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
+    color: #04222b;
+    font-weight: 700;
+    box-shadow: 0 8px 26px -8px rgba(34, 211, 238, 0.65);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-xl);
+    box-shadow: 0 14px 34px -8px rgba(34, 211, 238, 0.8), var(--glow-accent);
 }
 
 .btn-secondary {
-    background: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    background: rgba(148, 163, 184, 0.06);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    backdrop-filter: blur(8px);
 }
 
 .btn-secondary:hover {
-    background: var(--primary-color);
-    color: white;
+    background: rgba(34, 211, 238, 0.1);
+    border-color: var(--accent);
+    color: var(--accent-soft);
 }
 
 .hero-stats {
     display: flex;
     justify-content: center;
-    gap: 4rem;
+    gap: 3.5rem;
     flex-wrap: wrap;
 }
 
 .stat-item {
     text-align: center;
+    position: relative;
+    padding: 0 0.5rem;
 }
 
 .stat-number {
-    font-size: 2.5rem;
+    font-family: var(--font-display);
+    font-size: 2.6rem;
     font-weight: 800;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .stat-label {
-    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
@@ -320,22 +488,38 @@ body {
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 3.6vw, 2.6rem);
     font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
     margin-bottom: 1rem;
     color: var(--text-primary);
 }
 
+/* Тонкая акцентная черта под заголовком секции вместо «пустого» центра */
+.section-header .section-title::after {
+    content: '';
+    display: block;
+    width: 54px;
+    height: 2px;
+    margin: 1rem auto 0;
+    background: linear-gradient(90deg, var(--accent), var(--violet));
+    box-shadow: var(--glow-accent);
+}
+
 .section-subtitle {
-    font-size: 1.125rem;
+    font-size: 1.08rem;
     color: var(--text-secondary);
-    max-width: 600px;
+    max-width: 620px;
     margin: 0 auto;
 }
 
 /* ===== О ПРОЕКТЕ ===== */
 .about {
-    background: var(--bg-secondary);
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 
 .about-content {
@@ -350,17 +534,37 @@ body {
 }
 
 .image-placeholder {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    position: relative;
+    background:
+        radial-gradient(70% 70% at 50% 40%, rgba(34, 211, 238, 0.16), transparent 70%),
+        var(--bg-elevated);
+    border: 1px solid var(--border);
     border-radius: var(--border-radius-lg);
     padding: 4rem;
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 400px;
+    overflow: hidden;
+}
+
+/* Гексагональная «сота» на подложке — отсылка к мёду и к схемотехнике */
+.image-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(245, 165, 36, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 165, 36, 0.07) 1px, transparent 1px);
+    background-size: 34px 34px;
+    mask-image: radial-gradient(circle at 50% 45%, #000 30%, transparent 72%);
+    -webkit-mask-image: radial-gradient(circle at 50% 45%, #000 30%, transparent 72%);
 }
 
 .ai-icon {
+    position: relative;
     font-size: 8rem;
+    filter: drop-shadow(0 0 30px rgba(34, 211, 238, 0.4));
 }
 
 .about-text {
@@ -399,24 +603,47 @@ body {
     gap: 2rem;
 }
 
+/* Стеклянная панель — базовый строительный блок интерфейса.
+   Светлая кромка сверху имитирует «подъём» элемента: на тёмном фоне
+   это работает лучше, чем тень. */
 .benefit-card {
-    background: white;
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.benefit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.55), transparent);
+    opacity: 0;
+    transition: var(--transition);
 }
 
 .benefit-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
-    border-color: var(--primary-color);
+    border-color: var(--border-strong);
+    background: linear-gradient(180deg, rgba(34, 211, 238, 0.07), rgba(255, 255, 255, 0.01));
+}
+
+.benefit-card:hover::before {
+    opacity: 1;
 }
 
 .benefit-icon {
-    font-size: 3rem;
+    font-size: 2.6rem;
     margin-bottom: 1rem;
+    filter: drop-shadow(0 0 14px rgba(34, 211, 238, 0.3));
 }
 
 .benefit-card h3 {
@@ -433,7 +660,9 @@ body {
 
 /* ===== КУРСЫ ===== */
 .courses {
-    background: var(--bg-secondary);
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 }
 
 .courses-grid {
@@ -443,24 +672,39 @@ body {
 }
 
 .course-card {
-    background: white;
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012));
     border-radius: var(--border-radius);
     padding: 2rem;
     box-shadow: var(--shadow-sm);
     transition: var(--transition);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .course-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-xl);
+    border-color: var(--border-strong);
 }
 
+/* Выделенный курс: акцентная кромка сверху вместо толстой рамки */
 .course-card.featured {
-    border: 2px solid var(--primary-color);
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
+    border-color: rgba(34, 211, 238, 0.35);
+    background: linear-gradient(180deg, rgba(34, 211, 238, 0.08), rgba(139, 92, 246, 0.03));
+}
+
+.course-card.featured::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--violet), var(--signature));
+    box-shadow: var(--glow-accent);
 }
 
 .course-header {
@@ -471,20 +715,26 @@ body {
 }
 
 .course-icon {
-    font-size: 2.5rem;
+    font-size: 2.3rem;
+    filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.28));
 }
 
 .course-badge {
-    padding: 0.25rem 0.75rem;
+    padding: 0.3rem 0.8rem;
     border-radius: 50px;
-    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
     font-weight: 600;
-    background: var(--primary-color);
-    color: white;
+    letter-spacing: 0.03em;
+    background: rgba(34, 211, 238, 0.12);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    color: var(--accent-soft);
 }
 
 .badge-special {
-    background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+    background: rgba(245, 165, 36, 0.13);
+    border-color: rgba(245, 165, 36, 0.35);
+    color: var(--signature);
 }
 
 .course-card h3 {
@@ -523,29 +773,37 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border);
 }
 
 .course-duration {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.8rem;
 }
 
 .btn-course {
-    padding: 0.5rem 1.5rem;
-    background: var(--primary-color);
-    color: white;
-    border: none;
+    padding: 0.55rem 1.3rem;
+    background: rgba(34, 211, 238, 0.1);
+    color: var(--accent-soft);
+    border: 1px solid rgba(34, 211, 238, 0.3);
     border-radius: var(--border-radius-sm);
+    font-family: var(--font-body);
     font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
     transition: var(--transition);
 }
 
 .btn-course:hover {
-    background: var(--primary-dark);
-    transform: scale(1.05);
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #04222b;
+    box-shadow: var(--glow-accent);
 }
 
 /* ===== ОТЗЫВЫ ===== */
@@ -556,23 +814,30 @@ body {
 }
 
 .testimonial-card {
-    background: white;
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-md);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.testimonial-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-4px);
 }
 
 .testimonial-rating {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     margin-bottom: 1rem;
+    filter: drop-shadow(0 0 10px rgba(245, 165, 36, 0.35));
 }
 
 .testimonial-text {
     color: var(--text-secondary);
     line-height: 1.7;
     margin-bottom: 1.5rem;
-    font-style: italic;
 }
 
 .testimonial-author {
@@ -584,13 +849,15 @@ body {
 .author-avatar {
     width: 50px;
     height: 50px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--violet));
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-weight: 700;
+    color: #04222b;
+    font-weight: 800;
+    flex-shrink: 0;
+    box-shadow: 0 0 18px -4px rgba(34, 211, 238, 0.5);
 }
 
 .author-name {
@@ -605,7 +872,11 @@ body {
 
 /* ===== КОНТАКТЫ ===== */
 .contact {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
+    position: relative;
+    background:
+        radial-gradient(70% 60% at 50% 0%, rgba(139, 92, 246, 0.1), transparent 70%),
+        var(--bg-surface);
+    border-top: 1px solid var(--border);
 }
 
 .contact-wrapper {
@@ -657,10 +928,12 @@ body {
 }
 
 .contact-form-wrapper {
-    background: white;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+    border: 1px solid var(--border);
     padding: 2.5rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
 }
 
 .form-group {
@@ -669,29 +942,49 @@ body {
 
 .form-group label {
     display: block;
-    font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 500;
     margin-bottom: 0.5rem;
-    color: var(--text-primary);
+    color: var(--text-muted);
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border-color);
+    padding: 0.8rem 1rem;
+    background: var(--bg-inset);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
     border-radius: var(--border-radius-sm);
     font-family: inherit;
     font-size: 1rem;
     transition: var(--transition);
 }
 
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+/* Выпадающий список: браузер рисует опции системными цветами,
+   поэтому фон и текст задаём явно — иначе на тёмной теме
+   получается белый список с белым текстом. */
+.form-group select option {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
 }
 
 .btn-full {
@@ -701,9 +994,22 @@ body {
 
 /* ===== ФУТЕР ===== */
 .footer {
-    background: var(--bg-dark);
-    color: white;
-    padding: 3rem 0 1.5rem;
+    position: relative;
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 3.5rem 0 1.5rem;
+}
+
+/* Светящаяся кромка — визуально «заземляет» страницу */
+.footer::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.5), transparent);
 }
 
 .footer-content {
@@ -714,13 +1020,17 @@ body {
 }
 
 .footer-section h4 {
-    font-size: 1.125rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.1rem;
 }
 
 .footer-section p {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     margin-bottom: 1rem;
     line-height: 1.7;
 }
@@ -730,48 +1040,53 @@ body {
 }
 
 .footer-section ul li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.55rem;
+    color: var(--text-secondary);
 }
 
 .footer-section ul li a {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-secondary);
     text-decoration: none;
     transition: var(--transition);
 }
 
 .footer-section ul li a:hover {
-    color: white;
+    color: var(--accent);
 }
 
 .social-links {
     display: flex;
-    gap: 1rem;
+    gap: 0.75rem;
     margin-top: 1rem;
 }
 
 .social-link {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(148, 163, 184, 0.07);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
     transition: var(--transition);
-    font-size: 1.25rem;
+    font-size: 1.2rem;
 }
 
 .social-link:hover {
-    background: var(--primary-color);
+    background: rgba(34, 211, 238, 0.12);
+    border-color: var(--accent);
     transform: translateY(-2px);
+    box-shadow: var(--glow-accent);
 }
 
 .footer-bottom {
     text-align: center;
     padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.9rem;
 }
 
 /* ===== КНОПКА НАВЕРХ ===== */
@@ -779,13 +1094,14 @@ body {
     position: fixed;
     bottom: 2rem;
     right: 2rem;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(10, 14, 24, 0.85);
+    backdrop-filter: blur(10px);
+    color: var(--accent);
+    border: 1px solid var(--border-strong);
+    font-size: 1.4rem;
     cursor: pointer;
     opacity: 0;
     visibility: hidden;
@@ -800,7 +1116,9 @@ body {
 }
 
 .scroll-top:hover {
-    background: var(--primary-dark);
+    background: rgba(34, 211, 238, 0.15);
+    border-color: var(--accent);
+    box-shadow: var(--glow-accent);
     transform: translateY(-3px);
 }
 
@@ -808,13 +1126,16 @@ body {
 @media (max-width: 968px) {
     .nav-menu {
         position: fixed;
-        top: 70px;
+        top: 66px;
         left: -100%;
         flex-direction: column;
-        background: white;
+        background: rgba(6, 8, 15, 0.97);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
         width: 100%;
         padding: 2rem;
-        box-shadow: var(--shadow-lg);
+        gap: 1.5rem;
+        box-shadow: var(--shadow-xl);
         transition: var(--transition);
     }
 
