@@ -402,4 +402,4 @@ function updateActiveNavLink() {
 
 updateActiveNavLink();
 
-console.log('🐻 MedoEDUz - Медоеду ВСЁ! Сайт загружен успешно.');
+console.log('🦡 MedoEDUz - Медоеду ВСЁ! Сайт загружен успешно.');

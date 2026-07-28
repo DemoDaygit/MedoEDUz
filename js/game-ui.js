@@ -20,7 +20,7 @@ const GameUI = (() => {
         fabEl.setAttribute('aria-label', 'Открыть профиль игрока');
         fabEl.innerHTML = `
             <span class="game-fab__ring"></span>
-            <span class="game-fab__avatar" id="gameFabAvatar">🐻</span>
+            <span class="game-fab__avatar" id="gameFabAvatar">🦡</span>
             <span class="game-fab__level" id="gameFabLevel">1</span>
         `;
         document.body.appendChild(fabEl);
@@ -35,7 +35,7 @@ const GameUI = (() => {
 
                 <div class="game-panel__hero">
                     <div class="game-avatar-big" id="gameAvatarBig">
-                        <span class="game-avatar-big__emoji">🐻</span>
+                        <span class="game-avatar-big__emoji">🦡</span>
                         <span class="game-avatar-big__glow"></span>
                     </div>
                     <h3 class="game-stage-name" id="gameStageName">Медвежонок</h3>

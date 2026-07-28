@@ -18,8 +18,8 @@ const GameEngine = (() => {
     const EVOLUTION_STAGES = [
         {
             id: 0,
-            name: 'Медвежонок',
-            emoji: '🐻',
+            name: 'Медоедёнок',
+            emoji: '🦡',
             title: 'Только начал свой путь',
             aura: '#a3a3a3',
             minLevel: 1,
@@ -27,7 +27,7 @@ const GameEngine = (() => {
         {
             id: 1,
             name: 'Любопытный',
-            emoji: '🧸',
+            emoji: '⚡',
             title: 'Исследует экосистему ИИ',
             aura: '#6366f1',
             minLevel: 3,

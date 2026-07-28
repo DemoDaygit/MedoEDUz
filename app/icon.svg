@@ -1,39 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="MedoEDUz">
+  <!--
+    Иконка автономного приложения MedoEDUz.
+    Тот же знак, что и в фавиконе сайта: светлая «мантия» медоеда
+    и светящийся визир кибермедоеда. Эмодзи не используется намеренно —
+    он по-разному рисуется на разных платформах и ломает узнаваемость.
+  -->
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1e2547"/>
-      <stop offset="1" stop-color="#0b1020"/>
+    <linearGradient id="apBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#151d33"/>
+      <stop offset="1" stop-color="#070a12"/>
     </linearGradient>
-    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.55">
-      <stop offset="0" stop-color="#6366f1" stop-opacity="0.9"/>
-      <stop offset="0.6" stop-color="#ec4899" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#0b1020" stop-opacity="0"/>
+    <linearGradient id="apCape" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f8ff"/>
+      <stop offset="1" stop-color="#9fb0cc"/>
+    </linearGradient>
+    <radialGradient id="apGlow" cx="0.5" cy="0.55" r="0.5">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <!-- фон (maskable safe zone учтена) -->
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <circle cx="256" cy="220" r="180" fill="url(#glow)"/>
+  <rect width="512" height="512" rx="115" fill="url(#apBg)"/>
+  <circle cx="256" cy="285" r="190" fill="url(#apGlow)"/>
 
-  <!-- нейро-сеть из точек -->
-  <g stroke="#6366f1" stroke-opacity="0.35" stroke-width="2">
-    <line x1="120" y1="150" x2="200" y2="210"/>
-    <line x1="200" y1="210" x2="320" y2="170"/>
-    <line x1="320" y1="170" x2="392" y2="240"/>
-    <line x1="200" y1="210" x2="256" y2="320"/>
-  </g>
-  <g fill="#818cf8">
-    <circle cx="120" cy="150" r="6"/>
-    <circle cx="200" cy="210" r="7"/>
-    <circle cx="320" cy="170" r="6"/>
-    <circle cx="392" cy="240" r="6"/>
-    <circle cx="256" cy="320" r="7"/>
-  </g>
+  <!-- мантия -->
+  <path d="M64 352 C 96 176, 224 80, 416 96 L 416 200 C 264 192, 176 256, 152 376 Z"
+        fill="url(#apCape)"/>
 
-  <!-- маскот -->
-  <text x="256" y="300" font-size="200" text-anchor="middle" dominant-baseline="central">🐻</text>
-
-  <!-- подпись -->
-  <text x="256" y="438" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="800"
-        text-anchor="middle" fill="#e7ecf6">Medo<tspan fill="#818cf8">z</tspan></text>
+  <!-- визир -->
+  <rect x="240" y="272" width="160" height="52" rx="26" fill="#22d3ee"/>
 </svg>
