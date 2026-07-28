@@ -435,6 +435,7 @@
 </head>
 <body>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="config.js"></script>
 <script src="data/curriculum.js"></script>
 <canvas id="fx"></canvas>
 
@@ -567,6 +568,55 @@
             S.profile.userId = tgUserKey();
             localStorage.setItem(KEY, JSON.stringify(S));
         } catch (e) {}
+        syncPush();   // фоновая отправка в облако (если включена)
+    }
+
+    // ---------- Облачная синхронизация (офлайн-first, опциональная) ----------
+    // Включается только в Telegram и при заданном URL воркера в config.js.
+    // Приложение НИКОГДА не ждёт сеть: всё уже в localStorage, отправка фоновая.
+    var SYNC_URL = (window.MEDOEDUZ_SYNC_URL || '').replace(/\/+$/, '');
+    var syncOn = !!(SYNC_URL && TG.inTelegram && TG.initData);
+    var pushTimer = null;
+
+    function syncHeaders() {
+        return { 'Content-Type': 'application/json', 'X-Telegram-Init-Data': TG.initData };
+    }
+
+    function syncPush() {
+        if (!syncOn) return;
+        clearTimeout(pushTimer);
+        pushTimer = setTimeout(function () {
+            fetch(SYNC_URL + '/v1/progress', {
+                method: 'PATCH', headers: syncHeaders(),
+                body: JSON.stringify({
+                    xp: S.xp, level: S.level, skills: S.skills,
+                    quests: S.quests, checks: S.checks, syn: S.syn, profile: S.profile,
+                }),
+            }).catch(function () { /* офлайн — не проблема, отправим позже */ });
+        }, 3000);
+    }
+
+    // Слить серверный прогресс с локальным при старте (сервер — источник
+    // истины между устройствами; освоенное объединяется, числа по максимуму).
+    function syncPull(done) {
+        if (!syncOn) { done(); return; }
+        fetch(SYNC_URL + '/v1/progress', { headers: syncHeaders() })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                var p = data && data.progress;
+                if (p) {
+                    S.skills = [].concat(S.skills, p.skills || []).filter(function (v, i, a) { return a.indexOf(v) === i; });
+                    S.syn = [].concat(S.syn || [], p.syn || []).filter(function (v, i, a) { return a.indexOf(v) === i; });
+                    S.xp = Math.max(S.xp, p.xp || 0);
+                    S.level = Math.max(S.level, p.level || 1);
+                    S.checks = Object.assign({}, p.checks || {}, S.checks || {});
+                    S.quests = Object.assign({}, p.quests || {}, S.quests || {});
+                    if (p.profile && !S.profile.onboardedAt) S.profile = p.profile;
+                    localStorage.setItem(KEY, JSON.stringify(S));
+                }
+                done();
+            })
+            .catch(function () { done(); }); // сеть недоступна — работаем локально
     }
 
     function need(l) { return Math.round(60 * Math.pow(1.3, l - 1)); }
@@ -1238,15 +1288,22 @@
     // ---------- Старт ----------
     // Без модели приложение бессмысленно — сообщаем честно,
     // а не падаем с пустым экраном.
-    if (!window.CURRICULUM) {
-        document.getElementById('graphStage').innerHTML =
-            '<p style="padding:24px;color:#9FADC0;font-size:.9rem;text-align:center">' +
-            'Не загрузилась модель курса (data/curriculum.js).</p>';
-    } else {
-        buildGraph();
-        checkSyn();
+    function start() {
+        if (!window.CURRICULUM) {
+            document.getElementById('graphStage').innerHTML =
+                '<p style="padding:24px;color:#9FADC0;font-size:.9rem;text-align:center">' +
+                'Не загрузилась модель курса (data/curriculum.js).</p>';
+        } else {
+            buildGraph();
+            checkSyn();
+        }
+        render();
     }
-    render();
+
+    // Сначала подтягиваем облачный прогресс (если синхронизация включена),
+    // затем строим граф. Приложение НЕ блокируется: при недоступной сети
+    // syncPull сразу вызывает start() и работает локально.
+    syncPull(start);
 })();
 </script>
 </body>

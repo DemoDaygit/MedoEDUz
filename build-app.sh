@@ -25,6 +25,13 @@ if [ -f "js/data/curriculum.js" ]; then
     echo "  → модель курса синхронизирована из js/data/curriculum.js"
 fi
 
+# config.js — единая точка настройки (URL синхронизации). Копируем в app/,
+# чтобы приложение и сайт использовали один и тот же адрес воркера.
+if [ -f "js/config.js" ]; then
+    cp js/config.js "$APP_DIR/config.js"
+    echo "  → config.js синхронизирован из js/config.js"
+fi
+
 mkdir -p "$OUT_DIR"
 rm -f "$OUT_DIR/$ZIP_NAME"
 

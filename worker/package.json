@@ -1,0 +1,12 @@
+{
+  "name": "medoeduz-sync-worker",
+  "private": true,
+  "description": "Cloudflare Worker: sync MedoEDUz progress by Telegram user_id",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3"
+  }
+}
