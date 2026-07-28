@@ -16,6 +16,7 @@
 
 const CourseView = (() => {
     const QUEST_KEY = 'medoeduz_quest_progress';
+    const CHECK_KEY = 'medoeduz_check_results';
 
     let root, current;
 
@@ -49,6 +50,21 @@ const CourseView = (() => {
         p[nodeId] = list;
         saveProgress(p);
         return list;
+    }
+
+    // ---------- Результаты проверки усвоения ----------
+    function loadChecks() {
+        try { return JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); }
+        catch (e) { return {}; }
+    }
+
+    function saveChecks(c) {
+        try { localStorage.setItem(CHECK_KEY, JSON.stringify(c)); } catch (e) {}
+    }
+
+    /** {answers:[], passed:bool, firstTry:bool, at:iso} по узлу */
+    function checkOf(nodeId) {
+        return loadChecks()[nodeId] || null;
     }
 
     function isMastered(nodeId) {
@@ -140,12 +156,12 @@ const CourseView = (() => {
 
             '<div class="cv__proof"><strong>Результат:</strong> ' + esc(n.quest.proof) + '</div>' +
 
+            renderCheck(n) +
+
             (mastered
                 ? ''
-                : '<button class="cv__complete" ' + (allDone ? '' : 'disabled') + '>' +
-                    (allDone
-                        ? 'Освоить навык · +' + n.xp + ' XP'
-                        : 'Отметьте все шаги миссии (' + done.length + '/' + n.quest.steps.length + ')') +
+                : '<button class="cv__complete" ' + (canMaster(n) ? '' : 'disabled') + '>' +
+                    completeLabel(n) +
                   '</button>');
 
         sheet.querySelector('.cv__close').addEventListener('click', close);
@@ -161,6 +177,25 @@ const CourseView = (() => {
             });
         });
 
+        sheet.querySelectorAll('.cvq__opt').forEach((b) => {
+            b.addEventListener('click', () => {
+                answerCheck(n, Number(b.dataset.q), Number(b.dataset.o));
+                const y = sheet.scrollTop;
+                render();
+                sheet.scrollTop = y;   // проверка длинная — не теряем позицию
+            });
+        });
+
+        const retry = sheet.querySelector('.cvq__retry');
+        if (retry) {
+            retry.addEventListener('click', () => {
+                resetCheck(n.id);
+                const y = sheet.scrollTop;
+                render();
+                sheet.scrollTop = y;
+            });
+        }
+
         const btn = sheet.querySelector('.cv__complete');
         if (btn) {
             btn.addEventListener('click', () => {
@@ -170,16 +205,98 @@ const CourseView = (() => {
         }
     }
 
+
+    // ---------- Проверка усвоения ----------
+    /**
+     * Освоение требует ДВУХ вещей: пройденной миссии (практика)
+     * и правильных ответов на проверку (понимание). Одни галочки —
+     * это самоотчёт, а не выявление усвоения.
+     */
+    function canMaster(node) {
+        const questOk = stepsDone(node.id).length === node.quest.steps.length;
+        const r = checkOf(node.id);
+        return questOk && r && r.passed;
+    }
+
+    function completeLabel(node) {
+        const done = stepsDone(node.id).length;
+        const total = node.quest.steps.length;
+        if (done < total) return 'Отметьте все шаги миссии (' + done + '/' + total + ')';
+        const r = checkOf(node.id);
+        if (!r || !r.passed) return 'Пройдите проверку усвоения';
+        return 'Освоить навык · +' + node.xp + ' XP';
+    }
+
+    function renderCheck(n) {
+        if (!n.check || !n.check.length) return '';
+        const r = checkOf(n.id);
+        const html = n.check.map((c, qi) => {
+            const picked = r && r.answers ? r.answers[qi] : undefined;
+            const answered = picked !== undefined && picked !== null;
+            return '<div class="cvq" data-q="' + qi + '">' +
+                '<p class="cvq__q">' + esc(c.q) + '</p>' +
+                '<div class="cvq__opts">' +
+                    c.a.map((opt, oi) => {
+                        let cls = 'cvq__opt';
+                        if (answered) {
+                            if (oi === c.ok) cls += ' is-right';
+                            else if (oi === picked) cls += ' is-wrong';
+                        }
+                        return '<button class="' + cls + '" data-q="' + qi + '" data-o="' + oi + '"' +
+                            (answered ? ' disabled' : '') + '>' + esc(opt) + '</button>';
+                    }).join('') +
+                '</div>' +
+                (answered
+                    ? '<div class="cvq__why">' +
+                        (picked === c.ok ? '<b>Верно.</b> ' : '<b>Не так.</b> ') + esc(c.why) +
+                      '</div>'
+                    : '') +
+            '</div>';
+        }).join('');
+
+        const allAnswered = r && r.answers && r.answers.length === n.check.length &&
+                            r.answers.every((a) => a !== undefined && a !== null);
+        const status = !allAnswered ? ''
+            : (r.passed
+                ? '<div class="cvq__ok">✓ Проверка пройдена' +
+                    (r.firstTry ? ' с первого раза' : '') + '</div>'
+                : '<div class="cvq__fail">Есть ошибки. Перечитайте программу и ' +
+                    '<button class="cvq__retry">пройдите заново</button></div>');
+
+        return '<h3 class="cv__label">Проверка усвоения</h3>' +
+               '<div class="cvq-wrap">' + html + status + '</div>';
+    }
+
+    function answerCheck(n, qi, oi) {
+        const all = loadChecks();
+        const rec = all[n.id] || { answers: [], firstTry: true, tries: 0 };
+        rec.answers[qi] = oi;
+
+        const complete = n.check.every((c, i) => rec.answers[i] !== undefined && rec.answers[i] !== null);
+        if (complete) {
+            rec.passed = n.check.every((c, i) => rec.answers[i] === c.ok);
+            rec.tries = (rec.tries || 0) + 1;
+            if (!rec.passed) rec.firstTry = false;
+            rec.at = new Date().toISOString();
+        }
+        all[n.id] = rec;
+        saveChecks(all);
+        return rec;
+    }
+
+    function resetCheck(nodeId) {
+        const all = loadChecks();
+        const prev = all[nodeId];
+        all[nodeId] = { answers: [], firstTry: false, tries: prev ? prev.tries : 0 };
+        saveChecks(all);
+    }
+
     /** Пересчёт состояния кнопки освоения без перерисовки панели */
     function syncCompleteButton(node, doneCount) {
         const btn = root.querySelector('.cv__complete');
         if (!btn) return;
-        const total = node.quest.steps.length;
-        const allDone = doneCount === total;
-        btn.disabled = !allDone;
-        btn.textContent = allDone
-            ? 'Освоить навык · +' + node.xp + ' XP'
-            : 'Отметьте все шаги миссии (' + doneCount + '/' + total + ')';
+        btn.disabled = !canMaster(node);
+        btn.textContent = completeLabel(node);
     }
 
     // ---------- Открытие / закрытие ----------
@@ -198,7 +315,7 @@ const CourseView = (() => {
         root.setAttribute('aria-hidden', 'true');
     }
 
-    return { open, close, isMastered };
+    return { open, close, isMastered, checkOf, loadChecks };
 })();
 
 window.CourseView = CourseView;

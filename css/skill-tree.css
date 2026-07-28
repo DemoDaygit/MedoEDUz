@@ -938,3 +938,87 @@
     text-align: center;
     margin-bottom: 2rem;
 }
+
+/* ---------- Проверка усвоения в панели курса ---------- */
+.cvq-wrap { display: flex; flex-direction: column; gap: 1.1rem; }
+
+.cvq__q {
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: 0.6rem;
+}
+
+.cvq__opts { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.cvq__opt {
+    text-align: left;
+    padding: 0.7rem 0.85rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    line-height: 1.45;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.cvq__opt:hover:not(:disabled) { border-color: var(--border-strong); }
+.cvq__opt:disabled { cursor: default; }
+
+/* Верный вариант подсвечивается всегда — чтобы ошибка обучала,
+   а не просто фиксировала провал. */
+.cvq__opt.is-right {
+    border-color: var(--success);
+    color: var(--text-primary);
+    background: rgba(63, 216, 122, 0.08);
+}
+
+.cvq__opt.is-wrong {
+    border-color: var(--danger);
+    color: var(--text-muted);
+    background: rgba(255, 107, 112, 0.06);
+}
+
+.cvq__why {
+    margin-top: 0.55rem;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    border-left: 2px solid var(--violet);
+    padding-left: 0.75rem;
+}
+
+.cvq__why b { color: var(--text-primary); }
+
+.cvq__ok, .cvq__fail {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--border-radius-sm);
+}
+
+.cvq__ok { color: var(--on-accent); background: var(--success); }
+
+.cvq__fail {
+    color: var(--warning);
+    background: rgba(229, 192, 123, 0.1);
+    border: 1px solid rgba(229, 192, 123, 0.3);
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+}
+
+.cvq__retry {
+    background: none;
+    border: none;
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+    font: inherit;
+}

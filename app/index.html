@@ -301,6 +301,23 @@
     .sheet__step input { width:17px; height:17px; margin-top:1px; flex:none; accent-color:var(--primary); }
     .sheet__step.is-done label { border-color:var(--success); color:var(--text-dim); }
     .sheet__step.is-done span { text-decoration:line-through; }
+    .q { margin-bottom: 14px; }
+    .q__t { font-weight: 700; font-size: .88rem; line-height: 1.45; margin-bottom: 7px; }
+    .q__o { display:block; width:100%; text-align:left; margin-bottom:5px; padding:9px 11px;
+        background:rgba(158,173,196,.05); border:1px solid var(--surface-border); border-radius:10px;
+        color:var(--text-dim); font:inherit; font-size:.84rem; line-height:1.4; cursor:pointer; }
+    .q__o.is-right { border-color:var(--success); color:var(--text); background:rgba(63,216,122,.09); }
+    .q__o.is-wrong { border-color:#FF6B70; background:rgba(255,107,112,.07); }
+    .q__w { margin-top:6px; font-size:.82rem; line-height:1.5; color:var(--text-dim);
+        border-left:2px solid var(--accent); padding-left:9px; }
+    .q__w b { color:var(--text); }
+    .q__ok { background:var(--success); color:#04120F; font-size:.72rem; font-weight:700;
+        padding:7px 10px; border-radius:8px; text-transform:uppercase; letter-spacing:.05em; }
+    .q__fail { background:rgba(229,192,123,.1); border:1px solid rgba(229,192,123,.3);
+        color:#E5C07B; font-size:.82rem; padding:8px 10px; border-radius:8px; }
+    .q__retry { background:none; border:none; color:var(--primary); text-decoration:underline;
+        font:inherit; cursor:pointer; }
+
     .sheet__go { width:100%; margin-top:16px; padding:14px; border:none; border-radius:12px;
         font-weight:800; font-size:.95rem; color:#04120F;
         background:linear-gradient(180deg, var(--primary), #12C4AE); cursor:pointer; touch-action:manipulation; }
@@ -503,8 +520,8 @@
     function load() {
         try {
             var d = JSON.parse(localStorage.getItem(KEY) || '{}');
-            return { xp: d.xp || 0, level: d.level || 1, skills: d.skills || [], quests: d.quests || {} };
-        } catch (e) { return { xp: 0, level: 1, skills: [], quests: {} }; }
+            return { xp: d.xp || 0, level: d.level || 1, skills: d.skills || [], quests: d.quests || {}, checks: d.checks || {} };
+        } catch (e) { return { xp: 0, level: 1, skills: [], quests: {}, checks: {} }; }
     }
     function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
@@ -827,11 +844,10 @@
                     }).join('') +
                   '</ul>') +
             '<div class="sheet__box sheet__box--proof"><b>Результат:</b> ' + esc(n.quest.proof) + '</div>' +
+            (st === 'locked' ? '' : renderCheck(n)) +
             (st === 'available'
-                ? '<button class="sheet__go" id="sheetGo"' + (all ? '' : ' disabled') + '>' +
-                    (all ? 'Освоить · +' + n.xp + ' XP'
-                         : 'Отметьте все шаги (' + done.length + '/' + n.quest.steps.length + ')') +
-                  '</button>'
+                ? '<button class="sheet__go" id="sheetGo"' + (canMaster(n) ? '' : ' disabled') + '>' +
+                    goLabel(n) + '</button>'
                 : '');
 
         // Точечное обновление: полная перерисовка сбрасывала бы прокрутку,
@@ -843,14 +859,28 @@
                 if (at === -1) list.push(idx); else list.splice(at, 1);
                 S.quests[n.id] = list; save();
                 box.closest('.sheet__step').classList.toggle('is-done', box.checked);
+                // Кнопка зависит и от миссии, и от проверки усвоения —
+                // считаем единой функцией, иначе она врёт про готовность.
                 var go = document.getElementById('sheetGo');
                 if (go) {
-                    var ok = list.length === n.quest.steps.length;
-                    go.disabled = !ok;
-                    go.textContent = ok ? 'Освоить · +' + n.xp + ' XP'
-                        : 'Отметьте все шаги (' + list.length + '/' + n.quest.steps.length + ')';
+                    go.disabled = !canMaster(n);
+                    go.textContent = goLabel(n);
                 }
             });
+        });
+
+        body.querySelectorAll('.q__o').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                answerCheck(n, Number(btn.dataset.q), Number(btn.dataset.o));
+                var y = body.scrollTop; renderSheet(); body.scrollTop = y;
+            });
+        });
+        var rt = body.querySelector('.q__retry');
+        if (rt) rt.addEventListener('click', function () {
+            var prev = S.checks[n.id];
+            S.checks[n.id] = { answers: [], firstTry: false, tries: prev ? prev.tries : 0 };
+            save();
+            var y = body.scrollTop; renderSheet(); body.scrollTop = y;
         });
 
         var x = body.querySelector('.sheet__x');
@@ -858,6 +888,69 @@
 
         var go = document.getElementById('sheetGo');
         if (go) go.addEventListener('click', function () { masterNode(n); });
+    }
+
+    // ---------- Проверка усвоения ----------
+    // Освоение требует и практики (миссия), и понимания (проверка).
+    // Одни галочки — самоотчёт, а не выявление усвоения.
+    function checkOf(id) { return S.checks[id] || null; }
+
+    function canMaster(n) {
+        var q = questDone(n.id).length === n.quest.steps.length;
+        var r = checkOf(n.id);
+        return q && r && r.passed;
+    }
+
+    function goLabel(n) {
+        var d = questDone(n.id).length, t = n.quest.steps.length;
+        if (d < t) return 'Отметьте все шаги (' + d + '/' + t + ')';
+        var r = checkOf(n.id);
+        if (!r || !r.passed) return 'Пройдите проверку усвоения';
+        return 'Освоить · +' + n.xp + ' XP';
+    }
+
+    function renderCheck(n) {
+        if (!n.check || !n.check.length) return '';
+        var r = checkOf(n.id);
+        var html = n.check.map(function (c, qi) {
+            var picked = r && r.answers ? r.answers[qi] : undefined;
+            var answered = picked !== undefined && picked !== null;
+            return '<div class="q" data-q="' + qi + '"><p class="q__t">' + esc(c.q) + '</p>' +
+                c.a.map(function (o, oi) {
+                    var cls = 'q__o';
+                    if (answered) {
+                        if (oi === c.ok) cls += ' is-right';
+                        else if (oi === picked) cls += ' is-wrong';
+                    }
+                    return '<button class="' + cls + '" data-q="' + qi + '" data-o="' + oi + '"' +
+                        (answered ? ' disabled' : '') + '>' + esc(o) + '</button>';
+                }).join('') +
+                (answered ? '<div class="q__w">' + (picked === c.ok ? '<b>Верно.</b> ' : '<b>Не так.</b> ') +
+                    esc(c.why) + '</div>' : '') +
+            '</div>';
+        }).join('');
+
+        var full = r && r.answers && n.check.every(function (c, i) {
+            return r.answers[i] !== undefined && r.answers[i] !== null;
+        });
+        var status = !full ? ''
+            : (r.passed ? '<div class="q__ok">✓ Проверка пройдена' + (r.firstTry ? ' с первого раза' : '') + '</div>'
+                        : '<div class="q__fail">Есть ошибки. <button class="q__retry">Пройти заново</button></div>');
+        return '<div class="sheet__lab">Проверка усвоения</div>' + html + status;
+    }
+
+    function answerCheck(n, qi, oi) {
+        var rec = S.checks[n.id] || { answers: [], firstTry: true, tries: 0 };
+        rec.answers[qi] = oi;
+        var full = n.check.every(function (c, i) {
+            return rec.answers[i] !== undefined && rec.answers[i] !== null;
+        });
+        if (full) {
+            rec.passed = n.check.every(function (c, i) { return rec.answers[i] === c.ok; });
+            rec.tries = (rec.tries || 0) + 1;
+            if (!rec.passed) rec.firstTry = false;
+        }
+        S.checks[n.id] = rec; save();
     }
 
     // ---------- Освоение узла ----------
@@ -1070,7 +1163,7 @@
 
     // ---------- Сброс ----------
     $('resetBtn').addEventListener('click', function () {
-        if (confirm('Сбросить весь прогресс?')) { S = { xp: 0, level: 1, skills: [], quests: {} }; save(); render(); }
+        if (confirm('Сбросить весь прогресс?')) { S = { xp: 0, level: 1, skills: [], quests: {}, checks: {} }; save(); render(); }
     });
 
     // ---------- Установка PWA ----------

@@ -6,7 +6,7 @@
 
 'use strict';
 
-var CACHE = 'medoeduz-app-v2';
+var CACHE = 'medoeduz-app-v3';
 var ASSETS = [
     './',
     './index.html',

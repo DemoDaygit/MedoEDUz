@@ -286,6 +286,7 @@ const SkillTree = (() => {
         pulse(node.id, 'success');
         render();
         checkSynergies();
+        checkLearningAchievements(node);
 
         if (node.id === 'apex' && window.AnimationEngine) {
             AnimationEngine.confetti();
@@ -480,6 +481,63 @@ const SkillTree = (() => {
             GameEngine.on('xp', render);
             GameEngine.on('ready', render);
         }
+    }
+
+
+    /**
+     * Достижения за РЕАЛЬНОЕ усвоение.
+     * Выдаются по итогам проверок и структуре освоенного, а не по кликам:
+     * «понял, а не кликнул» ценнее, чем «прокрутил страницу».
+     */
+    function checkLearningAchievements(node) {
+        if (!window.GameEngine || !window.CourseView) return;
+        const G = GameEngine, mastered = masteredSet();
+        const checks = CourseView.loadChecks();
+        const passed = Object.keys(checks).filter((k) => checks[k] && checks[k].passed);
+
+        if (passed.length >= 1) G.unlock('first_check');
+
+        // Три проверки подряд без единой ошибки
+        const clean = passed.filter((k) => checks[k].firstTry);
+        if (clean.length >= 3) G.unlock('clean_run');
+
+        // Провалил, разобрал, прошёл — это ценнее безошибочного везения
+        const r = checks[node.id];
+        if (r && r.passed && r.tries > 1) G.unlock('learned_from_error');
+
+        // Ветка закрыта целиком
+        const byBranch = {};
+        model.NODES.forEach((n) => {
+            byBranch[n.branch] = byBranch[n.branch] || { all: 0, done: 0 };
+            byBranch[n.branch].all++;
+            if (mastered.has(n.id)) byBranch[n.branch].done++;
+        });
+        const full = Object.keys(byBranch).filter((b) => byBranch[b].done === byBranch[b].all);
+        if (full.length >= 1) G.unlock('branch_done');
+
+        // Узлы минимум в трёх разных ветках
+        const touched = Object.keys(byBranch).filter((b) => byBranch[b].done > 0);
+        if (touched.length >= 3) G.unlock('cross_branch');
+
+        // Удержание: подтверждение знания спустя неделю после освоения
+        const seenAt = loadMasteredAt();
+        seenAt[node.id] = seenAt[node.id] || new Date().toISOString();
+        saveMasteredAt(seenAt);
+        Object.keys(seenAt).forEach((id) => {
+            const c = checks[id];
+            if (!c || !c.passed || !c.at) return;
+            const gap = (new Date(c.at) - new Date(seenAt[id])) / 86400000;
+            if (gap >= 7) G.unlock('retained');
+        });
+    }
+
+    const MASTERED_AT = 'medoeduz_mastered_at';
+    function loadMasteredAt() {
+        try { return JSON.parse(localStorage.getItem(MASTERED_AT) || '{}'); }
+        catch (e) { return {}; }
+    }
+    function saveMasteredAt(v) {
+        try { localStorage.setItem(MASTERED_AT, JSON.stringify(v)); } catch (e) {}
     }
 
     /**
