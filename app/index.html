@@ -434,6 +434,7 @@
 </style>
 </head>
 <body>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="data/curriculum.js"></script>
 <canvas id="fx"></canvas>
 
@@ -499,14 +500,35 @@
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var $ = function (id) { return document.getElementById(id); };
 
-    // ---------- Модель ----------
+    // ---------- Telegram Mini App (опционально) ----------
+    // Инициализируем ДО загрузки состояния, чтобы знать user_id.
+    // Вне Telegram inTelegram=false и всё работает как раньше.
+    var TG = { inTelegram: false, user: null, initData: null, hf: null };
+    (function () {
+        var tg = window.Telegram && window.Telegram.WebApp;
+        if (!tg || !tg.initData) return;
+        TG.inTelegram = true;
+        TG.initData = tg.initData;
+        TG.user = (tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
+        TG.hf = tg.HapticFeedback || null;
+        try { tg.ready(); tg.expand(); } catch (e) {}
+        try {
+            var p = tg.themeParams || {};
+            if (p.bg_color) { tg.setHeaderColor(p.bg_color); tg.setBackgroundColor(p.bg_color); }
+        } catch (e) {}
+        document.documentElement.setAttribute('data-tg', '1');
+    })();
+
+    function tgUserKey() { return (TG.user && TG.user.id) ? String(TG.user.id) : 'local'; }
+
+    // ---------- Модель стадий (палитра синхронизирована с сайтом) ----------
     var STAGES = [
         { e: '🦡', n: 'Медоедёнок', s: 'Только начал свой путь', a: '#a3a3a3', lvl: 1 },
-        { e: '⚡', n: 'Любопытный', s: 'Исследует экосистему', a: '#22d3ee', lvl: 3 },
-        { e: '🤖', n: 'Ученик ИИ', s: 'Освоил первые инструменты', a: '#38bdf8', lvl: 5 },
-        { e: '🦾', n: 'Нейро-Мастер', s: 'Уверенно владеет ИИ', a: '#8b5cf6', lvl: 8 },
-        { e: '🧠', n: 'Гуру ИИ', s: 'Видит матрицу насквозь', a: '#f5a524', lvl: 11 },
-        { e: '👑', n: 'Медоед ВСЁ', s: 'Легенда экосистемы', a: '#fb7185', lvl: 14 }
+        { e: '⚡', n: 'Любопытный', s: 'Исследует экосистему', a: '#8B7CFF', lvl: 3 },
+        { e: '🤖', n: 'Ученик ИИ', s: 'Освоил первые инструменты', a: '#57C7FF', lvl: 5 },
+        { e: '🦾', n: 'Нейро-Мастер', s: 'Уверенно владеет ИИ', a: '#FF8FD0', lvl: 8 },
+        { e: '🧠', n: 'Гуру ИИ', s: 'Видит матрицу насквозь', a: '#FFB020', lvl: 11 },
+        { e: '👑', n: 'Медоед ВСЁ', s: 'Легенда экосистемы', a: '#FF7A85', lvl: 14 }
     ];
 
     // Единый источник истины — та же модель, что и на сайте
@@ -514,16 +536,38 @@
     var C = window.CURRICULUM;
     var NODES = C.NODES, BRANCHES = C.BRANCHES, BY_ID = C.BY_ID;
 
-    var KEY = 'medoeduz_app_v1';
+    // Ключ хранения привязан к пользователю Telegram: на общем устройстве
+    // разные аккаунты не смешивают прогресс. Вне Telegram — общий 'local'.
+    // Старый ключ medoeduz_app_v1 мигрируется один раз в 'local'.
+    var KEY = 'medoeduz_app_' + tgUserKey();
     var S = load();
 
     function load() {
         try {
-            var d = JSON.parse(localStorage.getItem(KEY) || '{}');
-            return { xp: d.xp || 0, level: d.level || 1, skills: d.skills || [], quests: d.quests || {}, checks: d.checks || {} };
-        } catch (e) { return { xp: 0, level: 1, skills: [], quests: {}, checks: {} }; }
+            var raw = localStorage.getItem(KEY);
+            // Разовая миграция со старого безъюзерного ключа.
+            if (!raw && tgUserKey() === 'local') {
+                var legacy = localStorage.getItem('medoeduz_app_v1');
+                if (legacy) { raw = legacy; localStorage.setItem(KEY, legacy); }
+            }
+            var d = JSON.parse(raw || '{}');
+            return {
+                xp: d.xp || 0, level: d.level || 1,
+                skills: d.skills || [], quests: d.quests || {}, checks: d.checks || {},
+                syn: d.syn || [],
+                profile: d.profile || { track: null, onboardedAt: null },
+            };
+        } catch (e) {
+            return { xp: 0, level: 1, skills: [], quests: {}, checks: {}, syn: [], profile: { track: null, onboardedAt: null } };
+        }
     }
-    function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+    function save() {
+        try {
+            S.profile = S.profile || {};
+            S.profile.userId = tgUserKey();
+            localStorage.setItem(KEY, JSON.stringify(S));
+        } catch (e) {}
+    }
 
     function need(l) { return Math.round(60 * Math.pow(1.3, l - 1)); }
     function totalFor(l) { var t = 0; for (var i = 1; i < l; i++) t += need(i); return t; }
@@ -1104,6 +1148,15 @@
     }
 
     function haptic(pattern) {
+        // В Telegram — нативная хаптика (точнее и работает на iOS,
+        // где navigator.vibrate заблокирован). Вне — обычная вибрация.
+        if (TG.inTelegram && TG.hf) {
+            try {
+                if (Array.isArray(pattern) && pattern.length > 3) TG.hf.notificationOccurred('success');
+                else TG.hf.impactOccurred('medium');
+                return;
+            } catch (e) { /* fallthrough */ }
+        }
         try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
     }
 

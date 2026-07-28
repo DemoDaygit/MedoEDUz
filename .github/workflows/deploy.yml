@@ -43,6 +43,8 @@ jobs:
             --exclude 'nginx.conf' \
             --exclude 'build-app.sh' \
             --exclude '.env*' \
+            --exclude 'worker' \
+            --exclude 'docs' \
             ./ _site/
           # Отключаем обработку Jekyll (иначе игнорируются файлы с _ и .)
           touch _site/.nojekyll
