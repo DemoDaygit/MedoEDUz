@@ -265,7 +265,34 @@
     .flash { position: fixed; inset: 0; z-index: 110; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; mix-blend-mode: screen; }
     .flash.show { opacity: 0.55; }
 
+
+    /* ---------- Карточка «теперь ты можешь» ---------- */
+    .use-card {
+        position: fixed;
+        left: 12px; right: 12px;
+        bottom: calc(var(--safe-b) + 16px);
+        z-index: 95;
+        background: var(--bg2);
+        border: 1px solid var(--surface-border);
+        border-left: 3px solid var(--primary);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-shadow: 0 18px 44px -18px #000;
+        transform: translateY(140%);
+        transition: transform .38s cubic-bezier(.34,1.56,.64,1);
+    }
+    .use-card.show { transform: translateY(0); }
+    .use-card__top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .use-card__emoji { font-size: 1.3rem; }
+    .use-card__label {
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: .66rem; letter-spacing: .08em; text-transform: uppercase;
+        color: var(--primary);
+    }
+    .use-card__text { font-size: .9rem; line-height: 1.5; color: var(--text); }
+
     /* ---------- Анимации ---------- */
+
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
     @keyframes shimmer { to { background-position: 200% 0; } }
@@ -348,16 +375,28 @@
         { e: '👑', n: 'Медоед ВСЁ', s: 'Легенда экосистемы', a: '#fb7185', lvl: 14 }
     ];
 
+    // use — конкретное применение навыка. Показывается карточкой в момент
+    // освоения: абстрактный «+50 XP» забывается, а «теперь ты можешь X»
+    // остаётся. Формулировки синхронизированы с картой знаний сайта.
     var SKILLS = [
-        { id: 'prompt', e: '⌨️', n: 'Промпты', lvl: 1, xp: 30 },
-        { id: 'text', e: '📝', n: 'Тексты', lvl: 2, xp: 40 },
-        { id: 'image', e: '🖼️', n: 'Картинки', lvl: 3, xp: 50 },
-        { id: 'code', e: '🧑‍💻', n: 'Код', lvl: 4, xp: 60 },
-        { id: 'data', e: '🔢', n: 'Данные', lvl: 6, xp: 70 },
-        { id: 'design', e: '🎨', n: 'Дизайн', lvl: 7, xp: 70 },
-        { id: 'video', e: '🎬', n: 'Видео', lvl: 9, xp: 90 },
-        { id: 'agents', e: '🦾', n: 'Агенты', lvl: 11, xp: 110 },
-        { id: 'apex', e: '👑', n: 'Мастер', lvl: 14, xp: 200 }
+        { id: 'prompt', e: '⌨️', n: 'Промпты', lvl: 1, xp: 30,
+          use: 'Получать нужный ответ с 1–2 попыток: роль, задача, контекст, формат, пример.' },
+        { id: 'text', e: '📝', n: 'Тексты', lvl: 2, xp: 40,
+          use: 'Писать своим голосом вдвое быстрее: из расшифровки созвона — статья, письмо и три поста за вечер.' },
+        { id: 'image', e: '🖼️', n: 'Картинки', lvl: 3, xp: 50,
+          use: 'Закрывать визуал без стоков: 12 обложек в едином стиле за вечер.' },
+        { id: 'code', e: '🧑‍💻', n: 'Код', lvl: 4, xp: 60,
+          use: 'Входить в чужой проект за часы: понять архитектуру и внести правку, ничего не сломав.' },
+        { id: 'data', e: '🔢', n: 'Данные', lvl: 6, xp: 70,
+          use: 'Отвечать на вопрос «что с цифрами» за час: 40 тысяч строк — и найдена причина просадки.' },
+        { id: 'design', e: '🎨', n: 'Дизайн', lvl: 7, xp: 70,
+          use: 'Показывать три разных направления вместо одного «как получилось».' },
+        { id: 'video', e: '🎬', n: 'Видео', lvl: 9, xp: 90,
+          use: 'Снимать ролик без съёмочной группы: раскадровка, кадры, озвучка, субтитры — за день.' },
+        { id: 'agents', e: '🦾', n: 'Агенты', lvl: 11, xp: 110,
+          use: 'Автоматизировать многошаговое: агент сам соберёт данные, сверит и подготовит отчёт.' },
+        { id: 'apex', e: '👑', n: 'Мастер', lvl: 14, xp: 200,
+          use: 'Вести полный цикл в одиночку: от исследования аудитории до аналитики результата.' }
     ];
 
     var KEY = 'medoeduz_app_v1';
@@ -396,13 +435,34 @@
     }
 
     function masterSkill(sk, el) {
-        if (S.skills.indexOf(sk.id) !== -1) return;
+        // Уже освоенный навык не «переосваивается», но напоминает,
+        // ЧТО он даёт: это и есть ценность, а не значок в сетке.
+        if (S.skills.indexOf(sk.id) !== -1) { showUse(sk); return; }
         if (S.level < sk.lvl) { shake(el); return; }
         S.skills.push(sk.id);
         var r = el.getBoundingClientRect();
         addXP(sk.xp, r.left + r.width / 2, r.top + r.height / 2, true);
-        if (sk.id === 'apex') { confetti(); flash('#f43f5e'); }
+        if (sk.id === 'apex') { confetti(); flash('#FF7A85'); }
         haptic(15);
+        showUse(sk);
+    }
+
+    /** Карточка «теперь ты можешь» — то, ради чего осваивался навык */
+    function showUse(sk) {
+        var old = document.querySelector('.use-card');
+        if (old) old.remove();
+        var c = document.createElement('div');
+        c.className = 'use-card';
+        c.innerHTML =
+            '<div class="use-card__top"><span class="use-card__emoji">' + sk.e + '</span>' +
+            '<span class="use-card__label">Теперь ты можешь</span></div>' +
+            '<p class="use-card__text">' + sk.use + '</p>';
+        document.body.appendChild(c);
+        requestAnimationFrame(function () { c.classList.add('show'); });
+        setTimeout(function () {
+            c.classList.remove('show');
+            setTimeout(function () { c.remove(); }, 350);
+        }, 5200);
     }
 
     // ---------- Рендер ----------

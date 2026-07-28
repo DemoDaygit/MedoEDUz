@@ -252,10 +252,6 @@ const SkillTree = (() => {
         const mastered = masteredSet();
         const st = stateOf(node, mastered);
 
-        if (st === 'mastered') {
-            pulse(node.id, 'info');
-            return;
-        }
         if (st === 'locked') {
             const prereqOk = node.prereqs.every((p) => mastered.has(p));
             const msg = !prereqOk
@@ -266,7 +262,20 @@ const SkillTree = (() => {
             return;
         }
 
-        // available -> mastered
+        // Клик открывает КУРС, а не мгновенно «осваивает» узел.
+        // Освоение теперь требует пройти шаги квеста — иначе карта
+        // превращается в кликер, где прогресс ничего не значит.
+        hideTooltip();
+        CourseView.open(node);
+    }
+
+    /**
+     * Фиксация освоения узла. Вызывается из панели курса только после
+     * того, как отмечены все шаги квеста.
+     */
+    function completeNode(node) {
+        if (masteredSet().has(node.id)) return;
+
         if (window.GameEngine) {
             // openCourse фиксирует узел в прогрессе (+базовый XP, ачивки),
             // добиваем награду до значения из модели, чтобы тултип не врал.
@@ -276,6 +285,7 @@ const SkillTree = (() => {
         }
         pulse(node.id, 'success');
         render();
+        checkSynergies();
 
         if (node.id === 'apex' && window.AnimationEngine) {
             AnimationEngine.confetti();
@@ -461,6 +471,8 @@ const SkillTree = (() => {
 
         build();
         bindControls();
+        renderExtras();
+        checkSynergies();
 
         // Реактивность: перерисовываем карту при изменении прогресса игрока
         if (window.GameEngine) {
@@ -470,7 +482,96 @@ const SkillTree = (() => {
         }
     }
 
-    return { init, render };
+    /**
+     * СИНЕРГИИ — комбинации навыков из разных веток.
+     * Открываются автоматически, когда освоены все узлы комбинации.
+     * Смысл механики: показать, что ценность не в отдельном навыке,
+     * а в их сочетании.
+     */
+    function checkSynergies() {
+        if (!model.SYNERGIES) return;
+        const mastered = masteredSet();
+        const wrap = document.getElementById('synergyGrid');
+
+        model.SYNERGIES.forEach((syn) => {
+            const open = syn.nodes.every((id) => mastered.has(id));
+            const el = wrap && wrap.querySelector('[data-syn="' + syn.id + '"]');
+            if (el) el.classList.toggle('is-open', open);
+
+            // Первое открытие празднуем: это редкое событие,
+            // и оно объясняет игроку смысл всей механики.
+            if (open && !seenSynergies.has(syn.id)) {
+                seenSynergies.add(syn.id);
+                saveSeenSynergies();
+                announceSynergy(syn);
+            }
+        });
+    }
+
+    const SYN_KEY = 'medoeduz_synergies_seen';
+    let seenSynergies = new Set();
+    try {
+        seenSynergies = new Set(JSON.parse(localStorage.getItem(SYN_KEY) || '[]'));
+    } catch (e) { /* приватный режим */ }
+
+    function saveSeenSynergies() {
+        try {
+            localStorage.setItem(SYN_KEY, JSON.stringify([...seenSynergies]));
+        } catch (e) { /* приватный режим */ }
+    }
+
+    function announceSynergy(syn) {
+        const el = document.createElement('div');
+        el.className = 'syn-toast';
+        el.innerHTML =
+            '<div class="syn-toast__icon">' + syn.emoji + '</div>' +
+            '<div>' +
+                '<div class="syn-toast__label">Синергия открыта</div>' +
+                '<div class="syn-toast__name">' + syn.name + '</div>' +
+                '<div class="syn-toast__gives">' + syn.gives + '</div>' +
+            '</div>';
+        document.body.appendChild(el);
+        requestAnimationFrame(() => el.classList.add('show'));
+        if (window.AnimationEngine) AnimationEngine.confetti();
+        setTimeout(() => {
+            el.classList.remove('show');
+            el.addEventListener('transitionend', () => el.remove(), { once: true });
+        }, 5000);
+    }
+
+    /** Отрисовка сетки синергий и гида по стадиям (если есть контейнеры) */
+    function renderExtras() {
+        const grid = document.getElementById('synergyGrid');
+        if (grid && model.SYNERGIES) {
+            grid.innerHTML = model.SYNERGIES.map((s) => {
+                const names = s.nodes.map((id) => model.BY_ID[id].title).join(' + ');
+                return '<article class="syn" data-syn="' + s.id + '">' +
+                    '<div class="syn__head"><span class="syn__emoji">' + s.emoji + '</span>' +
+                    '<h3 class="syn__name">' + s.name + '</h3></div>' +
+                    '<div class="syn__combo">' + names + '</div>' +
+                    '<p class="syn__gives">' + s.gives + '</p>' +
+                    '<div class="syn__case">' + s.case + '</div>' +
+                    '</article>';
+            }).join('');
+        }
+
+        const stages = document.getElementById('stageGuide');
+        if (stages && model.STAGE_GUIDE) {
+            stages.innerHTML = model.STAGE_GUIDE.map((s) =>
+                '<article class="stg" data-lvl="' + s.level + '">' +
+                    '<div class="stg__top">' +
+                        '<span class="stg__emoji">' + s.emoji + '</span>' +
+                        '<span class="stg__lvl">ур. ' + s.level + '</span>' +
+                    '</div>' +
+                    '<h3 class="stg__name">' + s.name + '</h3>' +
+                    '<p class="stg__can">' + s.can + '</p>' +
+                    '<div class="stg__unlocks">Открывает: ' + s.unlocks + '</div>' +
+                '</article>'
+            ).join('');
+        }
+    }
+
+    return { init, render, completeNode, checkSynergies };
 })();
 
 window.SkillTree = SkillTree;

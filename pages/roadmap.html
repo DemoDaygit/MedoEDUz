@@ -57,8 +57,29 @@
                 <button data-st-action="zoom-out" aria-label="Отдалить">−</button>
                 <button data-st-action="fit" aria-label="Вписать" title="Вписать в экран">⤢</button>
             </div>
-            <span class="st-hint">Перетаскивайте для перемещения · колесо — масштаб · клик по узлу — освоить</span>
+            <span class="st-hint">Перетаскивайте для перемещения · колесо — масштаб · клик по узлу — открыть курс</span>
         </div>
+
+        <!-- Синергии: комбинации навыков из разных веток -->
+        <section class="roadmap-section">
+            <div class="section-kicker">02 / СИНЕРГИИ</div>
+            <h2 class="section-title">Комбинации навыков</h2>
+            <p class="section-subtitle">
+                Ценность не в отдельном навыке, а в сочетании. Комбинации
+                открываются сами, когда освоены все входящие в них узлы.
+            </p>
+            <div class="syn-grid" id="synergyGrid"></div>
+        </section>
+
+        <!-- Что человек умеет на каждой стадии -->
+        <section class="roadmap-section">
+            <div class="section-kicker">03 / СТАДИИ РОСТА</div>
+            <h2 class="section-title">Что вы умеете на каждом уровне</h2>
+            <p class="section-subtitle">
+                Прикладной ответ на вопрос «зачем мне следующий уровень».
+            </p>
+            <div class="stage-grid" id="stageGuide"></div>
+        </section>
     </main>
 
     <!-- Тултип карты -->
@@ -79,8 +100,11 @@
     <script src="../js/game-ui.js"></script>
     <script src="../js/game-integration.js"></script>
 
-    <!-- Модель данных и движок визуализации (загружаются последними) -->
+    <!-- Модель данных и движок визуализации (загружаются последними).
+         course-view.js обязан идти до skill-tree.js: карта вызывает
+         CourseView при клике по узлу. -->
     <script src="../js/data/curriculum.js"></script>
+    <script src="../js/course-view.js"></script>
     <script src="../js/skill-tree.js"></script>
 
     <!-- Легенда из модели -->
