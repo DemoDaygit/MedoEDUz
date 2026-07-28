@@ -11,7 +11,20 @@ var ASSETS = [
     './',
     './index.html',
     './manifest.webmanifest',
-    './icon.svg'
+    './icon.svg',
+    './fonts/fonts.css',
+    './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2',
+    './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwhsk.woff2',
+    './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwg.woff2',
+    './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2',
+    './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxTcwhsk.woff2',
+    './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2',
+    './fonts/manrope-v20-xn7gYHE41ni1AdIRggOxSuXd.woff2',
+    './fonts/manrope-v20-xn7gYHE41ni1AdIRggSxSuXd.woff2',
+    './fonts/manrope-v20-xn7gYHE41ni1AdIRggexSg.woff2',
+    './fonts/manrope-v20-xn7gYHE41ni1AdIRggixSuXd.woff2',
+    './fonts/manrope-v20-xn7gYHE41ni1AdIRggmxSuXd.woff2',
+    './fonts/manrope-v20-xn7gYHE41ni1AdIRggqxSuXd.woff2'
 ];
 
 // Установка — предзагрузка оболочки
