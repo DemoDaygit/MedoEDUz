@@ -104,6 +104,17 @@ const GameEngine = (() => {
         streak: 0,
         totalActions: 0,
         firstSeen: null,
+        // ---------- Профиль ученика (персонализация вектора освоения) ----------
+        // Заполняется онбордингом при первом входе. Пока onboardedAt === null,
+        // карта показывает все узлы; после выбора трека — подсвечивает «свой».
+        profile: {
+            userId: null,       // Telegram user_id или 'local'
+            goal: null,         // зачем: apply-work | fundamentals | build-agents | explore
+            track: null,        // ключ из CURRICULUM.TRACKS
+            experience: null,   // самооценка: zero | user | builder | advanced
+            startLevel: 'basic',// стартовый уровень сложности (по диагностике)
+            onboardedAt: null,
+        },
     };
 
     const STORAGE_KEY = 'medoeduz_game_state';
@@ -307,6 +318,24 @@ const GameEngine = (() => {
         location.reload();
     }
 
+    // ---------- Профиль ученика ----------
+    function getProfile() {
+        // Гарантируем наличие структуры даже у старых сохранений,
+        // где поля profile ещё не было.
+        return { ...DEFAULT_STATE.profile, ...(state.profile || {}) };
+    }
+
+    function setProfile(patch) {
+        state.profile = { ...getProfile(), ...patch };
+        save();
+        emit('profile', state.profile);
+        return state.profile;
+    }
+
+    function isOnboarded() {
+        return !!(state.profile && state.profile.onboardedAt);
+    }
+
     return {
         init,
         on,
@@ -315,6 +344,9 @@ const GameEngine = (() => {
         visitSection,
         openCourse,
         getState,
+        getProfile,
+        setProfile,
+        isOnboarded,
         reset,
         EVOLUTION_STAGES,
         ACHIEVEMENTS,

@@ -1022,3 +1022,102 @@
     cursor: pointer;
     font: inherit;
 }
+
+/* ============================================================
+ *  ПЕРСОНАЛИЗАЦИЯ: онбординг, трек, рекомендация
+ * ============================================================ */
+
+/* Узел вне выбранного трека — приглушён, но доступен */
+.st-node.is-offtrack { opacity: 0.32; transition: opacity 0.3s ease; }
+.st-node.is-offtrack:hover { opacity: 0.7; }
+
+/* Рекомендованный узел — пульсирующее кольцо поверх состояния */
+.st-node.is-reco .st-node__halo { opacity: 0.5 !important; animation: reco-pulse 1.8s ease-in-out infinite; }
+@keyframes reco-pulse { 0%,100% { opacity: 0.25; } 50% { opacity: 0.6; } }
+
+/* Плашка трека */
+#trackBadge { display: none; }
+#trackBadge.show {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--font-mono); font-size: var(--fs-label);
+    letter-spacing: var(--ls-label); color: var(--text-secondary);
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    padding: 0.4rem 0.8rem; border-radius: 50px;
+}
+.track-change {
+    background: none; border: none; color: var(--accent);
+    font: inherit; text-decoration: underline; cursor: pointer;
+}
+
+/* Баннер рекомендации */
+#recoBanner { display: none; }
+#recoBanner.show {
+    display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap;
+    justify-content: center; margin: 0 auto 1rem; max-width: 720px;
+    background: var(--bg-surface); border: 1px solid var(--border-accent);
+    border-radius: var(--border-radius); padding: 0.8rem 1.2rem;
+}
+.reco__label {
+    font-family: var(--font-mono); font-size: var(--fs-label);
+    letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--text-muted);
+}
+.reco__node {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: color-mix(in srgb, var(--branch) 12%, transparent);
+    border: 1px solid var(--branch); border-radius: 50px;
+    padding: 0.4rem 0.9rem; cursor: pointer; color: var(--text-primary);
+    font-weight: 700; font-size: 0.95rem; transition: var(--transition);
+}
+.reco__node:hover { box-shadow: 0 0 18px -6px var(--branch); }
+.reco__emoji { font-size: 1.1rem; }
+.reco__reason { font-size: 0.85rem; color: var(--text-secondary); }
+
+/* ---------- Онбординг ---------- */
+.onb {
+    position: fixed; inset: 0; z-index: 10020;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(4, 5, 8, 0.85); backdrop-filter: blur(8px);
+    opacity: 0; transition: opacity 0.3s ease; padding: 20px;
+}
+.onb.is-open { opacity: 1; }
+.onb.is-closing { opacity: 0; }
+
+.onb__sheet {
+    width: 100%; max-width: 640px; max-height: 92vh; overflow-y: auto;
+    background: var(--bg-surface); border: 1px solid var(--border);
+    border-radius: var(--border-radius-lg); padding: 2rem 1.75rem;
+    box-shadow: var(--shadow-xl);
+}
+
+.onb__progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 1.5rem; }
+.onb__dot { width: 32px; height: 4px; border-radius: 2px; background: var(--border); transition: background 0.3s; }
+.onb__dot.is-on { background: var(--accent); }
+
+.onb__title { font-size: 1.6rem; font-weight: 800; text-align: center; margin-bottom: 0.4rem; color: var(--text-primary); }
+.onb__sub { text-align: center; color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1.5rem; }
+
+.onb__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+.onb__opt {
+    display: flex; flex-direction: column; gap: 0.3rem; text-align: left;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--border-radius); padding: 1rem; cursor: pointer;
+    transition: var(--transition); font-family: var(--font-body);
+}
+.onb__opt:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.onb__opt-emoji { font-size: 1.7rem; line-height: 1; }
+.onb__opt-title { font-weight: 700; color: var(--text-primary); font-size: 1rem; }
+.onb__opt-desc { font-size: 0.83rem; color: var(--text-secondary); line-height: 1.4; }
+
+.onb__actions { display: flex; justify-content: space-between; margin-top: 1.5rem; }
+.onb__back, .onb__skip {
+    background: none; border: none; color: var(--text-muted);
+    font: inherit; font-size: 0.9rem; cursor: pointer; padding: 0.5rem;
+}
+.onb__back:hover, .onb__skip:hover { color: var(--text-secondary); }
+.onb__skip { margin-left: auto; }
+
+@media (max-width: 560px) {
+    .onb__grid { grid-template-columns: 1fr; }
+    .onb__sheet { padding: 1.5rem 1.2rem; }
+    .onb__title { font-size: 1.35rem; }
+}

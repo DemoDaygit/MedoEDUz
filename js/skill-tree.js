@@ -215,12 +215,22 @@ const SkillTree = (() => {
     // ---------- Реактивный рендер состояний ----------
     function render() {
         const mastered = masteredSet();
+        const profile = window.GameEngine ? GameEngine.getProfile() : null;
+        const track = profile && profile.track;
+        const reco = computeReco(mastered, profile);
 
         model.NODES.forEach((node) => {
             const refs = nodeEls.get(node.id);
             if (!refs) return;
             const st = stateOf(node, mastered);
-            refs.group.setAttribute('class', `st-node is-${st}`);
+            // Мягкий фильтр трека: узел вне трека приглушается, но остаётся
+            // видимым и кликабельным — «расширить кругозор» доступно всегда.
+            const offTrack = track && window.Reco && !Reco.inTrack(node, track);
+            const isReco = reco && reco.primary === node.id;
+            refs.group.setAttribute('class',
+                `st-node is-${st}` +
+                (offTrack ? ' is-offtrack' : '') +
+                (isReco ? ' is-reco' : ''));
             refs.icon.textContent = st === 'locked' ? '🔒' : node.emoji;
         });
 
@@ -234,17 +244,87 @@ const SkillTree = (() => {
         });
 
         updateSummary(mastered);
+        updateRecoBanner(reco);
+    }
+
+    /** Рекомендация «что дальше» через движок Reco */
+    function computeReco(mastered, profile) {
+        if (!window.Reco) return null;
+        const checks = window.CourseView ? CourseView.loadChecks() : {};
+        let quests = {};
+        try { quests = JSON.parse(localStorage.getItem('medoeduz_quest_progress') || '{}'); }
+        catch (e) { /* ignore */ }
+        return Reco.next(model, {
+            mastered,
+            playerLevel: playerLevel(),
+            profile: profile || {},
+            checks,
+            quests,
+        });
+    }
+
+    /** Баннер рекомендации над картой (если контейнер есть на странице) */
+    function updateRecoBanner(reco) {
+        const el = document.getElementById('recoBanner');
+        if (!el) return;
+        if (!reco || !reco.primary) {
+            el.innerHTML = '';
+            el.classList.remove('show');
+            return;
+        }
+        const node = model.BY_ID[reco.primary];
+        const branch = model.BRANCHES[node.branch];
+        el.innerHTML =
+            '<span class="reco__label">Рекомендуем дальше</span>' +
+            '<button class="reco__node" data-id="' + node.id + '" style="--branch:' + branch.color + '">' +
+                '<span class="reco__emoji">' + node.emoji + '</span>' +
+                '<span class="reco__title">' + node.title + '</span>' +
+            '</button>' +
+            '<span class="reco__reason">' + reco.reason + '</span>';
+        el.classList.add('show');
+        const btn = el.querySelector('.reco__node');
+        if (btn) btn.addEventListener('click', () => {
+            const n = model.BY_ID[btn.dataset.id];
+            if (n && window.CourseView) CourseView.open(n);
+        });
     }
 
     function updateSummary(mastered) {
         if (!summaryEl) return;
-        const total = model.NODES.length;
-        const done = model.NODES.filter((n) => mastered.has(n.id)).length;
-        const pct = Math.round((done / total) * 100);
+        const profile = window.GameEngine ? GameEngine.getProfile() : null;
+        const track = profile && profile.track;
+
+        // Со выбранным треком считаем прогресс по узлам трека, без — по всем.
+        let done, total;
+        if (track && window.Reco) {
+            const tp = Reco.trackProgress(model, track, mastered);
+            done = tp.done; total = tp.total;
+        } else {
+            total = model.NODES.length;
+            done = model.NODES.filter((n) => mastered.has(n.id)).length;
+        }
+        const pct = total ? Math.round((done / total) * 100) : 0;
         summaryEl.querySelector('[data-st-done]').textContent = done;
         summaryEl.querySelector('[data-st-total]').textContent = total;
         summaryEl.querySelector('[data-st-pct]').style.width = pct + '%';
         summaryEl.querySelector('[data-st-level]').textContent = playerLevel();
+
+        // Плашка выбранного трека (если контейнер есть)
+        const tEl = document.getElementById('trackBadge');
+        if (tEl) {
+            if (track && model.TRACKS[track]) {
+                const t = model.TRACKS[track];
+                tEl.innerHTML = t.emoji + ' ' + t.name + ' <button class="track-change">сменить</button>';
+                tEl.classList.add('show');
+                const ch = tEl.querySelector('.track-change');
+                if (ch) ch.addEventListener('click', () => { if (window.Onboarding) Onboarding.open(true); });
+            } else {
+                tEl.innerHTML = '<button class="track-change">Выбрать трек обучения</button>';
+                tEl.classList.add('show');
+                const ch = tEl.querySelector('.track-change');
+                if (ch) ch.addEventListener('click', () => { if (window.Onboarding) Onboarding.open(true); });
+            }
+        }
     }
 
     // ---------- Активация узла ----------
@@ -480,6 +560,14 @@ const SkillTree = (() => {
             GameEngine.on('levelup', render);
             GameEngine.on('xp', render);
             GameEngine.on('ready', render);
+            GameEngine.on('profile', render);
+        }
+
+        // Онбординг при первом входе + перерисовка после выбора трека
+        document.addEventListener('medoeduz:onboarded', render);
+        if (window.Onboarding && window.GameEngine && !GameEngine.isOnboarded()) {
+            // небольшая задержка, чтобы карта успела отрисоваться под ним
+            setTimeout(() => Onboarding.open(false), 700);
         }
     }
 
