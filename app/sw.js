@@ -6,12 +6,13 @@
 
 'use strict';
 
-var CACHE = 'medoeduz-app-v1';
+var CACHE = 'medoeduz-app-v2';
 var ASSETS = [
     './',
     './index.html',
     './manifest.webmanifest',
     './icon.svg',
+    './data/curriculum.js',
     './fonts/fonts.css',
     './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2',
     './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwhsk.woff2',

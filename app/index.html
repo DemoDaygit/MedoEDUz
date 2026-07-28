@@ -170,43 +170,145 @@
         z-index: 1;
     }
 
-    /* ---------- Сетка навыков ---------- */
-    .skills-label { font-size: 0.8rem; color: var(--text-dim); margin: 12px 4px 8px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
-    .skills {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        padding-bottom: 8px;
+    /* ---------- Заголовки секций ---------- */
+    .sec-label {
+        display: flex; align-items: center; justify-content: space-between;
+        font-family: 'JetBrains Mono', ui-monospace, monospace;
+        font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+        color: var(--text-dim); margin: 16px 4px 8px; font-weight: 500;
     }
-    .skill {
+    .sec-count { color: var(--primary); }
+
+    /* ---------- Граф знаний ---------- */
+    .graph {
         position: relative;
-        aspect-ratio: 1;
+        height: 46vh; min-height: 300px;
         border-radius: var(--radius);
-        background: var(--surface);
         border: 1px solid var(--surface-border);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        cursor: pointer;
-        transition: transform 0.15s ease, border-color 0.3s ease, background 0.3s ease;
+        background:
+            radial-gradient(circle at 25% 20%, rgba(34,224,200,.08), transparent 45%),
+            radial-gradient(circle at 75% 80%, rgba(139,124,255,.08), transparent 45%),
+            #0D0F14;
+        overflow: hidden;
+        touch-action: none;
+    }
+    .graph::before {
+        content:''; position:absolute; inset:0; pointer-events:none;
+        background-image:
+            linear-gradient(rgba(158,173,196,.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(158,173,196,.05) 1px, transparent 1px);
+        background-size: 38px 38px;
+    }
+    .graph__svg { position:absolute; inset:0; width:100%; height:100%; }
+
+    .graph__ctrl { position:absolute; right:8px; bottom:8px; display:flex; flex-direction:column; gap:6px; z-index:2; }
+    .graph__ctrl button {
+        width:36px; height:36px; border-radius:9px;
+        border:1px solid var(--surface-border); background:var(--bg2);
+        color:var(--text); font-size:1.05rem; font-weight:700; cursor:pointer;
         touch-action: manipulation;
     }
-    .skill:active { transform: scale(0.95); }
-    .skill__icon { font-size: 1.8rem; line-height: 1; }
-    .skill__name { font-size: 0.7rem; color: var(--text-dim); text-align: center; padding: 0 4px; }
-    .skill__lock { position: absolute; top: 6px; right: 8px; font-size: 0.7rem; opacity: 0.8; }
-
-    .skill.is-locked { opacity: 0.5; }
-    .skill.is-available { border-color: var(--accent); animation: pulse-border 2s ease-in-out infinite; }
-    .skill.is-available .skill__name { color: var(--text); }
-    .skill.is-done {
-        background: linear-gradient(135deg, rgba(63, 216, 122, 0.18), rgba(34, 224, 200, 0.12));
-        border-color: var(--success);
+    .graph__hint {
+        position:absolute; left:10px; bottom:12px; z-index:2;
+        font-size:.64rem; color:var(--text-dim); opacity:.75; pointer-events:none;
     }
-    .skill.is-done .skill__name { color: var(--text); font-weight: 700; }
-    .skill.is-done .skill__lock { content: '✓'; }
+
+    /* Узлы графа */
+    .gn { cursor:pointer; }
+    .gn__halo { opacity:0; }
+    .gn__circle { fill:#151921; stroke:var(--surface-border); stroke-width:2.5; }
+    .gn__icon { font-size:19px; pointer-events:none; }
+    .gn__label { fill:var(--text-dim); font-size:9px; font-weight:600; pointer-events:none; }
+
+    .gn.is-locked .gn__icon { opacity:.45; filter:grayscale(1); }
+    .gn.is-locked .gn__label { opacity:.5; }
+
+    .gn.is-available .gn__circle { stroke:var(--branch); stroke-dasharray:5 4; }
+    .gn.is-available .gn__halo { opacity:.2; animation: gpulse 2.4s ease-in-out infinite; }
+
+    .gn.is-done .gn__circle { fill:var(--branch); stroke:var(--branch); }
+    .gn.is-done .gn__label { fill:var(--text); font-weight:700; }
+
+    /* Появление нового узла: граф «прорастает» */
+    .gn.is-new .gn__inner { animation: gsprout .55s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes gsprout { 0%{transform:scale(0);opacity:0} 100%{transform:scale(1);opacity:1} }
+    @keyframes gpulse { 0%,100%{opacity:.12} 50%{opacity:.3} }
+
+    .ge { fill:none; stroke:var(--surface-border); stroke-width:2; }
+    .ge.is-half { stroke:var(--accent); opacity:.45; }
+    .ge.is-full { stroke:var(--primary); stroke-width:2.5; stroke-dasharray:7 5; animation: gflow 1s linear infinite; }
+    @keyframes gflow { to { stroke-dashoffset:-12 } }
+
+    /* ---------- Прогресс по веткам ---------- */
+    .bars { display:flex; flex-direction:column; gap:9px; padding-bottom:6px; }
+    .bar__top { display:flex; justify-content:space-between; align-items:center; font-size:.78rem; margin-bottom:4px; }
+    .bar__name { color:var(--text); }
+    .bar__num { font-family:'JetBrains Mono', ui-monospace, monospace; font-size:.7rem; color:var(--text-dim); }
+    .bar__track { height:7px; border-radius:4px; background:rgba(158,173,196,.1); overflow:hidden; }
+    .bar__fill { height:100%; border-radius:4px; width:0; transition:width .6s cubic-bezier(.22,1,.36,1); }
+
+    /* ---------- Шторка курса ---------- */
+    .sheet { position:fixed; inset:0; z-index:120; visibility:hidden; pointer-events:none; }
+    .sheet.is-open { visibility:visible; pointer-events:auto; }
+    .sheet__bg { position:absolute; inset:0; background:rgba(4,5,8,.8); opacity:0; transition:opacity .3s; }
+    .sheet.is-open .sheet__bg { opacity:1; }
+    .sheet__body {
+        position:absolute; left:0; right:0; bottom:0;
+        max-height:88vh; overflow-y:auto;
+        background:var(--bg2); border-top:1px solid var(--surface-border);
+        border-radius:20px 20px 0 0;
+        padding:18px 16px calc(var(--safe-b) + 24px);
+        transform:translateY(100%); transition:transform .38s cubic-bezier(.22,1,.36,1);
+    }
+    .sheet.is-open .sheet__body { transform:translateY(0); }
+    .sheet__x {
+        position:absolute; top:10px; right:12px; width:34px; height:34px;
+        border-radius:50%; border:1px solid var(--surface-border);
+        background:rgba(158,173,196,.08); color:var(--text-dim);
+        font-size:1.3rem; line-height:1; cursor:pointer; z-index:2;
+        touch-action:manipulation;
+    }
+    .sheet__body { position:absolute; }
+    .sheet__grip { width:38px; height:4px; border-radius:2px; background:var(--surface-border); margin:0 auto 14px; }
+    .sheet__head { display:flex; gap:12px; align-items:center; margin-bottom:10px; }
+    .sheet__emoji { font-size:2rem; width:48px; height:54px; display:flex; align-items:center; justify-content:center; flex:none;
+        clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); filter:saturate(.8); }
+    .sheet__meta { font-family:'JetBrains Mono', ui-monospace, monospace; font-size:.62rem;
+        letter-spacing:.07em; text-transform:uppercase; color:var(--text-dim); }
+    .sheet__title { font-size:1.2rem; font-weight:800; line-height:1.25; }
+    .sheet__desc { color:var(--text-dim); font-size:.9rem; line-height:1.55; margin-bottom:10px; }
+    .sheet__tools { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:14px; }
+    .sheet__tool { font-family:'JetBrains Mono', ui-monospace, monospace; font-size:.62rem;
+        color:var(--primary); background:rgba(34,224,200,.08); border:1px solid rgba(34,224,200,.35);
+        padding:3px 7px; border-radius:4px; }
+    .sheet__lab { font-family:'JetBrains Mono', ui-monospace, monospace; font-size:.64rem;
+        letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin:14px 0 7px; }
+    .sheet__list { list-style:none; display:flex; flex-direction:column; gap:6px; }
+    .sheet__list li { position:relative; padding-left:16px; font-size:.86rem; line-height:1.5; color:var(--text-dim); }
+    .sheet__list li::before { content:''; position:absolute; left:0; top:.5em; width:5px; height:5px;
+        background:var(--branch); clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
+    .sheet__apply { font-weight:700; font-size:.92rem; line-height:1.5; margin-bottom:8px; }
+    .sheet__box { font-size:.84rem; line-height:1.5; color:var(--text-dim);
+        background:rgba(158,173,196,.05); border-radius:10px; padding:10px 12px; }
+    .sheet__box--case { border-left:2px solid var(--branch); }
+    .sheet__box--trap { border-left:2px solid #E5C07B; margin-top:10px; }
+    .sheet__box--proof { border-left:2px solid var(--primary); margin-top:10px; }
+    .sheet__box b { color:var(--text); }
+    .sheet__steps { list-style:none; display:flex; flex-direction:column; gap:6px; }
+    .sheet__step label { display:flex; gap:9px; align-items:flex-start; padding:10px 11px;
+        background:rgba(158,173,196,.05); border:1px solid var(--surface-border);
+        border-radius:10px; font-size:.85rem; line-height:1.45; color:var(--text-dim); }
+    .sheet__step input { width:17px; height:17px; margin-top:1px; flex:none; accent-color:var(--primary); }
+    .sheet__step.is-done label { border-color:var(--success); color:var(--text-dim); }
+    .sheet__step.is-done span { text-decoration:line-through; }
+    .sheet__go { width:100%; margin-top:16px; padding:14px; border:none; border-radius:12px;
+        font-weight:800; font-size:.95rem; color:#04120F;
+        background:linear-gradient(180deg, var(--primary), #12C4AE); cursor:pointer; touch-action:manipulation; }
+    .sheet__go:disabled { background:rgba(158,173,196,.08); color:var(--text-dim);
+        border:1px solid var(--surface-border); }
+    .sheet__done { display:inline-block; font-family:'JetBrains Mono', ui-monospace, monospace;
+        font-size:.62rem; letter-spacing:.07em; text-transform:uppercase;
+        background:var(--success); color:#04120F; padding:4px 9px; border-radius:50px; margin-bottom:10px; }
 
     .footer-note { text-align: center; color: var(--text-dim); font-size: 0.72rem; margin-top: auto; padding-top: 10px; }
     .footer-note button { background: none; border: none; color: var(--text-dim); text-decoration: underline; font-size: 0.72rem; cursor: pointer; }
@@ -315,6 +417,7 @@
 </style>
 </head>
 <body>
+<script src="data/curriculum.js"></script>
 <canvas id="fx"></canvas>
 
 <div class="app">
@@ -344,8 +447,22 @@
         </button>
     </div>
 
-    <div class="skills-label">Дерево навыков</div>
-    <div class="skills" id="skills"></div>
+    <div class="sec-label">Граф знаний<span class="sec-count" id="graphCount">0 / 0</span></div>
+
+    <!-- Граф растёт по мере освоения: закрытые узлы скрыты, соседние
+         проявляются, освоенные соединяются светящимися рёбрами. -->
+    <div class="graph" id="graphStage">
+        <svg class="graph__svg" id="graphSvg" aria-label="Граф знаний"></svg>
+        <div class="graph__ctrl">
+            <button id="gZoomIn" aria-label="Приблизить">+</button>
+            <button id="gZoomOut" aria-label="Отдалить">−</button>
+            <button id="gFit" aria-label="Вписать">⤢</button>
+        </div>
+        <span class="graph__hint">Тяните, чтобы двигать · нажмите узел</span>
+    </div>
+
+    <div class="sec-label">Освоение по направлениям</div>
+    <div class="bars" id="branchBars"></div>
 
     <div class="footer-note">
         Медоеду ВСЁ! · Прогресс сохраняется на устройстве ·
@@ -375,29 +492,10 @@
         { e: '👑', n: 'Медоед ВСЁ', s: 'Легенда экосистемы', a: '#fb7185', lvl: 14 }
     ];
 
-    // use — конкретное применение навыка. Показывается карточкой в момент
-    // освоения: абстрактный «+50 XP» забывается, а «теперь ты можешь X»
-    // остаётся. Формулировки синхронизированы с картой знаний сайта.
-    var SKILLS = [
-        { id: 'prompt', e: '⌨️', n: 'Промпты', lvl: 1, xp: 30,
-          use: 'Получать нужный ответ с 1–2 попыток: роль, задача, контекст, формат, пример.' },
-        { id: 'text', e: '📝', n: 'Тексты', lvl: 2, xp: 40,
-          use: 'Писать своим голосом вдвое быстрее: из расшифровки созвона — статья, письмо и три поста за вечер.' },
-        { id: 'image', e: '🖼️', n: 'Картинки', lvl: 3, xp: 50,
-          use: 'Закрывать визуал без стоков: 12 обложек в едином стиле за вечер.' },
-        { id: 'code', e: '🧑‍💻', n: 'Код', lvl: 4, xp: 60,
-          use: 'Входить в чужой проект за часы: понять архитектуру и внести правку, ничего не сломав.' },
-        { id: 'data', e: '🔢', n: 'Данные', lvl: 6, xp: 70,
-          use: 'Отвечать на вопрос «что с цифрами» за час: 40 тысяч строк — и найдена причина просадки.' },
-        { id: 'design', e: '🎨', n: 'Дизайн', lvl: 7, xp: 70,
-          use: 'Показывать три разных направления вместо одного «как получилось».' },
-        { id: 'video', e: '🎬', n: 'Видео', lvl: 9, xp: 90,
-          use: 'Снимать ролик без съёмочной группы: раскадровка, кадры, озвучка, субтитры — за день.' },
-        { id: 'agents', e: '🦾', n: 'Агенты', lvl: 11, xp: 110,
-          use: 'Автоматизировать многошаговое: агент сам соберёт данные, сверит и подготовит отчёт.' },
-        { id: 'apex', e: '👑', n: 'Мастер', lvl: 14, xp: 200,
-          use: 'Вести полный цикл в одиночку: от исследования аудитории до аналитики результата.' }
-    ];
+    // Единый источник истины — та же модель, что и на сайте
+    // (data/curriculum.js синхронизируется сборщиком build-app.sh).
+    var C = window.CURRICULUM;
+    var NODES = C.NODES, BRANCHES = C.BRANCHES, BY_ID = C.BY_ID;
 
     var KEY = 'medoeduz_app_v1';
     var S = load();
@@ -405,8 +503,8 @@
     function load() {
         try {
             var d = JSON.parse(localStorage.getItem(KEY) || '{}');
-            return { xp: d.xp || 0, level: d.level || 1, skills: d.skills || [] };
-        } catch (e) { return { xp: 0, level: 1, skills: [] }; }
+            return { xp: d.xp || 0, level: d.level || 1, skills: d.skills || [], quests: d.quests || {} };
+        } catch (e) { return { xp: 0, level: 1, skills: [], quests: {} }; }
     }
     function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
@@ -434,35 +532,388 @@
         render();
     }
 
-    function masterSkill(sk, el) {
-        // Уже освоенный навык не «переосваивается», но напоминает,
-        // ЧТО он даёт: это и есть ценность, а не значок в сетке.
-        if (S.skills.indexOf(sk.id) !== -1) { showUse(sk); return; }
-        if (S.level < sk.lvl) { shake(el); return; }
-        S.skills.push(sk.id);
-        var r = el.getBoundingClientRect();
-        addXP(sk.xp, r.left + r.width / 2, r.top + r.height / 2, true);
-        if (sk.id === 'apex') { confetti(); flash('#FF7A85'); }
-        haptic(15);
-        showUse(sk);
+    // ---------- Состояния узлов графа ----------
+    function isDone(id) { return S.skills.indexOf(id) !== -1; }
+
+    function nodeState(n) {
+        if (isDone(n.id)) return 'done';
+        var prereqOk = n.prereqs.every(isDone);
+        return (prereqOk && S.level >= n.reqLevel) ? 'available' : 'locked';
+    }
+
+    /**
+     * Видимость узла — «туман войны».
+     * Показываем освоенные, доступные и их прямых наследников.
+     * Остальное скрыто: граф не выдаётся целиком, а ПРОРАСТАЕТ
+     * по мере освоения — в этом и есть визуальный прогресс.
+     */
+    function isVisible(n) {
+        if (nodeState(n) !== 'locked') return true;
+        return n.prereqs.some(function (p) {
+            var pn = BY_ID[p];
+            return pn && nodeState(pn) !== 'locked';
+        });
+    }
+
+    // ---------- Геометрия графа ----------
+    var GW = 150, GH = 118, GM = 70, R = 21;
+    function pos(n) { return { x: GM + n.col * GW, y: GM + n.row * GH }; }
+
+    var gsvg, gvp, gview = { x: 0, y: 0, k: 1 }, gdrag = null, gpinch = null;
+    var seen = {};   // какие узлы уже проявлялись — чтобы анимировать только новые
+
+    function SVG(tag, attrs) {
+        var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (var k in attrs) e.setAttribute(k, attrs[k]);
+        return e;
+    }
+
+    function buildGraph() {
+        gsvg = $('graphSvg');
+        gsvg.innerHTML = '';
+        gvp = SVG('g', {});
+        gsvg.appendChild(gvp);
+        drawGraph();
+        fitGraph();
+        bindGraph();
+    }
+
+    function drawGraph() {
+        gvp.innerHTML = '';
+        var edges = SVG('g', {}), nodes = SVG('g', {});
+        gvp.appendChild(edges); gvp.appendChild(nodes);
+
+        NODES.forEach(function (n) {
+            if (!isVisible(n)) return;
+            var to = pos(n);
+            n.prereqs.forEach(function (pid) {
+                var pn = BY_ID[pid];
+                if (!pn || !isVisible(pn)) return;
+                var from = pos(pn);
+                var dy = (to.y - R - (from.y + R)) * 0.5;
+                var cls = 'ge' + (isDone(pid) && isDone(n.id) ? ' is-full'
+                                : isDone(pid) ? ' is-half' : '');
+                edges.appendChild(SVG('path', {
+                    class: cls,
+                    d: 'M ' + from.x + ' ' + (from.y + R) +
+                       ' C ' + from.x + ' ' + (from.y + R + dy) + ', ' +
+                       to.x + ' ' + (to.y - R - dy) + ', ' + to.x + ' ' + (to.y - R)
+                }));
+            });
+        });
+
+        NODES.forEach(function (n) {
+            if (!isVisible(n)) return;
+            var p = pos(n), st = nodeState(n), br = BRANCHES[n.branch];
+            var fresh = !seen[n.id];
+            seen[n.id] = 1;
+
+            var g = SVG('g', {
+                class: 'gn is-' + st + (fresh ? ' is-new' : ''),
+                transform: 'translate(' + p.x + ',' + p.y + ')',
+                role: 'button', tabindex: '0'
+            });
+            g.style.setProperty('--branch', br.color);
+
+            // Внутренняя группа: CSS-анимация не должна перетирать
+            // атрибут transform, который позиционирует узел.
+            var inner = SVG('g', { class: 'gn__inner' });
+            inner.appendChild(SVG('circle', { class: 'gn__halo', r: R + 6, fill: br.color }));
+            inner.appendChild(SVG('circle', { class: 'gn__circle', r: R }));
+
+            var ic = SVG('text', { class: 'gn__icon', 'text-anchor': 'middle',
+                                   'dominant-baseline': 'central', y: 1 });
+            ic.textContent = st === 'locked' ? '🔒' : n.emoji;
+            inner.appendChild(ic);
+
+            var words = n.title.split(' '), line = '', lines = [];
+            words.forEach(function (w) {
+                if ((line + ' ' + w).trim().length > 13) { lines.push(line.trim()); line = w; }
+                else line = (line + ' ' + w).trim();
+            });
+            if (line) lines.push(line);
+            lines.slice(0, 2).forEach(function (ln, i) {
+                var t = SVG('text', { class: 'gn__label', 'text-anchor': 'middle', y: R + 13 + i * 10 });
+                t.textContent = ln;
+                inner.appendChild(t);
+            });
+
+            g.appendChild(inner);
+            g.addEventListener('click', function () { openSheet(n); });
+            nodes.appendChild(g);
+        });
+
+        var done = NODES.filter(function (n) { return isDone(n.id); }).length;
+        $('graphCount').textContent = done + ' / ' + NODES.length;
+    }
+
+    function applyG() {
+        gvp.setAttribute('transform', 'translate(' + gview.x + ',' + gview.y + ') scale(' + gview.k + ')');
+    }
+
+    function fitGraph() {
+        var vis = NODES.filter(isVisible).map(pos);
+        if (!vis.length) return;
+        var r = gsvg.getBoundingClientRect();
+        var minX = Math.min.apply(null, vis.map(function (p) { return p.x; })) - R - 30;
+        var maxX = Math.max.apply(null, vis.map(function (p) { return p.x; })) + R + 30;
+        var minY = Math.min.apply(null, vis.map(function (p) { return p.y; })) - R - 20;
+        var maxY = Math.max.apply(null, vis.map(function (p) { return p.y; })) + R + 40;
+        var k = Math.min(r.width / (maxX - minX), r.height / (maxY - minY));
+        gview.k = Math.max(0.35, Math.min(1.6, k));
+        gview.x = (r.width - (maxX - minX) * gview.k) / 2 - minX * gview.k;
+        gview.y = (r.height - (maxY - minY) * gview.k) / 2 - minY * gview.k;
+        applyG();
+    }
+
+    function zoomBy(f) {
+        var r = gsvg.getBoundingClientRect(), cx = r.width / 2, cy = r.height / 2;
+        var k = Math.max(0.35, Math.min(2.2, gview.k * f));
+        gview.x = cx - (cx - gview.x) * (k / gview.k);
+        gview.y = cy - (cy - gview.y) * (k / gview.k);
+        gview.k = k; applyG();
+    }
+
+    function bindGraph() {
+        var stage = $('graphStage');
+        stage.addEventListener('touchstart', function (e) {
+            if (e.touches.length === 1) {
+                gdrag = { x: e.touches[0].clientX - gview.x, y: e.touches[0].clientY - gview.y };
+            } else if (e.touches.length === 2) {
+                gdrag = null;
+                gpinch = { d: dist(e.touches), k: gview.k };
+            }
+        }, { passive: true });
+
+        stage.addEventListener('touchmove', function (e) {
+            if (gpinch && e.touches.length === 2) {
+                var k = Math.max(0.35, Math.min(2.2, gpinch.k * (dist(e.touches) / gpinch.d)));
+                gview.k = k; applyG();
+            } else if (gdrag && e.touches.length === 1) {
+                gview.x = e.touches[0].clientX - gdrag.x;
+                gview.y = e.touches[0].clientY - gdrag.y;
+                applyG();
+            }
+        }, { passive: true });
+
+        stage.addEventListener('touchend', function () { gdrag = null; gpinch = null; });
+
+        // мышь — для десктопного просмотра приложения
+        stage.addEventListener('mousedown', function (e) {
+            if (e.target.closest('.gn') || e.target.closest('.graph__ctrl')) return;
+            gdrag = { x: e.clientX - gview.x, y: e.clientY - gview.y };
+        });
+        window.addEventListener('mousemove', function (e) {
+            if (!gdrag) return;
+            gview.x = e.clientX - gdrag.x; gview.y = e.clientY - gdrag.y; applyG();
+        });
+        window.addEventListener('mouseup', function () { gdrag = null; });
+
+        $('gZoomIn').addEventListener('click', function () { zoomBy(1.25); });
+        $('gZoomOut').addEventListener('click', function () { zoomBy(0.8); });
+        $('gFit').addEventListener('click', fitGraph);
+        window.addEventListener('resize', fitGraph);
+    }
+
+    function dist(t) {
+        var dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+        return Math.hypot(dx, dy) || 1;
+    }
+
+    // ---------- Прогресс по веткам ----------
+    function renderBars() {
+        var wrap = $('branchBars');
+        var html = '';
+        Object.keys(BRANCHES).forEach(function (key) {
+            var br = BRANCHES[key];
+            var all = NODES.filter(function (n) { return n.branch === key; });
+            if (!all.length) return;
+            var done = all.filter(function (n) { return isDone(n.id); }).length;
+            var pct = Math.round(done / all.length * 100);
+            html += '<div class="bar">' +
+                '<div class="bar__top"><span class="bar__name">' + br.emoji + ' ' + br.name + '</span>' +
+                '<span class="bar__num">' + done + '/' + all.length + '</span></div>' +
+                '<div class="bar__track"><div class="bar__fill" style="width:' + pct +
+                '%;background:' + br.color + '"></div></div></div>';
+        });
+        wrap.innerHTML = html;
+    }
+
+    // ---------- Шторка курса ----------
+    var sheet, sheetNode;
+
+    function buildSheet() {
+        sheet = document.createElement('div');
+        sheet.className = 'sheet';
+        sheet.innerHTML = '<div class="sheet__bg"></div><div class="sheet__body"></div>';
+        document.body.appendChild(sheet);
+        sheet.querySelector('.sheet__bg').addEventListener('click', closeSheet);
+
+        // Свайп вниз по верхней зоне шторки — привычный жест закрытия.
+        // Без него на мобильном закрыть можно было только крестиком.
+        var sy = null, body = sheet.querySelector('.sheet__body');
+        body.addEventListener('touchstart', function (e) {
+            if (body.scrollTop > 4) return;   // не мешаем прокрутке содержимого
+            sy = e.touches[0].clientY;
+        }, { passive: true });
+        body.addEventListener('touchmove', function (e) {
+            if (sy === null) return;
+            var d = e.touches[0].clientY - sy;
+            if (d > 0) body.style.transform = 'translateY(' + d + 'px)';
+        }, { passive: true });
+        body.addEventListener('touchend', function (e) {
+            if (sy === null) return;
+            var d = (e.changedTouches[0].clientY - sy);
+            body.style.transform = '';
+            if (d > 90) closeSheet();
+            sy = null;
+        });
+    }
+
+    function esc(t) {
+        return String(t).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+    }
+
+    function questDone(id) { return S.quests[id] || []; }
+
+    function openSheet(n) {
+        if (!sheet) buildSheet();
+        sheetNode = n;
+        renderSheet();
+        sheet.classList.add('is-open');
+    }
+
+    function closeSheet() { if (sheet) sheet.classList.remove('is-open'); }
+
+    function renderSheet() {
+        var n = sheetNode, br = BRANCHES[n.branch];
+        var st = nodeState(n), done = questDone(n.id), body = sheet.querySelector('.sheet__body');
+        var all = done.length === n.quest.steps.length;
+        body.style.setProperty('--branch', br.color);
+
+        body.innerHTML =
+            '<button class="sheet__x" aria-label="Закрыть">&times;</button>' +
+            '<div class="sheet__grip"></div>' +
+            '<div class="sheet__head">' +
+                '<span class="sheet__emoji" style="background:' + br.color + '22">' +
+                    (st === 'locked' ? '🔒' : n.emoji) + '</span>' +
+                '<div><div class="sheet__meta">' + br.emoji + ' ' + esc(br.name) +
+                    ' · ур. ' + n.reqLevel + ' · +' + n.xp + ' XP</div>' +
+                '<div class="sheet__title">' + esc(n.title) + '</div></div>' +
+            '</div>' +
+            (st === 'done' ? '<div class="sheet__done">✓ освоено</div>' : '') +
+            '<p class="sheet__desc">' + esc(n.desc) + '</p>' +
+            '<div class="sheet__tools">' +
+                n.tools.map(function (t) { return '<span class="sheet__tool">' + esc(t) + '</span>'; }).join('') +
+            '</div>' +
+            '<div class="sheet__lab">Программа</div>' +
+            '<ul class="sheet__list">' +
+                n.learn.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') +
+            '</ul>' +
+            '<div class="sheet__lab">Что сможете сразу</div>' +
+            '<p class="sheet__apply">' + esc(n.apply.now) + '</p>' +
+            '<div class="sheet__box sheet__box--case"><b>Пример.</b> ' + esc(n.apply.case) + '</div>' +
+            '<div class="sheet__box sheet__box--trap"><b>Частая ошибка.</b> ' + esc(n.trap) + '</div>' +
+            '<div class="sheet__lab">Миссия · ' + esc(n.quest.title) + '</div>' +
+            (st === 'locked'
+                ? '<div class="sheet__box">Узел закроется, пока не освоены предыдущие навыки и не достигнут уровень ' + n.reqLevel + '.</div>'
+                : '<ul class="sheet__steps">' +
+                    n.quest.steps.map(function (s2, i) {
+                        return '<li class="sheet__step' + (done.indexOf(i) !== -1 ? ' is-done' : '') + '">' +
+                            '<label><input type="checkbox" data-s="' + i + '"' +
+                            (done.indexOf(i) !== -1 ? ' checked' : '') + '><span>' + esc(s2) + '</span></label></li>';
+                    }).join('') +
+                  '</ul>') +
+            '<div class="sheet__box sheet__box--proof"><b>Результат:</b> ' + esc(n.quest.proof) + '</div>' +
+            (st === 'available'
+                ? '<button class="sheet__go" id="sheetGo"' + (all ? '' : ' disabled') + '>' +
+                    (all ? 'Освоить · +' + n.xp + ' XP'
+                         : 'Отметьте все шаги (' + done.length + '/' + n.quest.steps.length + ')') +
+                  '</button>'
+                : '');
+
+        // Точечное обновление: полная перерисовка сбрасывала бы прокрутку,
+        // а миссия находится внизу длинной шторки.
+        body.querySelectorAll('input[data-s]').forEach(function (box) {
+            box.addEventListener('change', function () {
+                var list = S.quests[n.id] || [];
+                var idx = Number(box.dataset.s), at = list.indexOf(idx);
+                if (at === -1) list.push(idx); else list.splice(at, 1);
+                S.quests[n.id] = list; save();
+                box.closest('.sheet__step').classList.toggle('is-done', box.checked);
+                var go = document.getElementById('sheetGo');
+                if (go) {
+                    var ok = list.length === n.quest.steps.length;
+                    go.disabled = !ok;
+                    go.textContent = ok ? 'Освоить · +' + n.xp + ' XP'
+                        : 'Отметьте все шаги (' + list.length + '/' + n.quest.steps.length + ')';
+                }
+            });
+        });
+
+        var x = body.querySelector('.sheet__x');
+        if (x) x.addEventListener('click', closeSheet);
+
+        var go = document.getElementById('sheetGo');
+        if (go) go.addEventListener('click', function () { masterNode(n); });
+    }
+
+    // ---------- Освоение узла ----------
+    function masterNode(n) {
+        if (isDone(n.id)) return;
+        S.skills.push(n.id);
+        save();
+        var r = $('graphStage').getBoundingClientRect();
+        addXP(n.xp, r.left + r.width / 2, r.top + 40, true);
+        haptic([12, 30, 12]);
+        drawGraph();
+        renderBars();
+        renderSheet();
+        showUse(n);
+        checkSyn();
+        if (n.id === 'apex') { confetti(); flash('#FF7A85'); }
     }
 
     /** Карточка «теперь ты можешь» — то, ради чего осваивался навык */
-    function showUse(sk) {
+    function showUse(n) {
         var old = document.querySelector('.use-card');
         if (old) old.remove();
         var c = document.createElement('div');
         c.className = 'use-card';
-        c.innerHTML =
-            '<div class="use-card__top"><span class="use-card__emoji">' + sk.e + '</span>' +
-            '<span class="use-card__label">Теперь ты можешь</span></div>' +
-            '<p class="use-card__text">' + sk.use + '</p>';
+        c.innerHTML = '<div class="use-card__top"><span class="use-card__emoji">' + n.emoji +
+            '</span><span class="use-card__label">Теперь ты можешь</span></div>' +
+            '<p class="use-card__text">' + esc(n.apply.now) + '</p>';
         document.body.appendChild(c);
         requestAnimationFrame(function () { c.classList.add('show'); });
         setTimeout(function () {
             c.classList.remove('show');
             setTimeout(function () { c.remove(); }, 350);
-        }, 5200);
+        }, 5000);
+    }
+
+    /** Синергии: комбинации навыков из разных веток */
+    function checkSyn() {
+        if (!C.SYNERGIES) return;
+        S.syn = S.syn || [];
+        C.SYNERGIES.forEach(function (sy) {
+            if (S.syn.indexOf(sy.id) !== -1) return;
+            if (!sy.nodes.every(isDone)) return;
+            S.syn.push(sy.id); save();
+            var c = document.createElement('div');
+            c.className = 'use-card';
+            c.innerHTML = '<div class="use-card__top"><span class="use-card__emoji">' + sy.emoji +
+                '</span><span class="use-card__label" style="color:var(--accent)">Синергия открыта · ' +
+                esc(sy.name) + '</span></div><p class="use-card__text">' + esc(sy.gives) + '</p>';
+            document.body.appendChild(c);
+            requestAnimationFrame(function () { c.classList.add('show'); });
+            confetti();
+            setTimeout(function () {
+                c.classList.remove('show');
+                setTimeout(function () { c.remove(); }, 350);
+            }, 5600);
+        });
     }
 
     // ---------- Рендер ----------
@@ -475,28 +926,8 @@
         $('lvl').textContent = S.level;
         $('xpText').textContent = Math.floor(p.cur) + ' / ' + p.total + ' XP';
         $('xpFill').style.width = p.pct + '%';
-
-        for (var i = 0; i < SKILLS.length; i++) {
-            var sk = SKILLS[i], el = document.getElementById('sk-' + sk.id);
-            if (!el) continue;
-            var done = S.skills.indexOf(sk.id) !== -1;
-            var avail = !done && S.level >= sk.lvl;
-            el.className = 'skill ' + (done ? 'is-done' : avail ? 'is-available' : 'is-locked');
-            el.querySelector('.skill__lock').textContent = done ? '✓' : (avail ? '' : 'ур.' + sk.lvl);
-        }
-    }
-
-    function buildSkills() {
-        var wrap = $('skills');
-        SKILLS.forEach(function (sk) {
-            var el = document.createElement('div');
-            el.className = 'skill';
-            el.id = 'sk-' + sk.id;
-            el.innerHTML = '<span class="skill__lock"></span><span class="skill__icon">' + sk.e +
-                '</span><span class="skill__name">' + sk.n + '</span>';
-            el.addEventListener('click', function () { masterSkill(sk, el); });
-            wrap.appendChild(el);
-        });
+        if (gvp) drawGraph();
+        renderBars();
     }
 
     // ---------- Визуальные эффекты ----------
@@ -639,7 +1070,7 @@
 
     // ---------- Сброс ----------
     $('resetBtn').addEventListener('click', function () {
-        if (confirm('Сбросить весь прогресс?')) { S = { xp: 0, level: 1, skills: [] }; save(); render(); }
+        if (confirm('Сбросить весь прогресс?')) { S = { xp: 0, level: 1, skills: [], quests: {} }; save(); render(); }
     });
 
     // ---------- Установка PWA ----------
@@ -659,7 +1090,16 @@
     }
 
     // ---------- Старт ----------
-    buildSkills();
+    // Без модели приложение бессмысленно — сообщаем честно,
+    // а не падаем с пустым экраном.
+    if (!window.CURRICULUM) {
+        document.getElementById('graphStage').innerHTML =
+            '<p style="padding:24px;color:#9FADC0;font-size:.9rem;text-align:center">' +
+            'Не загрузилась модель курса (data/curriculum.js).</p>';
+    } else {
+        buildGraph();
+        checkSyn();
+    }
     render();
 })();
 </script>

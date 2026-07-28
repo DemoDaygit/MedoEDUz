@@ -15,6 +15,16 @@ if [ ! -d "$APP_DIR" ]; then
     exit 1
 fi
 
+# Модель учебной программы — единый источник истины в js/data/.
+# Приложение автономно (распространяется zip-архивом и работает офлайн),
+# поэтому модель копируется внутрь. Синхронизируем при каждой сборке,
+# иначе копия молча разойдётся с оригиналом.
+if [ -f "js/data/curriculum.js" ]; then
+    mkdir -p "$APP_DIR/data"
+    cp js/data/curriculum.js "$APP_DIR/data/curriculum.js"
+    echo "  → модель курса синхронизирована из js/data/curriculum.js"
+fi
+
 mkdir -p "$OUT_DIR"
 rm -f "$OUT_DIR/$ZIP_NAME"
 
