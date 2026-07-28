@@ -43,9 +43,12 @@ jobs:
             --exclude 'nginx.conf' \
             --exclude 'build-app.sh' \
             --exclude '.env*' \
-            --exclude 'worker' \
-            --exclude 'docs' \
             ./ _site/
+          # Служебные папки удаляем явно после копирования — надёжнее, чем
+          # полагаться на трактовку --exclude для директорий в разных
+          # версиях rsync (worker/ и docs/ ранее просачивались на Pages:
+          # серверный код и внутренние доки не должны быть публичными).
+          rm -rf _site/worker _site/docs _site/api
           # Отключаем обработку Jekyll (иначе игнорируются файлы с _ и .)
           touch _site/.nojekyll
           echo "--- содержимое _site ---"
