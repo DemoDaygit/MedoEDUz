@@ -396,6 +396,14 @@
     font-weight: 800;
 }
 
+/* Текстовая цена («по договорённости») вместо числа: 3rem не помещается
+   в узкие экраны и вызывает горизонтальное переполнение. */
+.price-current--text {
+    font-size: 1.75rem;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+}
+
 .price-discount {
     padding: 0.5rem 1rem;
     background: rgba(255, 255, 255, 0.2);
