@@ -1,0 +1,364 @@
+/* ============================================================
+ *  MedoEDUz — ИИ-хаб на главной («россыпь нейросетей»)
+ *
+ *  Витрина известных ИИ-инструментов, разложенных по трекам
+ *  обучения. Задача — превратить абстрактный «трек» в конкретный
+ *  список того, чем работать.
+ *
+ *  Правила дизайн-системы, которые тут соблюдаются:
+ *  - Мёд (--signature) НЕ используется для состояний UI: активные
+ *    чипы, ссылки и hover идут на agent-cyan / inference-violet.
+ *    Тёплый мёд остаётся подписью Медоеда и не спорит с марками.
+ *  - Марки вендоров — стилизованные векторные глифы (см. ai-hub.js),
+ *    тон задаётся переменной --brand на плитке. Плитка красится
+ *    через color-mix, но под ней лежит токен-фолбэк: старый движок
+ *    без color-mix просто покажет нейтральную подложку, а не белое.
+ *  - Всё из токенов, светлая тема наследует их автоматически.
+ * ============================================================ */
+
+.ai-hub {
+    padding: 6rem 0;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.ai-hub__mount { margin-top: 2.5rem; }
+
+/* ------------------------------------------------------------
+ *  Россыпь: бегущая лента марок над интерактивным хабом.
+ *  Декоративная (aria-hidden). При prefers-reduced-motion лента
+ *  замирает и просто переносится — движение не навязываем.
+ * ---------------------------------------------------------- */
+.ai-marquee {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+    padding: 0.35rem 0;
+    /* Края растворяются, чтобы лента «уходила» за границы секции */
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.ai-marquee__row {
+    display: flex;
+    gap: 0.6rem;
+    width: max-content;
+    flex-wrap: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .ai-marquee__row { animation: ai-marquee-scroll 46s linear infinite; }
+    .ai-marquee:hover .ai-marquee__row { animation-play-state: paused; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .ai-marquee { -webkit-mask-image: none; mask-image: none; }
+    .ai-marquee__row { flex-wrap: wrap; width: auto; justify-content: center; }
+}
+
+/* Сдвигаем ровно на половину: вторая половина — дубль первой,
+   поэтому склейка незаметна. */
+@keyframes ai-marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+.ai-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex: none;
+    padding: 0.4rem 0.85rem 0.4rem 0.4rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+ *  Плитка марки: подложка тонируется брендом, но БЕЗ color-mix
+ *  остаётся нейтральный токен — на белое поле не свалимся.
+ * ---------------------------------------------------------- */
+.ai-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    color: var(--brand, var(--accent));
+    background: var(--surface-tint);
+    background: color-mix(in srgb, var(--brand, var(--accent)) 15%, var(--bg-inset));
+    border: 1px solid var(--border);
+    border-color: color-mix(in srgb, var(--brand, var(--accent)) 40%, transparent);
+}
+.ai-logo svg { width: 26px; height: 26px; display: block; }
+.ai-pill .ai-logo { width: 34px; height: 34px; border-radius: 10px; }
+.ai-pill .ai-logo svg { width: 20px; height: 20px; }
+
+/* ------------------------------------------------------------
+ *  Панель управления: чипы треков + инструменты (модальность,
+ *  сортировка) + счётчик.
+ * ---------------------------------------------------------- */
+.ai-controls { margin-bottom: 1.75rem; }
+
+.ai-tracks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1.1rem;
+}
+
+.ai-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+.ai-chip:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.ai-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ai-chip:active { transform: scale(0.97); }
+.ai-chip .ai-chip__dot { font-size: 1rem; line-height: 1; }
+
+/* Активный трек: agent-cyan, не мёд. Точка окрашивается цветом трека. */
+.ai-chip.is-on {
+    border-color: var(--border-accent);
+    background: var(--accent-ghost);
+    color: var(--accent);
+}
+[data-theme="light"] .ai-chip.is-on { color: var(--accent-deep); }
+
+/* Метка «ваш трек» — тонкая, служебная */
+.ai-chip__you {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--violet);
+    border: 1px solid var(--violet-ghost);
+    border-radius: 5px;
+    padding: 1px 4px;
+}
+[data-theme="light"] .ai-chip__you { color: var(--violet); }
+
+.ai-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1rem;
+}
+
+.ai-field {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    letter-spacing: 0.03em;
+}
+.ai-field select {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-inset);
+    border: 1px solid var(--border-strong);
+    border-radius: 9px;
+    padding: 0.42rem 0.6rem;
+    cursor: pointer;
+}
+.ai-field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.ai-count {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.ai-count b { color: var(--text-secondary); font-weight: 700; }
+
+/* Контекстная полоса выбранного трека: цель трека + вход на карту */
+.ai-trackbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin: 0 auto 1.75rem;
+    max-width: 820px;
+    padding: 0.9rem 1.15rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    background: var(--accent-ghost);
+}
+.ai-trackbar__goal { color: var(--text-secondary); font-size: 0.92rem; margin: 0; flex: 1 1 320px; }
+.ai-trackbar__goal b { color: var(--text-primary); }
+.ai-trackbar__link {
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+}
+[data-theme="light"] .ai-trackbar__link { color: var(--accent-deep); }
+.ai-trackbar__link:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------
+ *  Сетка карточек инструментов
+ * ---------------------------------------------------------- */
+.ai-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.15rem;
+}
+
+.ai-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.35rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    background:
+        linear-gradient(180deg, var(--lift-a), var(--lift-b)),
+        var(--bg-elevated);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ai-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-lg);
+}
+
+.ai-card__top { display: flex; align-items: center; gap: 0.8rem; }
+.ai-card__id { flex: 1; min-width: 0; }
+.ai-card__name {
+    font-family: var(--font-display);
+    font-size: 1.12rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.2;
+}
+.ai-card__vendor {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.ai-access {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: var(--surface-tint);
+    align-self: flex-start;
+}
+.ai-access--freemium { color: var(--accent); border-color: var(--border-accent); background: var(--accent-ghost); }
+.ai-access--open { color: var(--violet); border-color: var(--violet-ghost); background: var(--violet-ghost); }
+[data-theme="light"] .ai-access--freemium { color: var(--accent-deep); }
+
+.ai-card__tag {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0;
+    flex: 1;
+}
+
+.ai-card__cats { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.ai-cat {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border-hair);
+    background: var(--surface-tint);
+}
+
+.ai-card__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-hair);
+}
+
+/* Кружки треков, которые обслуживает инструмент. Выбранный трек
+   подсвечивается кольцом — так видно, «за что» карточка тут. */
+.ai-card__tracks { display: flex; gap: 3px; flex-wrap: wrap; }
+.ai-dot {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    border-radius: 50%;
+    background: var(--surface-tint);
+    border: 1px solid transparent;
+    cursor: default;
+}
+.ai-dot.is-match { border-color: var(--border-accent); background: var(--accent-ghost); }
+
+.ai-card__link {
+    flex: none;
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+}
+[data-theme="light"] .ai-card__link { color: var(--accent-deep); }
+.ai-card__link:hover { text-decoration: underline; }
+
+/* Пусто по фильтру */
+.ai-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2.5rem 1rem;
+}
+
+/* Честная сноска про товарные знаки */
+.ai-note {
+    margin-top: 2rem;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 720px;
+    margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+    .ai-grid { grid-template-columns: 1fr; }
+    .ai-tools { gap: 0.6rem; }
+    .ai-field select { padding: 0.4rem 0.5rem; }
+}

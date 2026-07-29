@@ -39,6 +39,7 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
     <link rel="stylesheet" href="css/cookie-consent.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/game-ui.css">
+    <link rel="stylesheet" href="css/ai-hub.css">
     <link rel="stylesheet" href="fonts/fonts.css">
     <script src="js/data/site-i18n.js"></script>
     <script src="js/t.js"></script>
@@ -57,6 +58,7 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
                     <li><a href="#about" class="nav-link">О проекте</a></li>
                     <li><a href="#benefits" class="nav-link">Преимущества</a></li>
                     <li><a href="#courses" class="nav-link">Направления</a></li>
+                    <li><a href="#ai-hub" class="nav-link">Нейросети</a></li>
                     <li><a href="pages/roadmap.html" class="nav-link">Карта знаний</a></li>
                     <li><a href="pages/artifacts.html" class="nav-link">Артефакты</a></li>
                     <li><a href="#testimonials" class="nav-link">Честность</a></li>
@@ -333,11 +335,24 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
         </div>
     </section>
 
+    <!-- ИИ-хаб: россыпь нейросетей, разложенная по трекам обучения -->
+    <section class="ai-hub" id="ai-hub">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-kicker">04 / НЕЙРОСЕТИ</div>
+                <h2 class="section-title">Хаб нейросетей</h2>
+                <p class="section-subtitle">Известные ИИ-инструменты, разложенные по вашему треку обучения. Выберите трек — и увидите, чем реально работать.</p>
+            </div>
+            <!-- Наполняется js/ai-hub.js из js/data/models.js -->
+            <div class="ai-hub__mount" id="aiHub"></div>
+        </div>
+    </section>
+
     <!-- Честность (бывшие Отзывы) -->
     <section class="testimonials" id="testimonials">
         <div class="container">
             <div class="section-header">
-                <div class="section-kicker">04 / ЧЕСТНОСТЬ</div>
+                <div class="section-kicker">05 / ЧЕСТНОСТЬ</div>
                 <h2 class="section-title">Честный взгляд на проект</h2>
                 <p class="section-subtitle">
                     Мы не притворяемся. Вот реальное положение дел.
@@ -496,6 +511,7 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
                     <ul>
                         <li><a href="#about">О проекте</a></li>
                         <li><a href="#benefits">Преимущества</a></li>
+                        <li><a href="#ai-hub">Нейросети</a></li>
                         <li><a href="pages/roadmap.html">Карта знаний</a></li>
                         <li><a href="app/index.html">📱 Мобильное приложение</a></li>
                         <li><a href="pages/blog/index.html">Блог</a></li>
@@ -531,6 +547,14 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
     <script src="js/gamification.js"></script>
     <script src="js/game-ui.js"></script>
     <script src="js/game-integration.js"></script>
+
+    <!-- ИИ-хаб: модель курса нужна ради реальных треков (bilingual через t.js) -->
+    <script src="js/data/curriculum.js"></script>
+    <script src="js/data/curriculum.en.js"></script>
+    <script>if (window.MEDOEDUZ_LANG === "en" && window.CURRICULUM_EN) window.CURRICULUM = window.CURRICULUM_EN;</script>
+    <script src="js/data/models.js"></script>
+    <script src="js/ai-hub.js"></script>
+
     <script src="js/theme.js"></script>
     <script src="js/i18n-site.js"></script>
 </body>
