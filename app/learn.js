@@ -134,12 +134,13 @@ function startLearnApp() {
     var EMPTY = {
         xp: 0, level: 1, skills: [], quests: {}, checks: {}, syn: [],
         achievements: [],
-        profile: { userId: null, goal: null, track: null, experience: null, onboardedAt: null, minutes: 15 },
+        profile: { userId: null, goal: null, track: null, experience: null, onboardedAt: null, minutes: 30 },
         srs: {},          // интервальные повторения по узлам
         reflect: [],      // записи рефлексии
         calib: [],        // журнал калибровки (уверенность против факта)
+        confErr: [],      // уверенные ошибки — отдельный класс, см. ниже
         intents: [],      // намерения «если — то»
-        gaps: [],         // «мутные места»
+        gaps: [],         // «мутные места» — вопросы, на которые хочется уметь отвечать
         streak: { days: [] },
         weekly: [],       // недельные обзоры
         sessions: [],     // завершённые сессии
@@ -175,7 +176,7 @@ function startLearnApp() {
     // Журналы растут бесконечно, а квота localStorage — около 5 МБ.
     // При переполнении запись падает молча и теряется ВЕСЬ прогресс,
     // поэтому каждый журнал живёт как кольцевой буфер.
-    var CAPS = { reflect: 300, calib: 2000, intents: 300, gaps: 300, weekly: 200, sessions: 500 };
+    var CAPS = { reflect: 300, calib: 2000, confErr: 300, intents: 300, gaps: 300, weekly: 200, sessions: 500 };
 
     function capLogs(hard) {
         Object.keys(CAPS).forEach(function (k) {
@@ -407,6 +408,40 @@ function startLearnApp() {
             bias: conf / n - right / n,     // > 0 — переоценка себя
             buckets: buckets
         };
+    }
+
+    // ============================================================
+    //  Уверенная ошибка — отдельный класс, а не строка в общем списке
+    //
+    //  Неверный ответ при заявленной уверенности ≥70% исправляется
+    //  прочнее любой другой ошибки (эффект гиперкоррекции), но только
+    //  если расхождение показать сразу и целиком. Поэтому такие
+    //  ошибки получают контраст «ваш ответ / верный», отдельный
+    //  счётчик и обязательный возврат — а ошибки при низкой
+    //  уверенности идут в обычные пробелы: там ученик и сам знал,
+    //  что не знает.
+    // ============================================================
+    var CONF_ERR_MIN = 0.7;
+
+    function noteConfError(node, qi, conf, picked) {
+        S.confErr.push({
+            at: new Date().toISOString(), node: node.id, qi: qi, conf: conf,
+            picked: picked, ok: node.check[qi].ok, fixed: false
+        });
+    }
+    function openConfErrors(nodeId) {
+        return S.confErr.filter(function (e) {
+            return !e.fixed && (!nodeId || e.node === nodeId);
+        });
+    }
+    /** Верный ответ на тот же вопрос закрывает уверенную ошибку */
+    function fixConfError(nodeId, qi) {
+        S.confErr.forEach(function (e) {
+            if (!e.fixed && e.node === nodeId && e.qi === qi) {
+                e.fixed = true;
+                e.fixedAt = new Date().toISOString();
+            }
+        });
     }
 
     function calibVerdict(st) {
@@ -766,7 +801,7 @@ function startLearnApp() {
             '<div class="h2">' + (si.today ? 'Сессия на сегодня уже пройдена' : 'Учебная сессия') + '</div>' +
             '<p class="muted">' + (si.today
                 ? 'Можно пройти ещё одну — лишним не будет. Или загляните в дневник и разберите, что осталось мутным.'
-                : 'Один заход: повторение → новый навык → практика → проверка → рефлексия. 10–20 минут.') + '</p>' +
+                : 'Один заход: повторение → новый навык → практика → проверка → рефлексия.') + '</p>' +
             '<div class="stats" style="margin-top:12px">' +
                 '<div class="stat"><b>' + due.length + '</b><span>к повтору</span></div>' +
                 '<div class="stat stat--violet"><b>' + fr.n + '</b><span>' + fr.label + (tr ? ' в треке' : '') + '</span></div>' +
@@ -924,13 +959,33 @@ function startLearnApp() {
 
         html += '<div class="card">' +
             '<div class="kicker">Объём</div>' +
-            '<p class="muted" style="margin-bottom:9px">Сколько времени вы реально готовы дать сегодня? Честный ответ лучше амбициозного.</p>' +
+            '<p class="muted" style="margin-bottom:9px">Сколько времени вы реально готовы дать сегодня? Честный ответ лучше амбициозного.' +
+            (s.day ? ' Задание этого дня рассчитано примерно на ' + s.day.min + ' минут.' : '') + '</p>' +
             '<div class="seg" id="minSeg">' +
-                [5, 15, 30].map(function (m) {
+                [15, 30, 45].map(function (m) {
                     return '<button data-m="' + m + '" class="' + (mins === m ? 'is-on' : '') + '">' + m + ' мин</button>';
                 }).join('') +
             '</div>' +
         '</div>';
+
+        // Возврат к собственному вопросу. Список «мутных мест» без
+        // возврата — это список жалоб; обучение даёт попытка ответить
+        // на свой же вопрос по памяти, до открытия материала.
+        var openGap = (S.gaps || []).filter(function (g) { return !g.closed && g.text; }).slice(-1)[0];
+        if (openGap && !s.gapAsked) {
+            var gn = BY_ID[openGap.node];
+            html += '<div class="card card--violet">' +
+                '<div class="kicker">Ваш вопрос с прошлой сессии</div>' +
+                '<div class="rf-prompt">' + esc(openGap.text) + '</div>' +
+                '<div class="rf-hint">' + (gn ? esc(gn.title) + ' · ' : '') + fmtDate(openGap.at) +
+                '. Ответьте по памяти за полминуты, до того как что-то откроется. Не выходит — так и скажите: это тоже ответ, вопрос останется открытым.</div>' +
+                '<textarea class="field" id="gapAnswer" rows="2" placeholder="Ответ своими словами"></textarea>' +
+                '<div class="btn-row" style="margin-top:9px">' +
+                    '<button class="btn btn--ghost btn--sm" id="gapClose">Отвечу — закрыть пробел</button>' +
+                    '<button class="btn btn--ghost btn--sm" id="gapKeep">Всё ещё не могу</button>' +
+                '</div>' +
+            '</div>';
+        }
 
         html += '<div class="card">' +
             '<div class="kicker">Намерение</div>' +
@@ -956,6 +1011,24 @@ function startLearnApp() {
     }
 
     function bindPlan() {
+        var gapClose = $('gapClose'), gapKeep = $('gapKeep');
+        if (gapClose) gapClose.addEventListener('click', function () {
+            var ans = ($('gapAnswer').value || '').trim();
+            if (!ans) { toast('Пробел', 'Закрывается написанным ответом, а не галочкой. Не выходит — жмите «всё ещё не могу».'); return; }
+            var g = (S.gaps || []).filter(function (x) { return !x.closed && x.text; }).slice(-1)[0];
+            if (g) { g.closed = true; g.answer = ans.slice(0, 800); g.closedAt = new Date().toISOString(); }
+            sess().gapAsked = true;
+            save(); haptic('ok');
+            toast('Пробел закрыт', 'Ответ сохранён в дневнике — сможете сверить его с собой через месяц.');
+            renderSession();
+        });
+        if (gapKeep) gapKeep.addEventListener('click', function () {
+            sess().gapAsked = true;
+            save();
+            toast('Оставили открытым', 'Честно. Вопрос вернётся, а узел останется в приоритете.');
+            renderSession();
+        });
+
         var seg = $('minSeg');
         if (seg) seg.addEventListener('click', function (e) {
             var b = e.target.closest('button[data-m]');
@@ -1137,16 +1210,9 @@ function startLearnApp() {
             '<div class="note note--accent" style="margin-top:10px"><b>Доказательство.</b> ' + esc(n.quest.proof) + '</div>' +
         '</div>';
 
-        html += '<div class="card card--violet">' +
-            '<div class="kicker">Намерение «если — то»</div>' +
-            '<p class="tiny" style="margin-bottom:10px">Привязка к конкретной ситуации, а не «буду применять». Заранее названный момент запускает действие почти автоматически.</p>' +
-            '<div class="intent">' +
-                '<div class="intent__row"><span class="intent__k">ЕСЛИ</span>' +
-                    '<input class="field" id="ifPart" placeholder="в понедельник сяду за отчёт"></div>' +
-                '<div class="intent__row"><span class="intent__k">ТО</span>' +
-                    '<input class="field" id="thenPart" placeholder="' + esc(shortApply(n)) + '"></div>' +
-            '</div>' +
-        '</div>';
+        // Намерение спрашиваем не здесь, а в рефлексии: до проверки
+        // человек ещё не знает, что именно у него получилось, и
+        // формулирует применение вслепую.
 
         html += '<button class="btn btn--primary" id="pracNext"' + (done.length === n.quest.steps.length ? '' : ' disabled') + '>К проверке</button>';
         html += '<p class="tiny" style="text-align:center;margin-top:8px">Проверка откроется, когда все шаги отмечены</p>';
@@ -1172,16 +1238,7 @@ function startLearnApp() {
                 syncMainButton();
             });
         });
-        $('pracNext').addEventListener('click', function () {
-            var i1 = $('ifPart'), t1 = $('thenPart');
-            if (i1 && t1 && i1.value.trim() && t1.value.trim()) {
-                S.intents.push({
-                    at: new Date().toISOString(), node: n.id,
-                    when: i1.value.trim().slice(0, 200), then: t1.value.trim().slice(0, 200), done: null
-                });
-            }
-            setStage(nextStage());
-        });
+        $('pracNext').addEventListener('click', function () { setStage(nextStage()); });
     }
 
     // ---------- Проверка ----------
@@ -1256,12 +1313,31 @@ function startLearnApp() {
                     var declined = picked === -1;
                     var right = !declined && picked === c.ok;
                     var cf = CONF[conf] || CONF[0];
-                    h += '<div class="why">' +
-                        '<b>' + (declined ? 'Пропущено.' : (right ? 'Верно.' : 'Не так.')) + '</b> ' + esc(c.why) +
-                        '<div class="tiny" style="margin-top:7px">' + esc(declined
-                            ? 'Признать незнание — правильный ход: калибровку это почти не портит, в отличие от уверенного угадывания. Вопрос вернётся при повторении.'
-                            : calibNote(right, cf.v)) + '</div>' +
-                    '</div>';
+                    var confErr = !right && !declined && cf.v >= CONF_ERR_MIN;
+
+                    if (confErr) {
+                        // Контраст показываем целиком и рядом: именно
+                        // увиденная разница между «я думал» и «на самом
+                        // деле» и делает такую ошибку исправимой.
+                        h += '<div class="why why--err">' +
+                            '<b>Уверенная ошибка.</b> Вы были уверены на ' + Math.round(cf.v * 100) +
+                            '% — и ответ неверный. Это самое полезное, что случилось за сессию: ' +
+                            'уверенные ошибки исправляются прочнее прочих, если увидеть разницу сейчас.' +
+                            '<div class="contrast">' +
+                                '<div class="contrast__row"><span>Вы ответили</span><b>' + esc(c.a[picked]) + '</b></div>' +
+                                '<div class="contrast__row is-ok"><span>Верно</span><b>' + esc(c.a[c.ok]) + '</b></div>' +
+                            '</div>' +
+                            '<div class="tiny" style="margin-top:8px">' + esc(c.why) + '</div>' +
+                            '<div class="tiny" style="margin-top:7px">Вопрос вернётся к вам при повторении — до тех пор он числится незакрытым.</div>' +
+                        '</div>';
+                    } else {
+                        h += '<div class="why">' +
+                            '<b>' + (declined ? 'Пропущено.' : (right ? 'Верно.' : 'Не так.')) + '</b> ' + esc(c.why) +
+                            '<div class="tiny" style="margin-top:7px">' + esc(declined
+                                ? 'Признать незнание — правильный ход: калибровку это почти не портит, в отличие от уверенного угадывания. Вопрос вернётся при повторении.'
+                                : calibNote(right, cf.v)) + '</div>' +
+                        '</div>';
+                    }
                 }
                 return h + '</div>';
             }).join('');
@@ -1329,6 +1405,8 @@ function startLearnApp() {
                     at: new Date().toISOString(), node: n.id, qi: qi,
                     conf: CONF[ci].v, ok: right, mode: mode
                 });
+                if (!right && CONF[ci].v >= CONF_ERR_MIN) noteConfError(n, qi, CONF[ci].v, st.picked[qi]);
+                if (right) fixConfError(n.id, qi);   // тот же вопрос отвечен верно — ошибка закрыта
                 // Ответы узла — для совместимости с index.html
                 var rec = S.checks[n.id] || { answers: [], firstTry: true, tries: 0 };
                 rec.answers = rec.answers || [];   // запись могла прийти из index.html
@@ -1355,13 +1433,47 @@ function startLearnApp() {
     // ---------- Рефлексия ----------
     var PRED_LABEL = { 1: 'впервые слышу', 2: 'слышал, не применял', 3: 'применял пару раз', 4: 'владею уверенно' };
 
+    /**
+     * Форма рефлексии: короткая или полная.
+     *
+     * Четыре текстовых поля после каждой сессии со временем начинают
+     * заполнять формально — и рефлексия превращается в налог. Поэтому
+     * по умолчанию короткая форма, а полная включается сама там, где
+     * разбирать действительно есть что: уверенная ошибка, первая
+     * сессия, раз в неделю. Переключатель виден всегда — выбор за
+     * человеком, система лишь предлагает разумное умолчание.
+     */
+    function reflectFull() {
+        var s = sess();
+        if (s.reflectMode) return s.reflectMode === 'full';
+        if (S.reflect.length < 2) return true;                     // первые разы — полностью
+        if (openConfErrors(s.node).length) return true;            // есть уверенная ошибка
+        if (s.day) return true;                                    // день плана недели
+        var wk = isoWeek(new Date());
+        var thisWeekFull = S.reflect.filter(function (r) {
+            try { return r.full && isoWeek(new Date(r.at)) === wk; } catch (e) { return false; }
+        }).length;
+        return thisWeekFull === 0;                                 // раз в неделю — полная
+    }
+
     function renderReflect() {
         var s = sess(), n = BY_ID[s.node];
         var rec = S.checks[n.id] || {};
         var right = n.check.filter(function (c, i) { return (rec.answers || [])[i] === c.ok; }).length;
         var total = n.check.length;
+        var full = reflectFull();
 
         var html = '<div class="stage-label">Шаг ' + (visibleSteps().indexOf('reflect') + 1) + ' · Рефлексия</div>';
+
+        html += '<div class="card card--quiet" style="padding:11px 12px">' +
+            '<div class="seg" id="rfMode">' +
+                '<button data-m="short" class="' + (full ? '' : 'is-on') + '">60 секунд</button>' +
+                '<button data-m="full" class="' + (full ? 'is-on' : '') + '">Полная</button>' +
+            '</div>' +
+            '<p class="tiny" style="margin-top:8px">' + (full
+                ? 'Развёрнутая форма включена: сегодня есть что разобрать.'
+                : 'Короткая форма: две строки и самооценка. Полная — когда есть что разбирать.') + '</p>' +
+        '</div>';
 
         // Честное сравнение прогноза и факта — ядро саморефлексии
         if (s.predicted) {
@@ -1379,28 +1491,44 @@ function startLearnApp() {
         }
 
         html += '<div class="card">' +
-            '<div class="kicker">1 / 4 · Что изменилось</div>' +
+            '<div class="kicker">' + (full ? '1 / 4' : '1 / 2') + ' · Что изменилось</div>' +
             '<div class="rf-prompt">Что вы теперь можете сделать, чего не могли двадцать минут назад?</div>' +
             '<div class="rf-hint">Конкретное действие, а не «понял тему». Если сформулировать не выходит — это сигнал вернуться к материалу.</div>' +
             '<textarea class="field" id="rfChanged" rows="3" placeholder="Например: ' + esc(shortApply(n)) + '"></textarea>' +
         '</div>';
 
-        html += '<div class="card">' +
-            '<div class="kicker">2 / 4 · Где применю</div>' +
-            '<div class="rf-prompt">Ближайшая рабочая задача, где это пригодится</div>' +
-            '<div class="rf-hint">Назовите задачу и срок. Навык, не применённый за неделю, забывается почти полностью.</div>' +
-            '<textarea class="field" id="rfApply" rows="2" placeholder="Например: в отчёте за квартал, в четверг"></textarea>' +
-        '</div>';
+        if (full) {
+            // Намерение: событие вместо «на неделе» и свидетель.
+            // Связка «конкретная ситуация → конкретное действие» даёт
+            // заметно больше доведённых до дела намерений, чем решимость;
+            // а из рабочей среды на применение навыка сильнее всего
+            // влияют наличие подходящих задач и то, что результат
+            // кто-то видит.
+            html += '<div class="card">' +
+                '<div class="kicker">2 / 4 · Где применю</div>' +
+                '<div class="rf-prompt">Намерение «если — то»</div>' +
+                '<div class="rf-hint">Назовите событие, а не «на неделе»: заранее опознанный момент запускает действие почти сам.</div>' +
+                '<div class="intent">' +
+                    '<div class="intent__row"><span class="intent__k">ЕСЛИ</span>' +
+                        '<input class="field" id="rfIf" placeholder="в понедельник, как только открою почту"></div>' +
+                    '<div class="intent__row"><span class="intent__k">ТО</span>' +
+                        '<input class="field" id="rfThen" placeholder="' + esc(shortApply(n)) + '"></div>' +
+                '</div>' +
+                '<label class="label" for="rfWitness">Кто на работе увидит результат?' +
+                '<span>Навык, который никто не видит, тихо отмирает. Это не про мотивацию: наличие подходящих задач и поддержка коллег предсказывают применение сильнее старательности.</span></label>' +
+                '<input class="field" id="rfWitness" placeholder="имя, чат или встреча — либо «некому»">' +
+            '</div>';
+
+            html += '<div class="card">' +
+                '<div class="kicker">3 / 4 · Что осталось мутным</div>' +
+                '<div class="rf-prompt">Сформулируйте это вопросом</div>' +
+                '<div class="rf-hint">Не «не понял про контекст», а «почему длинный документ ухудшает ответ». Разница в том, что на второе можно ответить — и проверить себя. Вопрос вернётся к вам в начале следующей сессии.</div>' +
+                '<textarea class="field" id="rfMuddy" rows="2" placeholder="Например: почему повтор того же вопроса не проверяет ответ?"></textarea>' +
+            '</div>';
+        }
 
         html += '<div class="card">' +
-            '<div class="kicker">3 / 4 · Что осталось мутным</div>' +
-            '<div class="rf-prompt">Самое непонятное место</div>' +
-            '<div class="rf-hint">Одно предложение. Попадёт в список пробелов в дневнике и вернётся к вам при повторении. Пустое поле — тоже честный ответ.</div>' +
-            '<textarea class="field" id="rfMuddy" rows="2" placeholder="Например: не понял, чем это отличается от…"></textarea>' +
-        '</div>';
-
-        html += '<div class="card">' +
-            '<div class="kicker">4 / 4 · Самооценка</div>' +
+            '<div class="kicker">' + (full ? '4 / 4' : '2 / 2') + ' · Самооценка</div>' +
             '<div class="rf-prompt">Насколько уверенно вы примените это без подсказки?</div>' +
             '<div class="rf-hint">От этого зависит, когда навык вернётся на повторение.</div>' +
             '<div class="rate" id="rfRate">' +
@@ -1423,6 +1551,13 @@ function startLearnApp() {
 
     function bindReflect() {
         var chosen = null;
+        var mode = $('rfMode');
+        if (mode) mode.addEventListener('click', function (e) {
+            var b = e.target.closest('button[data-m]');
+            if (!b) return;
+            sess().reflectMode = b.dataset.m;
+            save(); renderSession();
+        });
         var rate = $('rfRate');
         rate.addEventListener('click', function (e) {
             var b = e.target.closest('button[data-r]');
@@ -1434,11 +1569,15 @@ function startLearnApp() {
             syncMainButton();
         });
         $('rfDone').addEventListener('click', function () {
+            var val = function (id) { var el = $(id); return el ? (el.value || '').trim() : ''; };
             finishSession({
-                changed: ($('rfChanged').value || '').trim().slice(0, 1200),
-                apply: ($('rfApply').value || '').trim().slice(0, 600),
-                muddy: ($('rfMuddy').value || '').trim().slice(0, 600),
-                rate: chosen
+                changed: val('rfChanged').slice(0, 1200),
+                ifPart: val('rfIf').slice(0, 200),
+                thenPart: val('rfThen').slice(0, 200),
+                witness: val('rfWitness').slice(0, 120),
+                muddy: val('rfMuddy').slice(0, 600),
+                rate: chosen,
+                full: reflectFull()
             });
         });
     }
@@ -1451,14 +1590,23 @@ function startLearnApp() {
         var firstTry = rec.firstTry !== false;
 
         // Запись в дневник
+        var applyText = (rf.ifPart && rf.thenPart) ? ('Если ' + rf.ifPart + ', то ' + rf.thenPart) : '';
         S.reflect.push({
             at: new Date().toISOString(), node: n.id,
             predicted: s.predicted, right: n.check.filter(function (c, i) { return (rec.answers || [])[i] === c.ok; }).length,
             total: n.check.length,
             selfExpl: s.selfExpl || '', intent: s.intent || '',
-            changed: rf.changed, apply: rf.apply, muddy: rf.muddy, rate: rf.rate
+            changed: rf.changed, apply: applyText, muddy: rf.muddy, rate: rf.rate,
+            full: !!rf.full
         });
-        if (rf.muddy) S.gaps.push({ at: new Date().toISOString(), node: n.id, text: rf.muddy, closed: false });
+        // Намерение из рефлексии — с событием-триггером и свидетелем
+        if (rf.ifPart && rf.thenPart) {
+            S.intents.push({
+                at: new Date().toISOString(), node: n.id,
+                when: rf.ifPart, then: rf.thenPart, witness: rf.witness || '', done: null
+            });
+        }
+        if (rf.muddy) S.gaps.push({ at: new Date().toISOString(), node: n.id, text: rf.muddy, closed: false, answer: '' });
 
         // Освоение узла — только если проверка пройдена
         var mastered = false;
@@ -1633,17 +1781,32 @@ function startLearnApp() {
             '</div>';
         }
 
-        // Ключевая идея каждого уровня сложности
-        if (C.LEVEL_KEYS) {
-            html += '<div class="card card--quiet"><div class="kicker">Что главное на каждом уровне</div>' +
+        // Ключевая идея каждого уровня сложности. Для своего трека они
+        // свои: «главное на продвинутом» у инженера безопасности и у
+        // инженера памяти — разные вещи. Без трека берём общие.
+        var lvlSrc = (wp && wp.levels) || C.LEVEL_KEYS;
+        if (lvlSrc) {
+            html += '<div class="card card--quiet">' +
+                '<div class="kicker">Что главное на каждом уровне' + (wp && wp.levels && tr ? ' · ' + esc(tr.name) : '') + '</div>' +
+                '<p class="tiny" style="margin-bottom:11px">По одной мысли на уровень — той, без которой остальное на этом уровне не складывается.</p>' +
                 Object.keys(LEVELS).map(function (lk) {
-                    var K2 = C.LEVEL_KEYS[lk];
+                    var K2 = lvlSrc[lk];
                     if (!K2) return '';
-                    return '<div style="margin-bottom:11px">' +
+                    return '<div style="margin-bottom:12px">' +
                         '<div class="h3">' + LEVELS[lk].emoji + ' ' + esc(LEVELS[lk].name) + '</div>' +
-                        '<p class="muted" style="font-size:.85rem">' + esc(K2.key) + '</p>' +
-                        '<p class="tiny" style="margin-top:3px">Признак усвоения: ' + esc(K2.evidence) + '</p>' +
+                        '<p class="muted" style="font-size:.86rem;margin-top:2px">' + esc(K2.key) + '</p>' +
+                        '<p class="tiny" style="margin-top:4px">Усвоено, когда: ' + esc(K2.evidence) + '</p>' +
                     '</div>';
+                }).join('') + '</div>';
+        }
+
+        // Куда идти глубже именно по этому треку — из разбора трека
+        if (wp && wp.anchors && wp.anchors.length) {
+            html += '<div class="card"><div class="kicker">Первоисточники по треку</div>' +
+                '<p class="tiny" style="margin-bottom:10px">Что взять из открытых курсов именно под ваш трек — и что оттуда пригодится уже на первой неделе.</p>' +
+                wp.anchors.map(function (a) {
+                    return '<div style="margin-bottom:10px"><div class="h3">' + esc(a.source) + '</div>' +
+                        '<p class="tiny">' + esc(a.take) + '</p></div>';
                 }).join('') + '</div>';
         }
 
@@ -1924,6 +2087,60 @@ function startLearnApp() {
             (st.declined ? ' · из них честных «не знаю»: ' + st.declined : '') + '</p>';
         html += '</div>';
 
+        // Разбор по зонам. Одинаковый Брайер выходит и у осторожного,
+        // который всегда ставит 35%, и у самоуверенного, который врёт
+        // на 95%. Действия в этих случаях противоположные, поэтому
+        // одно число ничего не подсказывает — нужна разбивка.
+        // Порог согласован с вердиктом выше: пока данных мало, таблица
+        // не выносит суждений — иначе на одном экране «данных мало» и
+        // уверенный вывод по четырём ответам.
+        var zones = st.buckets.filter(function (z) { return z.total >= 3; });
+        if (zones.length >= 2 && st.n >= 10) {
+            var worst = null;
+            zones.forEach(function (z) {
+                var gap = z.v - (z.ok / z.total);
+                if (!worst || gap > worst.gap) worst = { z: z, gap: gap };
+            });
+            html += '<div class="card"><div class="kicker">Где именно вы себе врёте</div>' +
+                '<table class="zones"><thead><tr><th>Уверенность</th><th>Говорили</th><th>На деле</th><th>Ответов</th></tr></thead><tbody>' +
+                zones.slice().reverse().map(function (z) {
+                    var acc = Math.round(z.ok / z.total * 100);
+                    var isWorst = worst && worst.z === z && worst.gap > 0.15;
+                    return '<tr' + (isWorst ? ' class="is-bad"' : '') + '><td>' + z.n + '</td><td>' +
+                        Math.round(z.v * 100) + '%</td><td>' + acc + '%</td><td>' + z.total + '</td></tr>';
+                }).join('') +
+                '</tbody></table>' +
+                '<p class="tiny" style="margin-top:10px">' + esc(worst && worst.gap > 0.15
+                    ? 'Разрыв больше всего в зоне «' + worst.z.n + '»: там вы заявляете ' + Math.round(worst.z.v * 100) +
+                      '%, а попадаете в ' + Math.round(worst.z.ok / worst.z.total * 100) + '%. Практический вывод: именно в этой зоне ' +
+                      'ваше «я уверен» стоит перепроверять внешним источником, а не полагаться на ощущение.'
+                    : 'Заметного перекоса по зонам нет: заявленная уверенность держится близко к фактической на всём диапазоне.') + '</p>' +
+            '</div>';
+        }
+
+        // Уверенные ошибки — отдельно от общей статистики
+        var ce = S.confErr || [];
+        if (ce.length) {
+            var fixed = ce.filter(function (e) { return e.fixed; }).length;
+            var open = ce.length - fixed;
+            html += '<div class="card"><div class="kicker">Уверенные ошибки</div>' +
+                '<p class="muted">Ответы, где вы были уверены на 80% и выше — и ошиблись. Такие ошибки исправляются прочнее прочих, поэтому они вынесены отдельно и возвращаются, пока не закрыты верным ответом.</p>' +
+                '<div class="stats" style="margin-top:12px">' +
+                    '<div class="stat"><b>' + fixed + '</b><span>исправлено</span></div>' +
+                    '<div class="stat stat--violet"><b>' + open + '</b><span>ещё открыты</span></div>' +
+                    '<div class="stat stat--plain"><b>' + ce.length + '</b><span>всего</span></div>' +
+                '</div>' +
+                (open ? '<div style="margin-top:12px">' + openConfErrors().slice(-5).reverse().map(function (e) {
+                    var nn = BY_ID[e.node];
+                    return '<button class="node-row" data-node="' + esc(e.node) + '">' +
+                        '<span class="node-row__e">' + (nn ? nn.emoji : '•') + '</span>' +
+                        '<span class="node-row__b"><span class="node-row__t">' + esc(nn ? nn.title : e.node) + '</span>' +
+                        '<span class="node-row__m">заявляли ' + Math.round(e.conf * 100) + '% · ' + fmtDate(e.at) + '</span></span>' +
+                        '<span class="node-row__s">↻</span></button>';
+                }).join('') + '</div>' : '') +
+            '</div>';
+        }
+
         // Подбор сложности. Ориентир ~85% верных ответов — доля, при
         // которой обучение идёт быстрее всего: слишком легко — нет
         // нового, слишком тяжело — нет опоры.
@@ -2098,6 +2315,9 @@ function startLearnApp() {
             if (!b) return;
             journalTab = b.dataset.j;
             renderJournal();
+        });
+        document.querySelectorAll('#journalBody .node-row[data-node]').forEach(function (b) {
+            b.addEventListener('click', function () { startWithNode(b.dataset.node); });
         });
         document.querySelectorAll('[data-gap-close]').forEach(function (b) {
             b.addEventListener('click', function () {

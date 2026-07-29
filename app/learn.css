@@ -397,6 +397,26 @@ body {
 }
 .why b { color: var(--text); }
 
+/* Уверенная ошибка — выделена намеренно: её ценность в том, что
+   разницу «я думал / на самом деле» видно целиком и сразу */
+.why--err { border-color: rgba(255, 107, 112, 0.42); background: rgba(255, 107, 112, 0.06); }
+.why--err > b { color: var(--danger); }
+
+.contrast { margin-top: 10px; display: grid; gap: 6px; }
+.contrast__row {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    gap: 9px;
+    align-items: start;
+    padding: 8px 10px;
+    border-radius: 9px;
+    border: 1px solid rgba(255, 107, 112, 0.32);
+    background: rgba(255, 107, 112, 0.06);
+}
+.contrast__row span { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; padding-top: 2px; }
+.contrast__row b { font-size: 0.86rem; font-weight: 600; line-height: 1.45; color: var(--text); }
+.contrast__row.is-ok { border-color: rgba(63, 216, 122, 0.36); background: rgba(63, 216, 122, 0.07); }
+
 /* Шкала уверенности перед ответом */
 .conf { margin: 10px 0 4px; }
 .conf__t { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 7px; }
@@ -558,6 +578,26 @@ body {
 .calib__bar--said { background: var(--violet); opacity: 0.75; }
 .calib__bar--was { background: var(--accent); }
 .calib__x { font-family: var(--mono); font-size: 0.62rem; color: var(--text-muted); }
+
+/* Таблица зон уверенности */
+.zones { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.zones th {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 0 7px;
+    border-bottom: 1px solid var(--border-hair);
+}
+.zones th:first-child { text-align: left; }
+.zones td { text-align: right; padding: 8px 0; border-bottom: 1px solid var(--border-hair); font-variant-numeric: tabular-nums; }
+.zones td:first-child { text-align: left; font-family: var(--mono); color: var(--text-dim); }
+.zones tr:last-child td { border-bottom: none; }
+.zones tr.is-bad td { color: var(--danger); font-weight: 700; }
+.zones tr.is-bad td:first-child { color: var(--danger); }
 
 .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.74rem; color: var(--text-muted); }
 .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
