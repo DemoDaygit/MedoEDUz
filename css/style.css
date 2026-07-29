@@ -96,16 +96,172 @@
     --border-color: rgba(158, 173, 196, 0.14);
 
     /* На почти-чёрном тень не читается — «подъём» даёт гало + кольцо */
-    --shadow-sm: 0 0 0 1px rgba(158, 173, 196, 0.05);
-    --shadow-md: 0 8px 24px -14px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(158, 173, 196, 0.05);
-    --shadow-lg: 0 18px 44px -22px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(158, 173, 196, 0.06);
+    --shadow-sm: 0 0 0 1px var(--surface-tint-soft);
+    --shadow-md: 0 8px 24px -14px rgba(0, 0, 0, 0.9), 0 0 0 1px var(--surface-tint-soft);
+    --shadow-lg: 0 18px 44px -22px rgba(0, 0, 0, 0.95), 0 0 0 1px var(--surface-tint);
     --shadow-xl: 0 32px 70px -30px #000, 0 0 0 1px rgba(34, 224, 200, 0.10);
 
     --transition: all 0.3s ease;
     --border-radius: 14px;
     --border-radius-sm: 10px;
     --border-radius-lg: 20px;
+
+    /* ============================================================
+     *  Поверхностные подмешивания.
+     *  Вынесены в токены, потому что в тёмной теме «подъём» карточки
+     *  даёт белая плёнка, а в светлой она невидима — там подъём даёт
+     *  наоборот тёмная. Без этих токенов светлую тему пришлось бы
+     *  править в сотне мест по всем CSS-файлам.
+     * ============================================================ */
+    --lift-a: rgba(255, 255, 255, 0.04);   /* верх градиента карточки */
+    --lift-b: rgba(255, 255, 255, 0.012);  /* низ градиента карточки */
+    --surface-tint: rgba(158, 173, 196, 0.06);
+    --surface-tint-soft: rgba(158, 173, 196, 0.05);
+    --grid-line: rgba(158, 173, 196, 0.045);
+    --nav-bg: rgba(7, 8, 11, 0.72);
+    --nav-bg-solid: rgba(7, 8, 11, 0.9);
+
+    /* Фоновые ауры страницы: в светлой теме их надо гасить,
+       иначе цветные пятна по белому читаются как типографский брак */
+    --aura-1: rgba(34, 224, 200, 0.1);
+    --aura-2: rgba(139, 124, 255, 0.1);
+    --aura-3: rgba(255, 176, 32, 0.06);
+
+    /* Плавающие панели (cookie, тосты, шторки). Раньше были
+       захардкожены тёмными — в светлой теме давали тёмный текст
+       на тёмном фоне. */
+    --panel-dark: rgba(10, 14, 24, 0.96);
+    --panel-dark-soft: rgba(17, 24, 39, 0.6);
+
+    /* Второй цвет градиента главной кнопки. На тёмном фоне синий
+       хвост читается, на светлом белый текст на нём даёт 2.3:1 —
+       поэтому в светлой теме градиент уходит в тёмную бирюзу. */
+    --accent-grad-end: #38bdf8;
 }
+
+/* ============================================================
+ *  СВЕТЛАЯ ТЕМА
+ *
+ *  Не «инверсия» тёмной, а отдельная настройка контраста.
+ *  Ключевое отличие: на тёмном фоне яркий agent-cyan #22E0C8
+ *  читается как текст (9:1), на белом он даёт 1.6:1 и не читается
+ *  вообще. Поэтому в светлой теме акценты УГЛУБЛЯЮТСЯ до
+ *  читаемых, а --on-accent становится белым.
+ *
+ *  Смысловые роли цветов сохраняются: agent-cyan — «система
+ *  работает», inference-violet — «модель думает», мёд — ТОЛЬКО
+ *  бренд. Запрет мёда на состояния UI действует и здесь.
+ * ============================================================ */
+[data-theme="light"] {
+    color-scheme: light;
+    accent-color: #0A7F70;
+
+    /* Слои: не чистый белый — лёгкий холодный тон, чтобы белые
+       карточки читались как поднятые, а не сливались с фоном */
+    --bg-deep: #F4F7FA;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #FFFFFF;
+    --bg-inset: #EDF1F6;
+
+    --glass: rgba(255, 255, 255, 0.82);
+    --glass-solid: #FFFFFF;
+
+    --text-primary: #0F172A;   /* 16.9:1 на bg-deep */
+    --text-secondary: #46566B; /* 7.6:1 */
+    --text-muted: #5A6A80;     /* 5.6:1 на bg-deep — с запасом для мелкого */
+    --on-accent: #FFFFFF;      /* на углублённых заливках белый читается */
+    --bone: #6B5F44;           /* костяная полоса: на белом нужна темнее */
+
+    /* Акценты углублены до читаемых как текст И как заливка под белым */
+    --accent: #0A7F70;
+    --accent-soft: #0E9D8B;
+    --accent-deep: #075E53;
+    --accent-ghost: rgba(10, 127, 112, 0.09);
+    --violet: #5B4BD6;
+    --violet-soft: #4A3CC0;
+    --violet-ghost: rgba(91, 75, 214, 0.09);
+
+    /* Мёд остаётся подписью бренда, но как краска для мелкого
+       текста берётся глубокий янтарь: #FFB020 на белом даёт 1.8:1.
+       Ауры и свечения ниже сохраняют исходный яркий тон. */
+    --signature: #9A6100;
+    --signature-soft: #B87400;
+    --signature-deep: #7A4D00;
+    --signature-ghost: rgba(255, 176, 32, 0.14);
+
+    --success: #0E7A42;
+    --warning: #8A6100;
+    --danger: #C2262C;
+
+    --border: rgba(15, 23, 42, 0.12);
+    --border-hair: rgba(15, 23, 42, 0.08);
+    --border-strong: #94A3B8;
+    --border-accent: rgba(10, 127, 112, 0.42);
+    --border-signature: rgba(255, 176, 32, 0.55);
+
+    /* На светлом фоне свечение не читается — «подъём» даёт тень */
+    --glow-accent: 0 6px 20px -8px rgba(10, 127, 112, 0.45);
+    --glow-signature: 0 6px 18px -8px rgba(184, 116, 0, 0.45);
+    --glow-violet: 0 6px 20px -8px rgba(91, 75, 214, 0.45);
+
+    /* Подъём инвертируется: карточку поднимает не белая плёнка,
+       а лёгкая тень и тёмная кромка */
+    --lift-a: rgba(15, 23, 42, 0.022);
+    --lift-b: rgba(15, 23, 42, 0.006);
+    --surface-tint: rgba(15, 23, 42, 0.045);
+    --surface-tint-soft: rgba(15, 23, 42, 0.035);
+    --grid-line: rgba(15, 23, 42, 0.04);
+    --nav-bg: rgba(255, 255, 255, 0.78);
+    --nav-bg-solid: rgba(255, 255, 255, 0.94);
+
+    --aura-1: rgba(10, 127, 112, 0.07);
+    --aura-2: rgba(91, 75, 214, 0.06);
+    --aura-3: rgba(255, 176, 32, 0.07);
+
+    /* Обратная совместимость: те же имена, значения под светлый фон.
+       Оставляем литеральный hex — js/animations.js парсит
+       --primary-color как hex и на var(...) сломается. */
+    --primary-color: #0A7F70;
+    --primary-dark: #075E53;
+    --primary-light: #0E9D8B;
+    --secondary-color: #9A6100;
+    --accent-color: #5B4BD6;
+    --success-color: #0E7A42;
+
+    --text-light: #5A6A80;
+
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F4F7FA;
+    --bg-dark: #E8EEF5;
+
+    --border-color: rgba(15, 23, 42, 0.12);
+
+    /* На светлом тени работают по-настоящему */
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.05);
+    --shadow-md: 0 6px 18px -10px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 16px 38px -18px rgba(15, 23, 42, 0.3), 0 0 0 1px rgba(15, 23, 42, 0.07);
+    --shadow-xl: 0 28px 60px -26px rgba(15, 23, 42, 0.34), 0 0 0 1px rgba(10, 127, 112, 0.14);
+
+    --panel-dark: rgba(255, 255, 255, 0.97);
+    --panel-dark-soft: rgba(255, 255, 255, 0.88);
+    --accent-grad-end: #0E7490;   /* белый текст даёт 5.2:1 против 2.3:1 у #38bdf8 */
+}
+
+/* ------------------------------------------------------------
+ *  Точечные правки светлой темы.
+ *  Правила, где тёмная тема опирается на светящийся текст или
+ *  тёмную подложку: на белом это не работает и требует замены,
+ *  а не пересчёта токена.
+ * ---------------------------------------------------------- */
+/* Бровка героя лежит на уже подкрашенной акцентом подложке, поэтому
+   на белом ей нужен не обычный акцент, а глубокий: иначе 4.06:1 */
+[data-theme="light"] .hero-badge { color: var(--accent-deep); }
+[data-theme="light"] .st-tip__state--mastered { background: rgba(14, 122, 66, 0.12); }
+[data-theme="light"] .st-tip__state--available { background: rgba(10, 127, 112, 0.12); }
+/* Свечения текста на светлом фоне читаются как типографский брак */
+[data-theme="light"] .logo-icon,
+[data-theme="light"] .hero-title,
+[data-theme="light"] .section-title { filter: none; }
 
 * {
     margin: 0;
@@ -136,8 +292,8 @@ body::before {
     z-index: -2;
     background-color: var(--bg-deep);
     background-image:
-        linear-gradient(rgba(158, 173, 196, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(158, 173, 196, 0.045) 1px, transparent 1px);
+        linear-gradient(var(--grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
     background-size: 56px 56px;
     pointer-events: none;
 }
@@ -149,9 +305,9 @@ body::after {
     inset: 0;
     z-index: -1;
     background:
-        radial-gradient(60% 45% at 15% 0%, rgba(34, 224, 200, 0.1), transparent 70%),
-        radial-gradient(55% 45% at 85% 10%, rgba(139, 124, 255, 0.1), transparent 70%),
-        radial-gradient(50% 40% at 50% 100%, rgba(255, 176, 32, 0.06), transparent 70%);
+        radial-gradient(60% 45% at 15% 0%, var(--aura-1), transparent 70%),
+        radial-gradient(55% 45% at 85% 10%, var(--aura-2), transparent 70%),
+        radial-gradient(50% 40% at 50% 100%, var(--aura-3), transparent 70%);
     pointer-events: none;
 }
 
@@ -173,7 +329,7 @@ body::after {
     top: 0;
     left: 0;
     right: 0;
-    background: rgba(7, 8, 11, 0.72);
+    background: var(--nav-bg);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     border-bottom: 1px solid transparent;
@@ -182,7 +338,7 @@ body::after {
 }
 
 .navbar.scrolled {
-    background: rgba(7, 8, 11, 0.9);
+    background: var(--nav-bg-solid);
     border-bottom-color: var(--border);
     box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.9);
 }
@@ -328,7 +484,7 @@ body::after {
 
 .back-to-home:hover {
     border-color: var(--accent);
-    color: var(--accent-soft);
+    color: var(--accent);
     box-shadow: var(--glow-accent);
 }
 
@@ -386,8 +542,8 @@ body::after {
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    background: rgba(34, 224, 200, 0.07);
-    border: 1px solid rgba(34, 224, 200, 0.28);
+    background: var(--accent-ghost);
+    border: 1px solid var(--border-accent);
     padding: 0.5rem 1.2rem;
     border-radius: 50px;
     margin-bottom: 2rem;
@@ -395,7 +551,7 @@ body::after {
     font-size: 0.82rem;
     font-weight: 500;
     letter-spacing: 0.02em;
-    color: var(--accent-soft);
+    color: var(--accent);
 }
 
 .hero-badge::before {
@@ -505,7 +661,7 @@ body::after {
 /* Основная кнопка: заливка акцентом + внешнее свечение.
    Тёмный текст на циане даёт контраст ~9:1 — читается лучше белого. */
 .btn-primary {
-    background: linear-gradient(135deg, var(--accent) 0%, #38bdf8 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-grad-end) 100%);
     color: var(--on-accent);
     font-weight: 700;
     box-shadow: 0 8px 26px -8px rgba(34, 224, 200, 0.65);
@@ -517,7 +673,7 @@ body::after {
 }
 
 .btn-secondary {
-    background: rgba(158, 173, 196, 0.06);
+    background: var(--surface-tint);
     color: var(--text-primary);
     border: 1px solid var(--border-strong);
     backdrop-filter: blur(8px);
@@ -726,7 +882,7 @@ body::after {
    это работает лучше, чем тень. */
 .benefit-card {
     position: relative;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+    background: linear-gradient(180deg, var(--lift-a), var(--lift-b));
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
@@ -751,7 +907,7 @@ body::after {
     transform: translateY(-5px);
     box-shadow: var(--shadow-lg);
     border-color: var(--border-strong);
-    background: linear-gradient(180deg, rgba(34, 224, 200, 0.07), rgba(255, 255, 255, 0.01));
+    background: linear-gradient(180deg, rgba(34, 224, 200, 0.07), var(--lift-b));
 }
 
 .benefit-card:hover::before {
@@ -791,7 +947,7 @@ body::after {
 
 .course-card {
     position: relative;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012));
+    background: linear-gradient(180deg, var(--lift-a), var(--lift-b));
     border-radius: var(--border-radius);
     padding: 2rem;
     box-shadow: var(--shadow-sm);
@@ -933,7 +1089,7 @@ body::after {
 
 .testimonial-card {
     position: relative;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
+    background: linear-gradient(180deg, var(--lift-a), var(--lift-b));
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-md);
@@ -1046,7 +1202,7 @@ body::after {
 }
 
 .contact-form-wrapper {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012));
+    background: linear-gradient(180deg, var(--lift-a), var(--lift-b));
     border: 1px solid var(--border);
     padding: 2.5rem;
     border-radius: var(--border-radius);
@@ -1471,4 +1627,52 @@ body::after {
         height: 55px;
         font-size: 1.45rem;
     }
+}
+
+/* ============================================================
+ *  Переключатели темы и языка в навигации
+ *  Маленькие, рядом с CTA. Мёд не используем: это состояния UI,
+ *  а мёд зарезервирован под бренд.
+ * ============================================================ */
+.nav-switches {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+.switch-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.switch-btn:hover {
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+}
+.switch-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+.switch-btn:active { transform: scale(0.94); }
+
+@media (max-width: 968px) {
+    /* На мобильном переключатели уходят левее гамбургера,
+       чтобы не конкурировать с ним за угол экрана */
+    .nav-switches { margin-right: 8px; }
+    .switch-btn { min-width: 30px; height: 30px; }
 }

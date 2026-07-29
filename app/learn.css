@@ -51,7 +51,108 @@
 
     /* Аура маскота — меняется по стадии эволюции (бренд) */
     --aura: #FFB020;
+
+    /* Фоновые ауры экрана: в светлой теме гасятся */
+    --scr-1: rgba(34, 224, 200, 0.10);
+    --scr-2: rgba(139, 124, 255, 0.10);
+    --row-bg: rgba(158, 173, 196, 0.03);
+    --row-bg-2: rgba(158, 173, 196, 0.04);
+    --opt-bg: rgba(158, 173, 196, 0.035);
+    --pill-bg: rgba(158, 173, 196, 0.06);
+    --bar-track: rgba(158, 173, 196, 0.12);
+    --tab-bg: rgba(13, 15, 20, 0.94);
+    --shadow-pop: 0 16px 44px rgba(0, 0, 0, 0.6);
+
+    /* Кромки и подложки состояний. На тёмном фоне полупрозрачный
+       акцент читается, на белом растворяется — поэтому в светлой
+       теме они заметно плотнее. */
+    --edge-accent: rgba(34, 224, 200, 0.36);
+    --edge-violet: rgba(139, 124, 255, 0.36);
+    --edge-signature: rgba(255, 176, 32, 0.32);
+    --edge-ok: rgba(63, 216, 122, 0.36);
+    --edge-err: rgba(255, 107, 112, 0.38);
+    --edge-warn: rgba(229, 192, 123, 0.28);
+    --tint-ok: rgba(63, 216, 122, 0.10);
+    --tint-err: rgba(255, 107, 112, 0.08);
+    --tint-warn: rgba(229, 192, 123, 0.05);
 }
+
+/* ============================================================
+ *  СВЕТЛАЯ ТЕМА
+ *
+ *  Не инверсия тёмной, а отдельная настройка контраста: яркий
+ *  agent-cyan #22E0C8 читается текстом на тёмном (9:1) и не
+ *  читается на белом (1.6:1). Поэтому акценты углубляются, а
+ *  --on-accent становится белым.
+ *
+ *  Смысловые роли сохраняются: agent-cyan — «система работает»,
+ *  inference-violet — «модель думает», мёд — ТОЛЬКО бренд.
+ *  Мёд как краска для мелкого текста углубляется до янтаря,
+ *  а аура маскота остаётся яркой — она заливка, а не текст.
+ * ============================================================ */
+:root[data-theme="light"] {
+    color-scheme: light;
+    accent-color: #0A7F70;
+
+    --bg: #F4F7FA;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #FFFFFF;
+    --bg-inset: #EDF1F6;
+
+    --text: #0F172A;
+    --text-dim: #46566B;
+    --text-muted: #5A6A80;
+    --on-accent: #FFFFFF;
+
+    --accent: #0A7F70;
+    --accent-soft: #0E9D8B;
+    --accent-ghost: rgba(10, 127, 112, 0.09);
+    --violet: #5B4BD6;
+    --violet-soft: #4A3CC0;
+    --violet-ghost: rgba(91, 75, 214, 0.09);
+
+    --signature: #9A6100;
+    --signature-ghost: rgba(255, 176, 32, 0.16);
+
+    --success: #0E7A42;
+    --warning: #8A6100;
+    --danger: #C2262C;
+
+    --border: rgba(15, 23, 42, 0.13);
+    --border-hair: rgba(15, 23, 42, 0.08);
+    --border-strong: #94A3B8;
+
+    --scr-1: rgba(10, 127, 112, 0.07);
+    --scr-2: rgba(91, 75, 214, 0.06);
+    --row-bg: rgba(15, 23, 42, 0.022);
+    --row-bg-2: rgba(15, 23, 42, 0.03);
+    --opt-bg: rgba(15, 23, 42, 0.025);
+    --pill-bg: rgba(15, 23, 42, 0.04);
+    --bar-track: rgba(15, 23, 42, 0.10);
+    --tab-bg: rgba(255, 255, 255, 0.94);
+    --shadow-pop: 0 16px 40px -14px rgba(15, 23, 42, 0.3);
+
+    --edge-accent: rgba(10, 127, 112, 0.42);
+    --edge-violet: rgba(91, 75, 214, 0.38);
+    --edge-signature: rgba(154, 97, 0, 0.36);
+    --edge-ok: rgba(14, 122, 66, 0.4);
+    --edge-err: rgba(194, 38, 44, 0.4);
+    --edge-warn: rgba(138, 97, 0, 0.34);
+    --tint-ok: rgba(14, 122, 66, 0.08);
+    --tint-err: rgba(194, 38, 44, 0.07);
+    --tint-warn: rgba(138, 97, 0, 0.07);
+}
+
+/* Карточки на белом фоне поднимает не плёнка, а кромка и тень:
+   белое на белом невидимо, поэтому в светлой теме карточка
+   получает мягкую тень вместо подсветки сверху. */
+:root[data-theme="light"] .card { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
+:root[data-theme="light"] .card--accent { background: linear-gradient(180deg, var(--accent-ghost), var(--bg-elevated) 62%); }
+:root[data-theme="light"] .card--violet { background: linear-gradient(180deg, var(--violet-ghost), var(--bg-elevated) 62%); }
+:root[data-theme="light"] .card--quiet { background: var(--bg-inset); }
+:root[data-theme="light"] .tabbar { box-shadow: 0 -2px 14px -8px rgba(15, 23, 42, 0.25); }
+/* Аура маскота на светлом фоне слепит — приглушаем, форму держит эмодзи */
+:root[data-theme="light"] .mascot__glow { opacity: 0.28; filter: blur(30px); }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -66,8 +167,8 @@ body {
     line-height: 1.55;
     overscroll-behavior-y: none;
     background-image:
-        radial-gradient(120% 70% at 50% -10%, rgba(34, 224, 200, 0.10), transparent 62%),
-        radial-gradient(100% 55% at 50% 108%, rgba(139, 124, 255, 0.10), transparent 62%);
+        radial-gradient(120% 70% at 50% -10%, var(--scr-1), transparent 62%),
+        radial-gradient(100% 55% at 50% 108%, var(--scr-2), transparent 62%);
     background-attachment: fixed;
 }
 
@@ -95,16 +196,35 @@ body {
     width: 26px; height: 26px; border-radius: 8px;
     display: grid; place-items: center;
     background: var(--signature-ghost);
-    border: 1px solid rgba(255, 176, 32, 0.32);
+    border: 1px solid var(--edge-signature);
     font-size: 0.95rem;
 }
 .brand b { color: var(--accent); }
 
 .topbar__right { display: flex; align-items: center; gap: 6px; }
 
+/* Переключатели темы и языка: маленькие, в шапке, всегда под рукой */
+.icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 30px; height: 30px;
+    padding: 0 7px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--pill-bg);
+    color: var(--text-dim);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.16s ease, color 0.16s ease, background 0.16s ease;
+}
+.icon-btn:hover { border-color: var(--border-strong); color: var(--text); }
+.icon-btn:active { transform: scale(0.94); }
+
 .pill {
     display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(158, 173, 196, 0.06);
+    background: var(--pill-bg);
     border: 1px solid var(--border);
     padding: 5px 10px;
     border-radius: 999px;
@@ -142,8 +262,8 @@ body {
     padding: 14px;
     margin-bottom: 12px;
 }
-.card--accent { border-color: rgba(34, 224, 200, 0.34); background: linear-gradient(180deg, var(--accent-ghost), var(--bg-elevated) 60%); }
-.card--violet { border-color: rgba(139, 124, 255, 0.32); background: linear-gradient(180deg, var(--violet-ghost), var(--bg-elevated) 60%); }
+.card--accent { border-color: var(--edge-accent); background: linear-gradient(180deg, var(--accent-ghost), var(--bg-elevated) 60%); }
+.card--violet { border-color: var(--edge-violet); background: linear-gradient(180deg, var(--violet-ghost), var(--bg-elevated) 60%); }
 .card--quiet { background: var(--bg-surface); }
 
 .h2 { font-size: 1.12rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 4px; }
@@ -185,7 +305,7 @@ body {
     padding: 3px 9px;
     border-radius: 999px;
     border: 1px solid var(--border);
-    background: rgba(158, 173, 196, 0.05);
+    background: var(--row-bg-2);
     font-size: 0.73rem;
     font-weight: 600;
     color: var(--text-dim);
@@ -193,7 +313,7 @@ body {
 }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 
-.bar { height: 7px; border-radius: 999px; background: rgba(158, 173, 196, 0.12); overflow: hidden; }
+.bar { height: 7px; border-radius: 999px; background: var(--bar-track); overflow: hidden; }
 .bar__fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width 0.5s cubic-bezier(0.2, 0.9, 0.3, 1); }
 .bar--violet .bar__fill { background: var(--violet); }
 
@@ -221,7 +341,7 @@ body {
     padding: 9px 6px;
     border-radius: 10px;
     border: 1px solid var(--border);
-    background: rgba(158, 173, 196, 0.04);
+    background: var(--row-bg-2);
     color: var(--text-dim);
     font-family: inherit;
     font-size: 0.82rem;
@@ -231,13 +351,26 @@ body {
 }
 .seg button.is-on { border-color: var(--accent); background: var(--accent-ghost); color: var(--accent); }
 
+/* Лента из пяти вкладок в 390 px по-русски не помещается. Широкое
+   содержимое обязано прокручиваться внутри своего контейнера —
+   страница целиком горизонтально ехать не должна. */
+.seg--scroll {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -14px;          /* лента идёт от края до края */
+    padding: 0 14px 2px;
+}
+.seg--scroll::-webkit-scrollbar { display: none; }
+.seg--scroll button { flex: 0 0 auto; white-space: nowrap; padding-left: 12px; padding-right: 12px; }
+
 /* ---------- Вкладки ---------- */
 .tabbar {
     position: fixed;
     left: 0; right: 0; bottom: 0;
     z-index: 40;
     display: flex;
-    background: rgba(13, 15, 20, 0.94);
+    background: var(--tab-bg);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     border-top: 1px solid var(--border);
@@ -281,7 +414,7 @@ body {
 .stepper { display: flex; gap: 5px; margin-bottom: 12px; }
 .stepper span {
     flex: 1; height: 3px; border-radius: 2px;
-    background: rgba(158, 173, 196, 0.14);
+    background: var(--bar-track);
     transition: background 0.3s ease;
 }
 .stepper span.is-done { background: var(--accent); }
@@ -304,7 +437,7 @@ body {
     display: grid; place-items: center;
     font-size: 1.35rem;
     border-radius: 12px;
-    background: rgba(158, 173, 196, 0.07);
+    background: var(--pill-bg);
     border: 1px solid var(--border);
 }
 .node-title { font-size: 1.06rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.01em; }
@@ -357,7 +490,7 @@ body {
     cursor: pointer;
     transition: border-color 0.16s ease, background 0.16s ease;
 }
-.step:has(input:checked) { border-color: rgba(34, 224, 200, 0.4); background: var(--accent-ghost); }
+.step:has(input:checked) { border-color: var(--edge-accent); background: var(--accent-ghost); }
 .step input { flex: none; width: 18px; height: 18px; margin-top: 1px; accent-color: var(--accent); cursor: pointer; }
 .step span { font-size: 0.88rem; line-height: 1.45; }
 
@@ -371,7 +504,7 @@ body {
     margin-bottom: 7px;
     border: 1px solid var(--border);
     border-radius: 11px;
-    background: rgba(158, 173, 196, 0.035);
+    background: var(--opt-bg);
     color: var(--text);
     font-family: inherit;
     font-size: 0.88rem;
@@ -381,8 +514,8 @@ body {
 }
 .opt:not(:disabled):hover { border-color: var(--border-strong); }
 .opt.is-picked { border-color: var(--violet); background: var(--violet-ghost); }
-.opt.is-right { border-color: var(--success); background: rgba(63, 216, 122, 0.10); }
-.opt.is-wrong { border-color: var(--danger); background: rgba(255, 107, 112, 0.10); }
+.opt.is-right { border-color: var(--success); background: var(--tint-ok); }
+.opt.is-wrong { border-color: var(--danger); background: var(--tint-err); }
 .opt:disabled { cursor: default; }
 
 .why {
@@ -399,7 +532,7 @@ body {
 
 /* Уверенная ошибка — выделена намеренно: её ценность в том, что
    разницу «я думал / на самом деле» видно целиком и сразу */
-.why--err { border-color: rgba(255, 107, 112, 0.42); background: rgba(255, 107, 112, 0.06); }
+.why--err { border-color: var(--edge-err); background: var(--tint-err); }
 .why--err > b { color: var(--danger); }
 
 .contrast { margin-top: 10px; display: grid; gap: 6px; }
@@ -410,12 +543,12 @@ body {
     align-items: start;
     padding: 8px 10px;
     border-radius: 9px;
-    border: 1px solid rgba(255, 107, 112, 0.32);
-    background: rgba(255, 107, 112, 0.06);
+    border: 1px solid var(--edge-err);
+    background: var(--tint-err);
 }
 .contrast__row span { font-family: var(--mono); font-size: 0.68rem; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; padding-top: 2px; }
 .contrast__row b { font-size: 0.86rem; font-weight: 600; line-height: 1.45; color: var(--text); }
-.contrast__row.is-ok { border-color: rgba(63, 216, 122, 0.36); background: rgba(63, 216, 122, 0.07); }
+.contrast__row.is-ok { border-color: var(--edge-ok); background: var(--tint-ok); }
 
 /* Шкала уверенности перед ответом */
 .conf { margin: 10px 0 4px; }
@@ -426,7 +559,7 @@ body {
     padding: 9px 4px;
     border-radius: 10px;
     border: 1px solid var(--border);
-    background: rgba(158, 173, 196, 0.04);
+    background: var(--row-bg-2);
     color: var(--text-dim);
     font-family: inherit;
     font-size: 0.76rem;
@@ -453,7 +586,7 @@ body {
     padding: 11px 4px 8px;
     border-radius: 10px;
     border: 1px solid var(--border);
-    background: rgba(158, 173, 196, 0.04);
+    background: var(--row-bg-2);
     color: var(--text-dim);
     font-family: inherit;
     font-size: 0.68rem;
@@ -503,7 +636,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 12px;
     margin-bottom: 7px;
-    background: rgba(158, 173, 196, 0.03);
+    background: var(--row-bg);
     cursor: pointer;
     text-align: left;
     width: 100%;
@@ -520,7 +653,7 @@ body {
 .node-row.is-done { opacity: 0.62; }
 .node-row.is-done .node-row__s { color: var(--success); }
 .node-row.is-locked { opacity: 0.4; cursor: not-allowed; }
-.node-row.is-due { border-color: rgba(139, 124, 255, 0.42); background: var(--violet-ghost); }
+.node-row.is-due { border-color: var(--edge-violet); background: var(--violet-ghost); }
 .node-row.is-due .node-row__s { color: var(--violet-soft); }
 
 .track-card {
@@ -530,7 +663,7 @@ body {
     border-radius: 13px;
     margin-bottom: 8px;
     cursor: pointer;
-    background: rgba(158, 173, 196, 0.03);
+    background: var(--row-bg);
     text-align: left;
     width: 100%;
     font-family: inherit;
@@ -560,9 +693,9 @@ body {
 .gap {
     display: flex; gap: 9px; align-items: flex-start;
     padding: 10px 11px;
-    border: 1px solid rgba(229, 192, 123, 0.28);
+    border: 1px solid var(--edge-warn);
     border-radius: 11px;
-    background: rgba(229, 192, 123, 0.05);
+    background: var(--tint-warn);
     margin-bottom: 7px;
 }
 .gap__b { flex: 1; min-width: 0; }
@@ -632,12 +765,12 @@ body {
     padding: 10px 5px;
     border-radius: 12px;
     border: 1px solid var(--border);
-    background: rgba(158, 173, 196, 0.03);
+    background: var(--row-bg);
     opacity: 0.35;
     filter: grayscale(1);
     transition: all 0.2s ease;
 }
-.ach__i.is-on { opacity: 1; filter: none; border-color: rgba(34, 224, 200, 0.36); background: var(--accent-ghost); }
+.ach__i.is-on { opacity: 1; filter: none; border-color: var(--edge-accent); background: var(--accent-ghost); }
 .ach__e { font-size: 1.5rem; line-height: 1; }
 .ach__n { font-size: 0.66rem; font-weight: 700; margin-top: 4px; line-height: 1.2; }
 
@@ -662,10 +795,10 @@ body {
     z-index: 80;
     max-width: min(420px, calc(100vw - 28px));
     background: var(--bg-elevated);
-    border: 1px solid rgba(34, 224, 200, 0.36);
+    border: 1px solid var(--edge-accent);
     border-radius: 14px;
     padding: 11px 15px;
-    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.6);
+    box-shadow: var(--shadow-pop);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease, transform 0.25s ease;
@@ -682,7 +815,7 @@ body {
 
 hr.rule { border: none; height: 1px; background: var(--border-hair); margin: 12px 0; }
 
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(34, 224, 200, 0.3); }
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--edge-accent); }
 a:hover { border-bottom-color: var(--accent); }
 
 @media (min-width: 640px) {

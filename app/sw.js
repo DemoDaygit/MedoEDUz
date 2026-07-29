@@ -6,7 +6,7 @@
 
 'use strict';
 
-var CACHE = 'medoeduz-app-v5';
+var CACHE = 'medoeduz-app-v6';
 var ASSETS = [
     './',
     './index.html',
@@ -14,10 +14,12 @@ var ASSETS = [
     './learn.css',
     './learn.js',
     './refs.js',
+    './i18n.js',
     './config.js',
     './manifest.webmanifest',
     './icon.svg',
     './data/curriculum.js',
+    './data/curriculum.en.js',
     './fonts/fonts.css',
     './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2',
     './fonts/jetbrainsmono-v24-tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwhsk.woff2',

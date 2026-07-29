@@ -5,7 +5,7 @@
     bottom: -100%;
     left: 0;
     right: 0;
-    background: rgba(10, 14, 24, 0.96);
+    background: var(--panel-dark);
     backdrop-filter: blur(18px);
     border-top: 1px solid var(--border);
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
@@ -242,7 +242,7 @@
     width: 20px;
     left: 4px;
     bottom: 4px;
-    background-color: #e9eef8;
+    background-color: var(--bg-inset);
     transition: 0.3s;
     border-radius: 50%;
 }

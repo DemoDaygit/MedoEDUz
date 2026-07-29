@@ -2,6 +2,16 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<!-- Тема и язык применяются ДО первой отрисовки: иначе страница
+     успевает мигнуть тёмной перед светлой. Держать инлайном. -->
+<script>(function(){try{var d=document.documentElement;
+var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');
+var l=localStorage.getItem('medoeduz_lang');
+if(!l){l=(navigator.language||'ru').toLowerCase().indexOf('ru')===0?'ru':'en';}
+d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07080B">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -35,6 +45,8 @@
             <span>MedoEDU<b>z</b></span>
         </div>
         <div class="topbar__right">
+            <button class="icon-btn" id="langBtn" type="button" aria-label="Язык / Language">RU</button>
+            <button class="icon-btn" id="themeBtn" type="button" aria-label="Тема">☀️</button>
             <span class="pill pill--streak" id="pillStreak" title="Дней подряд">🔥 <b>0</b></span>
             <span class="pill pill--level" title="Уровень">⚡ <b id="pillLevel">1</b></span>
         </div>
@@ -65,10 +77,10 @@
 
 <!-- ================= Нижняя навигация ================= -->
 <nav class="tabbar" role="tablist" aria-label="Разделы приложения">
-    <button data-tab="session" class="is-on" role="tab" aria-selected="true"><i aria-hidden="true">🎯</i>Сессия</button>
-    <button data-tab="path" role="tab" aria-selected="false"><i aria-hidden="true">🗺️</i>Путь</button>
-    <button data-tab="journal" role="tab" aria-selected="false"><i aria-hidden="true">📓</i>Дневник<span class="dot" id="journalDot" hidden></span></button>
-    <button data-tab="profile" role="tab" aria-selected="false"><i aria-hidden="true">🦡</i>Профиль</button>
+    <button data-tab="session" class="is-on" role="tab" aria-selected="true"><i aria-hidden="true">🎯</i><span data-i18n>Сессия</span></button>
+    <button data-tab="path" role="tab" aria-selected="false"><i aria-hidden="true">🗺️</i><span data-i18n>Путь</span></button>
+    <button data-tab="journal" role="tab" aria-selected="false"><i aria-hidden="true">📓</i><span data-i18n>Дневник</span><span class="dot" id="journalDot" hidden></span></button>
+    <button data-tab="profile" role="tab" aria-selected="false"><i aria-hidden="true">🦡</i><span data-i18n>Профиль</span></button>
 </nav>
 
 <!-- Тост -->
@@ -84,6 +96,8 @@
 <script src="config.js"></script>
 <script src="data/curriculum.js"></script>
 <script src="refs.js"></script>
+<script src="i18n.js"></script>
+<script src="data/curriculum.en.js"></script>
 <script src="learn.js"></script>
 </body>
 </html>

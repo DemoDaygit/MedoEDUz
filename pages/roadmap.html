@@ -2,6 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+<!-- Тема и язык применяются ДО первой отрисовки: иначе страница
+     успевает мигнуть тёмной перед светлой. Держать инлайном. -->
+<script>(function(){try{var d=document.documentElement;
+var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');
+var l=localStorage.getItem('medoeduz_lang');
+if(!l){l=(navigator.language||'ru').toLowerCase().indexOf('ru')===0?'ru':'en';}
+d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Карта знаний MedoEDUz — интерактивное дерево навыков работы с ИИ. Открывайте узлы по мере роста.">
     <title>Карта знаний | MedoEDUz</title>
@@ -12,6 +22,7 @@
     <link rel="stylesheet" href="../css/game-ui.css">
     <link rel="stylesheet" href="../css/skill-tree.css">
     <link rel="stylesheet" href="../fonts/fonts.css">
+    <meta name="theme-color" content="#07080B">
 </head>
 <body>
     <!-- Навигация -->
@@ -150,5 +161,8 @@
                 .join('');
         })();
     </script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/data/site-i18n.js"></script>
+    <script src="../js/i18n-site.js"></script>
 </body>
 </html>

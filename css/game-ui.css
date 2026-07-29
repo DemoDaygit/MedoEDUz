@@ -125,7 +125,7 @@ body.cookie-banner-visible .xp-toast {
 .game-panel__overlay {
     position: absolute;
     inset: 0;
-    background: rgba(17, 24, 39, 0.5);
+    background: var(--panel-dark-soft);
     backdrop-filter: blur(4px);
     opacity: 0;
     transition: opacity 0.35s ease;
@@ -407,8 +407,8 @@ body.cookie-banner-visible .xp-toast {
     bottom: 6.5rem;
     left: 2rem;
     z-index: 9997;
-    background: rgba(17, 24, 39, 0.92);
-    color: white;
+    background: var(--panel-dark);
+    color: var(--text-primary);
     padding: 0.6rem 1rem;
     border-radius: 50px;
     display: flex;
@@ -427,7 +427,7 @@ body.cookie-banner-visible .xp-toast {
 
 .xp-toast__amount {
     font-weight: 800;
-    color: #fbbf24;
+    color: var(--signature);
     font-size: 0.95rem;
 }
 
@@ -447,7 +447,7 @@ body.cookie-banner-visible .xp-toast {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(17, 24, 39, 0.75);
+    background: var(--panel-dark-soft);
     backdrop-filter: blur(6px);
     opacity: 0;
     transition: opacity 0.4s ease;

@@ -122,8 +122,8 @@
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(rgba(158, 173, 196, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(158, 173, 196, 0.05) 1px, transparent 1px);
+        linear-gradient(var(--surface-tint-soft) 1px, transparent 1px),
+        linear-gradient(90deg, var(--surface-tint-soft) 1px, transparent 1px);
     background-size: 44px 44px;
     pointer-events: none;
 }
@@ -486,7 +486,7 @@
 .cv__overlay {
     position: absolute;
     inset: 0;
-    background: rgba(4, 5, 8, 0.78);
+    background: var(--panel-dark-soft);
     backdrop-filter: blur(6px);
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -842,7 +842,7 @@
     font-family: var(--font-mono);
     font-size: var(--fs-label);
     letter-spacing: var(--ls-label);
-    color: var(--signature-soft);
+    color: var(--signature);
 }
 
 .stg__name {
@@ -1076,7 +1076,7 @@
 .onb {
     position: fixed; inset: 0; z-index: 10020;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(4, 5, 8, 0.85); backdrop-filter: blur(8px);
+    background: var(--panel-dark); backdrop-filter: blur(8px);
     opacity: 0; transition: opacity 0.3s ease; padding: 20px;
 }
 .onb.is-open { opacity: 1; }

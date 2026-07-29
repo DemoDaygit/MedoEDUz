@@ -2,6 +2,16 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<!-- Тема и язык применяются ДО первой отрисовки: иначе страница
+     успевает мигнуть тёмной перед светлой. Держать инлайном. -->
+<script>(function(){try{var d=document.documentElement;
+var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');
+var l=localStorage.getItem('medoeduz_lang');
+if(!l){l=(navigator.language||'ru').toLowerCase().indexOf('ru')===0?'ru':'en';}
+d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#07080B">
 <meta name="apple-mobile-web-app-capable" content="yes">
