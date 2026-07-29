@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         if (clickXpCooldown) return;
         if (e.target.closest('a, button')) {
-            GameEngine.addXP(5, 'Активность');
+            GameEngine.addXP(5, t('Активность'));
             clickXpCooldown = true;
             setTimeout(() => (clickXpCooldown = false), 3000);
         }

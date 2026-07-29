@@ -46,7 +46,7 @@ const Reco = (() => {
             if (!mastered.has(node.id)) continue;
             const r = checks && checks[node.id];
             if (r && r.answers && r.passed === false) {
-                return { primary: node.id, reason: 'Вернитесь: проверка не пройдена', alternatives: [] };
+                return { primary: node.id, reason: t('Вернитесь: проверка не пройдена'), alternatives: [] };
             }
         }
 
@@ -55,7 +55,7 @@ const Reco = (() => {
             if (mastered.has(node.id)) continue;
             const done = (quests && quests[node.id]) || [];
             if (done.length > 0 && done.length < node.quest.steps.length) {
-                return { primary: node.id, reason: 'Завершите начатую миссию', alternatives: [] };
+                return { primary: node.id, reason: t('Завершите начатую миссию'), alternatives: [] };
             }
         }
 
@@ -82,7 +82,7 @@ const Reco = (() => {
         if (synergyPick) {
             return {
                 primary: synergyPick.id,
-                reason: 'Откроет синергию навыков',
+                reason: t('Откроет синергию навыков'),
                 alternatives: inMyTrack.filter((n) => n.id !== synergyPick.id).slice(0, 3).map((n) => n.id),
             };
         }
@@ -90,7 +90,7 @@ const Reco = (() => {
         if (inMyTrack.length) {
             return {
                 primary: inMyTrack[0].id,
-                reason: 'Следующий шаг вашего трека',
+                reason: t('Следующий шаг вашего трека'),
                 alternatives: inMyTrack.slice(1, 4).map((n) => n.id),
             };
         }
@@ -101,12 +101,12 @@ const Reco = (() => {
         if (anyAvailable.length) {
             return {
                 primary: anyAvailable[0].id,
-                reason: 'Расширьте кругозор за пределы трека',
+                reason: t('Расширьте кругозор за пределы трека'),
                 alternatives: anyAvailable.slice(1, 4).map((n) => n.id),
             };
         }
 
-        return { primary: null, reason: 'Всё доступное освоено — поднимайте уровень', alternatives: [] };
+        return { primary: null, reason: t('Всё доступное освоено — поднимайте уровень'), alternatives: [] };
     }
 
     /** Прогресс по треку: сколько узлов трека освоено из всех */

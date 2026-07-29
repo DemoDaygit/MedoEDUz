@@ -67,7 +67,7 @@ const SkillTree = (() => {
     function build() {
         model = window.CURRICULUM;
         if (!model) {
-            host.innerHTML = '<p class="st-error">Модель учебной программы не загружена.</p>';
+            host.innerHTML = t('<p class="st-error">Модель учебной программы не загружена.</p>');
             return;
         }
 
@@ -202,13 +202,13 @@ const SkillTree = (() => {
         if (line) lines.push(line);
 
         lines.forEach((ln, i) => {
-            const t = el('text', {
+            const txtEl = el('text', {
                 class: 'st-node__label',
                 'text-anchor': 'middle',
                 y: yStart + i * 16,
             });
-            t.textContent = ln;
-            group.appendChild(t);
+            txtEl.textContent = ln;
+            group.appendChild(txtEl);
         });
     }
 
@@ -275,7 +275,7 @@ const SkillTree = (() => {
         const node = model.BY_ID[reco.primary];
         const branch = model.BRANCHES[node.branch];
         el.innerHTML =
-            '<span class="reco__label">Рекомендуем дальше</span>' +
+            t('<span class="reco__label">Рекомендуем дальше</span>') +
             '<button class="reco__node" data-id="' + node.id + '" style="--branch:' + branch.color + '">' +
                 '<span class="reco__emoji">' + node.emoji + '</span>' +
                 '<span class="reco__title">' + node.title + '</span>' +
@@ -313,13 +313,13 @@ const SkillTree = (() => {
         const tEl = document.getElementById('trackBadge');
         if (tEl) {
             if (track && model.TRACKS[track]) {
-                const t = model.TRACKS[track];
-                tEl.innerHTML = t.emoji + ' ' + t.name + ' <button class="track-change">сменить</button>';
+                const tr = model.TRACKS[track];
+                tEl.innerHTML = tr.emoji + ' ' + tr.name + t(' <button class="track-change">сменить</button>');
                 tEl.classList.add('show');
                 const ch = tEl.querySelector('.track-change');
                 if (ch) ch.addEventListener('click', () => { if (window.Onboarding) Onboarding.open(true); });
             } else {
-                tEl.innerHTML = '<button class="track-change">Выбрать трек обучения</button>';
+                tEl.innerHTML = t('<button class="track-change">Выбрать трек обучения</button>');
                 tEl.classList.add('show');
                 const ch = tEl.querySelector('.track-change');
                 if (ch) ch.addEventListener('click', () => { if (window.Onboarding) Onboarding.open(true); });
@@ -335,7 +335,7 @@ const SkillTree = (() => {
         if (st === 'locked') {
             const prereqOk = node.prereqs.every((p) => mastered.has(p));
             const msg = !prereqOk
-                ? 'Сначала освойте предыдущие навыки'
+                ? t('Сначала освойте предыдущие навыки')
                 : `Требуется уровень ${node.reqLevel} (у вас ${playerLevel()})`;
             shake(node.id);
             flashTooltip(node, msg);
@@ -394,7 +394,7 @@ const SkillTree = (() => {
         const mastered = masteredSet();
         const st = stateOf(node, mastered);
         const branch = model.BRANCHES[node.branch];
-        const stLabel = { mastered: 'Освоено ✓', available: 'Доступно', locked: 'Закрыто 🔒' }[st];
+        const stLabel = { mastered: t('Освоено ✓'), available: t('Доступно'), locked: t('Закрыто 🔒') }[st];
 
         tooltip.innerHTML = `
             <div class="st-tip__head" style="--branch:${branch.color}">
@@ -408,7 +408,7 @@ const SkillTree = (() => {
             <div class="st-tip__meta">
                 <span class="st-tip__state st-tip__state--${st}">${stLabel}</span>
                 <span>⚡ +${node.xp} XP</span>
-                <span>🎯 ур. ${node.reqLevel}</span>
+                <span>🎯 ${t("ур. ")}${node.reqLevel}</span>
             </div>
         `;
         tooltip.classList.add('show');
@@ -499,8 +499,8 @@ const SkillTree = (() => {
             'touchstart',
             (e) => {
                 if (e.target.closest('.st-node') || e.touches.length !== 1) return;
-                const t = e.touches[0];
-                drag = { x: t.clientX - view.x, y: t.clientY - view.y };
+                const tp = e.touches[0];
+                drag = { x: tp.clientX - view.x, y: tp.clientY - view.y };
             },
             { passive: true }
         );
@@ -508,9 +508,9 @@ const SkillTree = (() => {
             'touchmove',
             (e) => {
                 if (!drag || e.touches.length !== 1) return;
-                const t = e.touches[0];
-                view.x = t.clientX - drag.x;
-                view.y = t.clientY - drag.y;
+                const tp = e.touches[0];
+                view.x = tp.clientX - drag.x;
+                view.y = tp.clientY - drag.y;
                 applyTransform();
             },
             { passive: true }
@@ -672,7 +672,7 @@ const SkillTree = (() => {
         el.innerHTML =
             '<div class="syn-toast__icon">' + syn.emoji + '</div>' +
             '<div>' +
-                '<div class="syn-toast__label">Синергия открыта</div>' +
+                t('<div class="syn-toast__label">Синергия открыта</div>') +
                 '<div class="syn-toast__name">' + syn.name + '</div>' +
                 '<div class="syn-toast__gives">' + syn.gives + '</div>' +
             '</div>';
@@ -707,11 +707,11 @@ const SkillTree = (() => {
                 '<article class="stg" data-lvl="' + s.level + '">' +
                     '<div class="stg__top">' +
                         '<span class="stg__emoji">' + s.emoji + '</span>' +
-                        '<span class="stg__lvl">ур. ' + s.level + '</span>' +
+                        t('<span class="stg__lvl">ур. ') + s.level + '</span>' +
                     '</div>' +
                     '<h3 class="stg__name">' + s.name + '</h3>' +
                     '<p class="stg__can">' + s.can + '</p>' +
-                    '<div class="stg__unlocks">Открывает: ' + s.unlocks + '</div>' +
+                    t('<div class="stg__unlocks">Открывает: ') + s.unlocks + '</div>' +
                 '</article>'
             ).join('');
         }

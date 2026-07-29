@@ -118,6 +118,11 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
     <script async src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <!-- Игровой движок -->
+    <!-- Словарь и t() идут первыми: игровой движок и модули карты
+         вызывают t() прямо при разборе, до DOMContentLoaded. -->
+    <script src="../js/data/site-i18n.js"></script>
+    <script src="../js/t.js"></script>
+
     <script src="../js/animations.js"></script>
     <script src="../js/gamification.js"></script>
     <script src="../js/game-ui.js"></script>
@@ -129,6 +134,8 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
          skill-tree.js, он на них опирается. -->
     <script src="../js/config.js"></script>
     <script src="../js/data/curriculum.js"></script>
+    <script src="../js/data/curriculum.en.js"></script>
+    <script>if (window.MEDOEDUZ_LANG === "en" && window.CURRICULUM_EN) window.CURRICULUM = window.CURRICULUM_EN;</script>
     <script src="../js/telegram.js"></script>
     <script src="../js/reco.js"></script>
     <script src="../js/onboarding.js"></script>
@@ -162,7 +169,6 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
         })();
     </script>
     <script src="../js/theme.js"></script>
-    <script src="../js/data/site-i18n.js"></script>
     <script src="../js/i18n-site.js"></script>
 </body>
 </html>

@@ -101,7 +101,7 @@ class CookieConsent {
         });
         this.enableAnalytics();
         this.hideBanner();
-        this.showNotification('Настройки cookies сохранены', 'success');
+        this.showNotification(t('Настройки cookies сохранены'), 'success');
     }
 
     acceptNecessary() {
@@ -112,7 +112,7 @@ class CookieConsent {
             marketing: false
         });
         this.hideBanner();
-        this.showNotification('Сохранены только необходимые cookies', 'info');
+        this.showNotification(t('Сохранены только необходимые cookies'), 'info');
     }
 
     showSettings() {
@@ -239,7 +239,7 @@ class CookieConsent {
         }
 
         this.closeSettings();
-        this.showNotification('Настройки cookies сохранены', 'success');
+        this.showNotification(t('Настройки cookies сохранены'), 'success');
     }
 
     getConsent() {

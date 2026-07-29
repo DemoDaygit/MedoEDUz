@@ -95,21 +95,21 @@ function initForm() {
 
             // Валидация
             if (!data.name || !data.email) {
-                showNotification('Пожалуйста, заполните обязательные поля', 'error');
+                showNotification(t('Пожалуйста, заполните обязательные поля'), 'error');
                 return;
             }
 
             // Простая валидация email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(data.email)) {
-                showNotification('Пожалуйста, введите корректный email', 'error');
+                showNotification(t('Пожалуйста, введите корректный email'), 'error');
                 return;
             }
 
             // Симуляция отправки формы
             const submitBtn = contactForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Отправка...';
+            submitBtn.textContent = t('Отправка...');
             submitBtn.disabled = true;
 
             try {
@@ -119,10 +119,10 @@ function initForm() {
                 // Симуляция задержки
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
-                showNotification('Спасибо! Мы свяжемся с вами в ближайшее время', 'success');
+                showNotification(t('Спасибо! Мы свяжемся с вами в ближайшее время'), 'success');
                 contactForm.reset();
             } catch (error) {
-                showNotification('Произошла ошибка. Попробуйте позже', 'error');
+                showNotification(t('Произошла ошибка. Попробуйте позже'), 'error');
             } finally {
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
@@ -402,4 +402,4 @@ function updateActiveNavLink() {
 
 updateActiveNavLink();
 
-console.log('🦡 MedoEDUz - Медоеду ВСЁ! Сайт загружен успешно.');
+console.log(t('🦡 MedoEDUz - Медоеду ВСЁ! Сайт загружен успешно.'));

@@ -18,17 +18,17 @@ const Onboarding = (() => {
     let root, step = 0, draft = {};
 
     const GOALS = [
-        { id: 'apply-work', emoji: '⚡', title: 'Применять в работе', desc: 'Ускорить текущие задачи с помощью ИИ' },
-        { id: 'fundamentals', emoji: '📚', title: 'Разобраться в основах', desc: 'Понять, как это устроено, без спешки' },
-        { id: 'build-agents', emoji: '🤖', title: 'Строить ИИ-системы', desc: 'Проектировать агентов и приложения' },
-        { id: 'explore', emoji: '🧭', title: 'Осмотреться', desc: 'Пока просто изучаю, что здесь есть' },
+        { id: 'apply-work', emoji: '⚡', title: t('Применять в работе'), desc: t('Ускорить текущие задачи с помощью ИИ') },
+        { id: 'fundamentals', emoji: '📚', title: t('Разобраться в основах'), desc: t('Понять, как это устроено, без спешки') },
+        { id: 'build-agents', emoji: '🤖', title: t('Строить ИИ-системы'), desc: t('Проектировать агентов и приложения') },
+        { id: 'explore', emoji: '🧭', title: t('Осмотреться'), desc: t('Пока просто изучаю, что здесь есть') },
     ];
 
     const EXP = [
-        { id: 'zero', emoji: '🌱', title: 'С нуля', desc: 'Почти не пользовался ИИ' },
-        { id: 'user', emoji: '💬', title: 'Пользователь', desc: 'Регулярно пишу запросы в чат-модели' },
-        { id: 'builder', emoji: '🔧', title: 'Строитель', desc: 'Делаю что-то с ИИ: код, контент, автоматизации' },
-        { id: 'advanced', emoji: '🚀', title: 'Продвинутый', desc: 'Работаю с агентами, памятью, эвалами' },
+        { id: 'zero', emoji: '🌱', title: t('С нуля'), desc: t('Почти не пользовался ИИ') },
+        { id: 'user', emoji: '💬', title: t('Пользователь'), desc: t('Регулярно пишу запросы в чат-модели') },
+        { id: 'builder', emoji: '🔧', title: t('Строитель'), desc: t('Делаю что-то с ИИ: код, контент, автоматизации') },
+        { id: 'advanced', emoji: '🚀', title: t('Продвинутый'), desc: t('Работаю с агентами, памятью, эвалами') },
     ];
 
     // цель → рекомендуемый стартовый уровень
@@ -57,19 +57,22 @@ const Onboarding = (() => {
 
         if (step === 0) {
             body =
-                cardGrid('Зачем вам ИИ?', 'Это задаёт направление обучения — можно сменить потом.',
+                cardGrid(t('Зачем вам ИИ?'), t('Это задаёт направление обучения — можно сменить потом.'),
                     GOALS.map((g) => optionCard('goal', g.id, g.emoji, g.title, g.desc)).join(''));
         } else if (step === 1) {
             const hint = window.TG && window.TG.displayName && window.TG.displayName();
             body =
                 cardGrid(
-                    (hint ? esc(hint) + ', в' : 'В') + 'ыберите роль',
-                    'Карта подсветит навыки вашего трека. Остальное останется доступным.',
-                    tracksList().map((t) =>
-                        optionCard('track', t.id, t.emoji, t.name, t.forWhom)).join(''));
+                    // Целая фраза, а не склейка из буквы и хвоста:
+                    // ключ словаря «В» подменял бы любую одиночную «В»
+                    // на странице, а перевод по кускам ломает порядок слов
+                    (hint ? esc(hint) + t(', выберите роль') : t('Выберите роль')),
+                    t('Карта подсветит навыки вашего трека. Остальное останется доступным.'),
+                    tracksList().map((tr) =>
+                        optionCard('track', tr.id, tr.emoji, tr.name, tr.forWhom)).join(''));
         } else if (step === 2) {
             body =
-                cardGrid('Ваш опыт с ИИ?', 'Подберём стартовую сложность — карта не завалит вас лишним.',
+                cardGrid(t('Ваш опыт с ИИ?'), t('Подберём стартовую сложность — карта не завалит вас лишним.'),
                     EXP.map((e) => optionCard('experience', e.id, e.emoji, e.title, e.desc)).join(''));
         }
 
@@ -81,8 +84,8 @@ const Onboarding = (() => {
                 '</div>' +
                 body +
                 '<div class="onb__actions">' +
-                    (step > 0 ? '<button class="onb__back">Назад</button>' : '') +
-                    '<button class="onb__skip">Пропустить</button>' +
+                    (step > 0 ? t('<button class="onb__back">Назад</button>') : '') +
+                    t('<button class="onb__skip">Пропустить</button>') +
                 '</div>' +
             '</div>';
 

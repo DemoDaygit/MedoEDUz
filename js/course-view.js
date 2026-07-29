@@ -107,41 +107,41 @@ const CourseView = (() => {
         sheet.style.setProperty('--branch', branch.color);
 
         sheet.innerHTML =
-            '<button class="cv__close" aria-label="Закрыть">&times;</button>' +
+            t('<button class="cv__close" aria-label="Закрыть">&times;</button>') +
 
             '<div class="cv__head">' +
                 '<span class="cv__emoji">' + n.emoji + '</span>' +
                 '<div>' +
                     '<div class="cv__branch">' + branch.emoji + ' ' + esc(branch.name) +
-                        ' · ур. ' + n.reqLevel + ' · +' + n.xp + ' XP</div>' +
+                        t(' · ур. ') + n.reqLevel + ' · +' + n.xp + ' XP</div>' +
                     '<h2 class="cv__title">' + esc(n.title) + '</h2>' +
                 '</div>' +
             '</div>' +
 
-            (mastered ? '<div class="cv__badge-done">✓ Навык освоен</div>' : '') +
+            (mastered ? t('<div class="cv__badge-done">✓ Навык освоен</div>') : '') +
 
             '<p class="cv__desc">' + esc(n.desc) + '</p>' +
 
             '<div class="cv__tools">' +
-                n.tools.map((t) => '<span class="cv__tool">' + esc(t) + '</span>').join('') +
+                n.tools.map((tool) => '<span class="cv__tool">' + esc(tool) + '</span>').join('') +
             '</div>' +
 
-            '<h3 class="cv__label">Программа</h3>' +
+            t('<h3 class="cv__label">Программа</h3>') +
             '<ul class="cv__list">' +
                 n.learn.map((l) => '<li>' + esc(l) + '</li>').join('') +
             '</ul>' +
 
-            '<h3 class="cv__label">Что сможете сразу</h3>' +
+            t('<h3 class="cv__label">Что сможете сразу</h3>') +
             '<p class="cv__apply">' + esc(n.apply.now) + '</p>' +
             '<div class="cv__case">' +
-                '<span class="cv__case-tag">Пример</span>' + esc(n.apply.case) +
+                t('<span class="cv__case-tag">Пример</span>') + esc(n.apply.case) +
             '</div>' +
 
             '<div class="cv__trap">' +
-                '<span class="cv__trap-tag">Частая ошибка</span>' + esc(n.trap) +
+                t('<span class="cv__trap-tag">Частая ошибка</span>') + esc(n.trap) +
             '</div>' +
 
-            '<h3 class="cv__label">Миссия · ' + esc(n.quest.title) + '</h3>' +
+            t('<h3 class="cv__label">Миссия · ') + esc(n.quest.title) + '</h3>' +
             '<ol class="cv__steps">' +
                 n.quest.steps.map((s, i) =>
                     '<li class="cv__step' + (done.indexOf(i) !== -1 ? ' is-done' : '') + '">' +
@@ -154,7 +154,7 @@ const CourseView = (() => {
                 ).join('') +
             '</ol>' +
 
-            '<div class="cv__proof"><strong>Результат:</strong> ' + esc(n.quest.proof) + '</div>' +
+            t('<div class="cv__proof"><strong>Результат:</strong> ') + esc(n.quest.proof) + '</div>' +
 
             renderCheck(n) +
 
@@ -221,10 +221,10 @@ const CourseView = (() => {
     function completeLabel(node) {
         const done = stepsDone(node.id).length;
         const total = node.quest.steps.length;
-        if (done < total) return 'Отметьте все шаги миссии (' + done + '/' + total + ')';
+        if (done < total) return t('Отметьте все шаги миссии (') + done + '/' + total + ')';
         const r = checkOf(node.id);
-        if (!r || !r.passed) return 'Пройдите проверку усвоения';
-        return 'Освоить навык · +' + node.xp + ' XP';
+        if (!r || !r.passed) return t('Пройдите проверку усвоения');
+        return t('Освоить навык · +') + node.xp + ' XP';
     }
 
     function renderCheck(n) {
@@ -248,7 +248,7 @@ const CourseView = (() => {
                 '</div>' +
                 (answered
                     ? '<div class="cvq__why">' +
-                        (picked === c.ok ? '<b>Верно.</b> ' : '<b>Не так.</b> ') + esc(c.why) +
+                        (picked === c.ok ? t('<b>Верно.</b> ') : t('<b>Не так.</b> ')) + esc(c.why) +
                       '</div>'
                     : '') +
             '</div>';
@@ -258,12 +258,12 @@ const CourseView = (() => {
                             r.answers.every((a) => a !== undefined && a !== null);
         const status = !allAnswered ? ''
             : (r.passed
-                ? '<div class="cvq__ok">✓ Проверка пройдена' +
-                    (r.firstTry ? ' с первого раза' : '') + '</div>'
-                : '<div class="cvq__fail">Есть ошибки. Перечитайте программу и ' +
-                    '<button class="cvq__retry">пройдите заново</button></div>');
+                ? t('<div class="cvq__ok">✓ Проверка пройдена') +
+                    (r.firstTry ? t(' с первого раза') : '') + '</div>'
+                : t('<div class="cvq__fail">Есть ошибки. Перечитайте программу и ') +
+                    t('<button class="cvq__retry">пройдите заново</button></div>'));
 
-        return '<h3 class="cv__label">Проверка усвоения</h3>' +
+        return t('<h3 class="cv__label">Проверка усвоения</h3>') +
                '<div class="cvq-wrap">' + html + status + '</div>';
     }
 

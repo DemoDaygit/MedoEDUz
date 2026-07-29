@@ -17,7 +17,7 @@ const GameUI = (() => {
         // Плавающая кнопка-аватар (FAB) — точка входа в игровую панель
         fabEl = document.createElement('button');
         fabEl.className = 'game-fab';
-        fabEl.setAttribute('aria-label', 'Открыть профиль игрока');
+        fabEl.setAttribute('aria-label', t('Открыть профиль игрока'));
         fabEl.innerHTML = `
             <span class="game-fab__ring"></span>
             <span class="game-fab__avatar" id="gameFabAvatar">🦡</span>
@@ -82,7 +82,7 @@ const GameUI = (() => {
         panelEl.querySelector('.game-panel__close').addEventListener('click', closePanel);
         panelEl.querySelector('.game-panel__overlay').addEventListener('click', closePanel);
         panelEl.querySelector('#gameReset').addEventListener('click', () => {
-            if (confirm('Сбросить весь игровой прогресс? Это действие необратимо.')) {
+            if (confirm(t('Сбросить весь игровой прогресс? Это действие необратимо.'))) {
                 GameEngine.reset();
             }
         });
@@ -247,7 +247,7 @@ const GameUI = (() => {
         toast.innerHTML = `
             <div class="ach-toast__icon">${ach.icon}</div>
             <div class="ach-toast__body">
-                <span class="ach-toast__label">Достижение разблокировано</span>
+                <span class="ach-toast__label">${t("Достижение разблокировано")}</span>
                 <span class="ach-toast__name">${ach.name}</span>
                 <span class="ach-toast__desc">${ach.desc}</span>
             </div>
