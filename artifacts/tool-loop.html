@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var d=document.documentElement;var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07080B">
+<title>Разбор агентной петли — Артефакт Медоеда</title>
+<link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="artifact.css">
+<style>
+    .q { margin-bottom: 0.9rem; }
+    .q__t { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.45rem; }
+    .q__opts { display: grid; gap: 0.4rem; }
+    .q__opts button {
+        text-align: left; padding: 0.55rem 0.7rem; border-radius: 10px;
+        border: 1px solid var(--border); background: transparent; color: var(--text);
+        font-family: inherit; font-size: 0.86rem; line-height: 1.45; cursor: pointer;
+    }
+    .q__opts button:hover { border-color: var(--border-strong); }
+    .q__opts button.is-on { border-color: var(--accent); background: var(--accent-ghost); }
+    .verdict { border-radius: 12px; padding: 0.9rem 1rem; border: 1px solid var(--border); }
+    .verdict.simple { border-color: var(--success); background: var(--tint-ok); }
+    .verdict.loop { border-color: var(--accent); background: var(--accent-ghost); }
+    .verdict.multi { border-color: var(--warning); background: var(--tint-warn); }
+    .verdict__h { font-weight: 800; font-size: 1rem; margin-bottom: 0.35rem; }
+    .parts { display: grid; gap: 0.5rem; margin-top: 0.8rem; }
+    .part { border: 1px solid var(--border-hair); border-radius: 10px; padding: 0.6rem 0.75rem; font-size: 0.85rem; }
+    .part b { color: var(--accent); display: block; margin-bottom: 0.15rem; }
+</style>
+</head>
+<body>
+<div class="tool">
+    <header class="tool__head">
+        <div class="tool__kicker">Артефакт · инструмент</div>
+        <h1 class="tool__title">🤖 Разбор агентной петли</h1>
+        <p class="tool__sub">
+            Агент — это модель, инструменты и цикл, который крутится, пока не
+            выполнено условие остановки. Цикл стоит денег, времени и надёжности,
+            поэтому первый честный вопрос не «как построить агента», а «нужен ли
+            он здесь вообще». Ответьте на пять вопросов о своей задаче.
+        </p>
+    </header>
+
+    <div class="card">
+        <label class="lbl" for="task">Ваша задача</label>
+        <input type="text" class="field" id="task" placeholder="Разобрать входящие заявки и завести карточки в трекере">
+    </div>
+
+    <div class="card" id="quiz"></div>
+
+    <div class="card card--accent">
+        <div id="verdict"></div>
+        <div class="parts" id="parts"></div>
+    </div>
+
+    <div class="foot">
+        Соответствует узлам «Agent = LLM + Tools + Loop», «Мульти-агентная
+        оркестрация» и «Харнесс». Разбор устройства агента — открытый документ
+        Google <a href="https://www.kaggle.com/whitepaper-agents" target="_blank" rel="noopener">Agents</a>
+        и курс <a href="https://www.kaggle.com/learn-guide/5-day-agents" target="_blank" rel="noopener">5-Day AI Agents Intensive</a>.
+        Ответы сохраняются в браузере.
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var KEY = 'medoeduz_tool_loop';
+
+    var QUESTIONS = [
+        {
+            id: 'steps',
+            t: 'Сколько шагов нужно, чтобы задача была закрыта?',
+            opts: [
+                { v: 0, l: 'Один: спросил — получил ответ' },
+                { v: 1, l: 'Два-три, и они всегда одни и те же' },
+                { v: 2, l: 'Заранее неизвестно: зависит от того, что найдётся по дороге' }
+            ]
+        },
+        {
+            id: 'tools',
+            t: 'Нужен ли доступ к чему-то за пределами модели?',
+            opts: [
+                { v: 0, l: 'Нет, всё есть в тексте запроса' },
+                { v: 1, l: 'Да, один источник или одно действие' },
+                { v: 2, l: 'Да, несколько систем, и какая понадобится — решается по ходу' }
+            ]
+        },
+        {
+            id: 'stop',
+            t: 'Как понять, что работа закончена?',
+            opts: [
+                { v: 0, l: 'Ответ получен — значит закончена' },
+                { v: 1, l: 'Есть проверяемое условие, которое я могу описать' },
+                { v: 2, l: 'Условие есть, но проверить его может только сама система по ходу дела' }
+            ]
+        },
+        {
+            id: 'cost',
+            t: 'Что будет, если система ошибётся и никто не заметит?',
+            opts: [
+                { v: 0, l: 'Ничего страшного, переделаем' },
+                { v: 1, l: 'Потеря времени или неприятный разговор' },
+                { v: 2, l: 'Деньги, данные или репутация' }
+            ]
+        },
+        {
+            id: 'freq',
+            t: 'Как часто это повторяется?',
+            opts: [
+                { v: 0, l: 'Разово или пару раз в квартал' },
+                { v: 1, l: 'Несколько раз в неделю' },
+                { v: 2, l: 'Каждый день, помногу' }
+            ]
+        }
+    ];
+
+    var answers;
+    try { answers = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { answers = {}; }
+    if (answers.task) $('task').value = answers.task;
+
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(answers)); } catch (e) {} }
+
+    function draw() {
+        $('quiz').innerHTML = QUESTIONS.map(function (q) {
+            return '<div class="q"><div class="q__t">' + q.t + '</div><div class="q__opts">' +
+                q.opts.map(function (o, i) {
+                    return '<button data-q="' + q.id + '" data-v="' + o.v + '" data-i="' + i + '" class="' +
+                        (answers[q.id] === i ? 'is-on' : '') + '">' + o.l + '</button>';
+                }).join('') + '</div></div>';
+        }).join('');
+
+        $('quiz').querySelectorAll('button[data-q]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                answers[b.dataset.q] = +b.dataset.i;
+                draw(); calc(); save();
+            });
+        });
+    }
+
+    function calc() {
+        var answered = QUESTIONS.filter(function (q) { return answers[q.id] !== undefined; });
+        if (answered.length < QUESTIONS.length) {
+            $('verdict').innerHTML = '<div class="verdict"><div class="verdict__h">Ответьте на все пять</div>' +
+                '<div>Осталось: ' + (QUESTIONS.length - answered.length) + '. Разбор появится, когда картина будет полной.</div></div>';
+            $('parts').innerHTML = '';
+            return;
+        }
+
+        var score = QUESTIONS.reduce(function (a, q) { return a + q.opts[answers[q.id]].v; }, 0);
+        var steps = QUESTIONS[0].opts[answers.steps].v;
+        var tools = QUESTIONS[1].opts[answers.tools].v;
+        var cost = QUESTIONS[3].opts[answers.cost].v;
+        var freq = QUESTIONS[4].opts[answers.freq].v;
+
+        var v, cls;
+        if (score <= 3) {
+            cls = 'simple';
+            v = '<div class="verdict__h">Агент не нужен</div>' +
+                '<div>Задача решается одним хорошо собранным запросом. Петля здесь добавит стоимость, ' +
+                'задержку и новые способы сломаться, но ничего не улучшит. Вложитесь в промпт и в проверку ответа.</div>';
+        } else if (score <= 7) {
+            cls = 'loop';
+            v = '<div class="verdict__h">Нужна простая петля</div>' +
+                '<div>Один агент с ограниченным набором инструментов и жёстким лимитом шагов. ' +
+                'Не начинайте с мульти-агентной схемы: она добавляет координацию, а координация — самая дорогая часть.</div>';
+        } else {
+            cls = 'multi';
+            v = '<div class="verdict__h">Похоже на многошаговый контур</div>' +
+                '<div>Задача действительно ветвится. Но прежде чем городить несколько агентов, соберите один ' +
+                'со сквозным логом: чаще всего выясняется, что «нужно несколько ролей» — это на самом деле ' +
+                'несколько инструментов у одного агента.</div>';
+        }
+        if (freq === 0 && score > 3) {
+            v += '<div style="margin-top:0.5rem">Отдельно: задача повторяется редко. ' +
+                 'Автоматизировать то, что делают раз в квартал за десять минут, почти никогда не окупается.</div>';
+        }
+        $('verdict').className = 'verdict ' + cls;
+        $('verdict').innerHTML = v;
+
+        var parts = [];
+        parts.push('<div class="part"><b>Модель</b>' +
+            (cost === 2 ? 'Цена ошибки высокая — берите модель посильнее и обязательно фиксируйте версию: смена версии меняет поведение.'
+                        : 'Хватит рабочей модели среднего класса. Качество здесь определяется не размером модели, а обвязкой.') + '</div>');
+        parts.push('<div class="part"><b>Инструменты</b>' +
+            (tools === 0 ? 'Не нужны. Всё, что требуется, помещается в запрос.'
+             : tools === 1 ? 'Один инструмент. Опишите его контракт явно: что принимает, что возвращает, что делает при ошибке.'
+             : 'Несколько источников. Подключайте по стандартному контракту (MCP), а не пишите интеграцию под каждую пару заново.') + '</div>');
+        parts.push('<div class="part"><b>Цикл и остановка</b>' +
+            (steps === 0 ? 'Цикла нет — это один вызов.'
+             : 'Задайте жёсткий лимит шагов и времени. Агент без потолка не «думает дольше», а горит деньгами и вашим временем.') + '</div>');
+        parts.push('<div class="part"><b>Что обязательно, даже если кажется лишним</b>' +
+            'Сквозной лог: вход, каждый вызов инструмента, ответ, причина остановки. Без восстановимой траектории ' +
+            'вы будете чинить наугад — менять промпт и модель там, где сломался таймаут или повторная запись.</div>');
+        if (cost >= 1) {
+            parts.push('<div class="part"><b>Безопасность</b>' +
+                'Цена ошибки не нулевая — проверьте сценарий на летальную триаду: доступ к приватным данным, ' +
+                'чтение недоверенного текста и возможность отправить что-то наружу. Три условия вместе дают канал утечки.</div>');
+        }
+        $('parts').innerHTML = parts.join('');
+    }
+
+    $('task').addEventListener('input', function () { answers.task = $('task').value; save(); });
+
+    draw();
+    calc();
+})();
+</script>
+</body>
+</html>

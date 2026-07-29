@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+<!-- Тема и язык применяются ДО первой отрисовки: иначе страница
+     успевает мигнуть тёмной перед светлой. Держать инлайном. -->
+<script>(function(){try{var d=document.documentElement;
+var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');
+var l=localStorage.getItem('medoeduz_lang');
+if(!l){l=(navigator.language||'ru').toLowerCase().indexOf('ru')===0?'ru':'en';}
+d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="База артефактов Медоеда: рабочие справочники и интерактивные инструменты, которые открываются по мере прохождения курса.">
+    <meta name="theme-color" content="#07080B">
+    <title>Артефакты Медоеда | MedoEDUz</title>
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/animations.css">
+    <link rel="stylesheet" href="../css/game-ui.css">
+    <link rel="stylesheet" href="../css/artifacts.css">
+    <link rel="stylesheet" href="../fonts/fonts.css">
+
+    <!-- Словарь и t() идут первыми: скрипты вызывают t() при разборе -->
+    <script src="../js/data/site-i18n.js"></script>
+    <script src="../js/t.js"></script>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="../index.html" class="logo">
+                    <img src="../images/logo-medoed.svg" alt="" class="logo-icon" width="38" height="38">
+                    <span class="logo-text">MedoEDU<span class="logo-accent">z</span></span>
+                </a>
+                <div class="nav-switches">
+                    <button class="switch-btn" id="langBtn" type="button" aria-label="Язык / Language">RU</button>
+                    <button class="switch-btn" id="themeBtn" type="button" aria-label="Тема">☀️</button>
+                </div>
+                <a href="roadmap.html" class="back-to-home">Карта знаний</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="art-wrap">
+        <header class="art-header">
+            <div class="section-kicker">04 / АРТЕФАКТЫ</div>
+            <h1>Артефакты Медоеда</h1>
+            <p>
+                Рабочие справочники и интерактивные инструменты — то, чем
+                пользуются после курса, а не пересказ уроков. Соты открываются
+                за пройденное: освоенный узел, половина ветки, законченная
+                первая неделя трека. За посещение страницы здесь не дают ничего.
+            </p>
+            <div class="art-summary" id="artSummary"></div>
+        </header>
+
+        <div class="art-filter" id="artFilter">
+            <button data-f="all" class="is-on">Все</button>
+            <button data-f="open">Открытые</button>
+            <button data-f="mine">Мой трек</button>
+            <button data-f="tool">Инструменты</button>
+            <button data-f="guide">Справочники</button>
+        </div>
+
+        <div class="honeycomb-scroll" id="honeycombScroll">
+            <div class="honeycomb" id="honeycomb"></div>
+        </div>
+        <p class="honeycomb-hint" id="honeycombHint">Поле шире экрана — тяните вбок</p>
+    </main>
+
+    <!-- Шторка артефакта -->
+    <div class="art-view" id="artView" role="dialog" aria-modal="true">
+        <div class="art-view__panel">
+            <div class="art-view__top">
+                <span class="art-view__emoji" id="artEmoji">🍯</span>
+                <div class="art-view__t">
+                    <h2 id="artTitle"></h2>
+                    <span id="artKind"></span>
+                </div>
+                <button class="art-view__close" id="artClose" aria-label="Закрыть">&times;</button>
+            </div>
+            <div class="art-view__body" id="artBody"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 MedoEDUz. Все права защищены. Медоеду ВСЁ!</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../js/animations.js"></script>
+    <script src="../js/gamification.js"></script>
+    <script src="../js/data/curriculum.js"></script>
+    <script src="../js/data/curriculum.en.js"></script>
+    <script>if (window.MEDOEDUZ_LANG === "en" && window.CURRICULUM_EN) window.CURRICULUM = window.CURRICULUM_EN;</script>
+    <script src="../js/data/artifacts.js"></script>
+    <script src="../js/artifacts-page.js"></script>
+    <script src="../js/theme.js"></script>
+    <script src="../js/i18n-site.js"></script>
+</body>
+</html>

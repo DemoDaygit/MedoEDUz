@@ -1,0 +1,345 @@
+/* ============================================================
+ *  База артефактов Медоеда — соты
+ *
+ *  Сота выбрана не для красоты: это форма мёда, а мёд — подпись
+ *  бренда. Здесь ей можно быть заметной, потому что соты и есть
+ *  брендовый элемент, а не состояние UI. Внутри соты цвет несёт
+ *  ветка курса — так глаз читает принадлежность без подписи.
+ * ============================================================ */
+
+.art-wrap {
+    --art-pad: 1.5rem;   /* отрицательный отступ ленты сот обязан совпадать с этим */
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 6rem var(--art-pad) 5rem;
+}
+
+.art-header { text-align: center; margin-bottom: 2rem; }
+.art-header h1 {
+    font-size: clamp(1.9rem, 4vw, 2.9rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.7rem;
+}
+.art-header p {
+    color: var(--text-secondary);
+    max-width: 60ch;
+    margin: 0 auto;
+    line-height: 1.65;
+}
+
+/* ---------- Сводка ---------- */
+.art-summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 1.6rem 0 0.4rem;
+}
+.art-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--surface-tint);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+.art-chip b { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.art-chip--open b { color: var(--accent); }
+
+/* ---------- Фильтр ---------- */
+.art-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin: 1.4rem 0 2rem;
+}
+.art-filter button {
+    padding: 0.4rem 0.85rem;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+.art-filter button:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.art-filter button.is-on {
+    border-color: var(--accent);
+    background: var(--accent-ghost);
+    color: var(--accent);
+}
+/* Активный фильтр лежит на подкрашенной акцентом подложке, поэтому
+   на светлой теме обычного акцента не хватает: 4.06:1 против 4.5 */
+[data-theme="light"] .art-filter button.is-on { color: var(--accent-deep); }
+
+/* ---------- Поле сот ----------
+   Абсолютное позиционирование по осевым координатам: соты обязаны
+   стыковаться кромка к кромке, а сеткой это не выражается. */
+/* Поле шире экрана на телефоне — прокручивается ВНУТРИ себя.
+   Горизонтально ехать должна лента, а не страница. */
+.honeycomb-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    margin: 0 calc(var(--art-pad) * -1);
+    padding: 0 var(--art-pad) 0.5rem;
+}
+.honeycomb-scroll::-webkit-scrollbar { height: 6px; }
+.honeycomb-scroll::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+.honeycomb {
+    position: relative;
+    margin: 0 auto;
+    /* размеры проставляет скрипт по фактическому охвату */
+}
+
+/* Подсказка про прокрутку — только там, где поле реально не влезает */
+.honeycomb-hint {
+    display: none;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+}
+.honeycomb-hint.is-on { display: block; }
+
+.hex {
+    position: absolute;
+    display: block;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+.hex:hover { transform: translateY(-3px) scale(1.03); z-index: 3; }
+.hex:active { transform: scale(0.98); }
+.hex:focus-visible { outline: none; }
+.hex:focus-visible .hex__face { box-shadow: 0 0 0 3px var(--accent); }
+
+.hex__face {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(25% 2%, 75% 2%, 100% 50%, 75% 98%, 25% 98%, 0 50%);
+    background: var(--bg-elevated);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 12% 16%;
+    text-align: center;
+    overflow: hidden;
+}
+
+/* Кромка соты рисуется вторым слоем: clip-path съедает border */
+.hex__edge {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(25% 2%, 75% 2%, 100% 50%, 75% 98%, 25% 98%, 0 50%);
+    background: var(--hex-edge, var(--border-strong));
+    z-index: -1;
+    transform: scale(1.045);
+}
+
+.hex__emoji { font-size: 1.5rem; line-height: 1; }
+.hex__title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.hex__kind {
+    font-family: var(--font-mono);
+    font-size: 0.53rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Открытая сота: цвет ветки на кромке, содержимое читаемо */
+.hex.is-open .hex__face { background: var(--bg-elevated); }
+
+/* Закрытая: приглушена, но НЕ спрятана — видно, что тебя ждёт,
+   и видно условие. Скрытая награда не мотивирует, известная — да. */
+.hex.is-locked { cursor: default; }
+.hex.is-locked .hex__face { background: var(--bg-surface); }
+.hex.is-locked .hex__emoji { filter: grayscale(1); opacity: 0.4; }
+.hex.is-locked .hex__title { color: var(--text-muted); }
+.hex.is-locked .hex__edge { background: var(--border); }
+.hex.is-locked:hover { transform: none; }
+.hex.is-locked .hex__lock {
+    position: absolute;
+    top: 16%;
+    right: 20%;
+    font-size: 0.72rem;
+    opacity: 0.55;
+}
+
+/* Только что открытая — короткая подсветка, без бесконечной анимации */
+@keyframes hexPop {
+    0% { transform: scale(0.82); opacity: 0; }
+    60% { transform: scale(1.06); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.hex.is-new .hex__face { animation: hexPop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1); }
+
+/* ---------- Шторка артефакта ---------- */
+.art-view {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: none;
+    background: rgba(4, 5, 8, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+[data-theme="light"] .art-view { background: rgba(15, 23, 42, 0.42); }
+.art-view.is-open { display: block; }
+
+.art-view__panel {
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: min(760px, 100%);
+    background: var(--bg-surface);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    animation: artIn 0.28s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+@keyframes artIn { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.art-view__top {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 1rem 1.4rem;
+    background: var(--glass, var(--bg-surface));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+.art-view__emoji { font-size: 1.5rem; }
+.art-view__t { flex: 1; min-width: 0; }
+.art-view__t h2 { font-size: 1.08rem; font-weight: 800; line-height: 1.3; }
+.art-view__t span { font-size: 0.78rem; color: var(--text-muted); }
+.art-view__close {
+    flex: none;
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.art-view__close:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+.art-view__body { padding: 1.4rem; }
+.art-view__actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+
+.art-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+.art-btn--primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.art-btn:hover { border-color: var(--accent); }
+.art-btn--primary:hover { background: var(--accent-soft); }
+
+/* ---------- Отрисованный Markdown ---------- */
+.md { line-height: 1.7; color: var(--text-secondary); }
+.md h2 {
+    font-size: 1.18rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 1.8rem 0 0.7rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border-hair);
+    letter-spacing: -0.01em;
+}
+.md h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.md h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin: 1.3rem 0 0.5rem; }
+.md p { margin-bottom: 0.9rem; }
+.md ul, .md ol { margin: 0 0 1rem 1.2rem; }
+.md li { margin-bottom: 0.4rem; }
+.md strong { color: var(--text-primary); font-weight: 700; }
+.md code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hair);
+    border-radius: 5px;
+    padding: 0.1em 0.35em;
+}
+.md pre {
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hair);
+    border-radius: 10px;
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+.md pre code { background: none; border: none; padding: 0; font-size: 0.82rem; }
+.md blockquote {
+    border-left: 2px solid var(--accent);
+    padding: 0.2rem 0 0.2rem 1rem;
+    margin: 0 0 1rem;
+    color: var(--text-secondary);
+}
+.md table { width: 100%; border-collapse: collapse; margin-bottom: 1.1rem; font-size: 0.88rem; }
+.md th, .md td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border-hair); }
+.md th { color: var(--text-primary); font-weight: 700; font-size: 0.8rem; }
+.md a { color: var(--accent); }
+.md hr { border: none; border-top: 1px solid var(--border-hair); margin: 1.4rem 0; }
+/* Широкая таблица прокручивается внутри себя, страница не едет */
+.md__scroll { overflow-x: auto; }
+
+/* ---------- Замок ---------- */
+.art-locked { text-align: center; padding: 2.4rem 1rem; }
+.art-locked__icon { font-size: 2.4rem; opacity: 0.5; }
+.art-locked__h { font-size: 1.05rem; font-weight: 700; margin: 0.7rem 0 0.4rem; color: var(--text-primary); }
+.art-locked__p { color: var(--text-secondary); max-width: 46ch; margin: 0 auto 1.1rem; line-height: 1.6; }
+.art-progress {
+    max-width: 340px;
+    margin: 0 auto;
+}
+.art-progress__bar { height: 7px; border-radius: 999px; background: var(--surface-tint); overflow: hidden; }
+.art-progress__fill { height: 100%; border-radius: 999px; background: var(--accent); transition: width 0.5s ease; }
+.art-progress__t { font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+@media (max-width: 640px) {
+    .art-wrap { --art-pad: 1rem; padding: 5rem var(--art-pad) 4rem; }
+    .art-view__panel { width: 100%; border-left: none; }
+    .art-view__body { padding: 1.1rem; }
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var d=document.documentElement;var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07080B">
+<title>Конструктор промпта — Артефакт Медоеда</title>
+<link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="artifact.css">
+</head>
+<body>
+<div class="tool">
+    <header class="tool__head">
+        <div class="tool__kicker">Артефакт · инструмент</div>
+        <h1 class="tool__title">⌨️ Конструктор промпта</h1>
+        <p class="tool__sub">
+            Собирает запрос по схеме роль → задача → контекст → формат → критерии
+            и честно говорит, чего не хватает. Длинный промпт не значит хороший:
+            хороший — тот, в котором есть все пять блоков и ни одного лишнего слова.
+        </p>
+    </header>
+
+    <div class="card">
+        <label class="lbl" for="fRole">Роль и задача</label>
+        <p class="hint">Кто отвечает и что должен сделать. Одно предложение.</p>
+        <textarea class="field" id="fRole" rows="2" placeholder="Ты редактор технической документации. Перепиши раздел так, чтобы его понял новый сотрудник."></textarea>
+    </div>
+
+    <div class="card">
+        <label class="lbl" for="fCtx">Контекст</label>
+        <p class="hint">Только то, что относится к задаче. Всё лишнее конкурирует за внимание модели и снижает точность.</p>
+        <textarea class="field" id="fCtx" rows="3" placeholder="Аудитория — инженеры без опыта работы с нашей системой. Раздел описывает процедуру отката."></textarea>
+    </div>
+
+    <div class="card">
+        <label class="lbl" for="fFmt">Формат ответа</label>
+        <p class="hint">Длина, структура, поля. Не задали формат — потратите на переделку больше, чем сэкономили.</p>
+        <textarea class="field" id="fFmt" rows="2" placeholder="Маркированный список из 5–7 пунктов, каждый — одно действие в повелительном наклонении."></textarea>
+    </div>
+
+    <div class="card">
+        <label class="lbl" for="fCrit">Критерии приёмки</label>
+        <p class="hint">По чему вы поймёте, что ответ годный. Это не «сделай хорошо», а проверяемые условия.</p>
+        <textarea class="field" id="fCrit" rows="2" placeholder="Ни одного термина без расшифровки при первом упоминании. Каждый шаг проверяем глазами."></textarea>
+    </div>
+
+    <div class="card">
+        <label class="lbl" for="fEx">Пример желаемого результата</label>
+        <p class="hint">Самый недооценённый блок. Один пример заменяет абзац объяснений — модель считывает с образца ритм, лексику и структуру.</p>
+        <textarea class="field" id="fEx" rows="3" placeholder="1. Остановите сервис командой …&#10;2. Убедитесь, что очередь пуста …"></textarea>
+    </div>
+
+    <div class="card card--accent">
+        <div class="row" style="margin-bottom:0.8rem">
+            <button class="btn btn--primary" id="build">Собрать промпт</button>
+            <button class="btn" id="copy">Скопировать</button>
+            <button class="btn btn--sm" id="clear">Очистить</button>
+        </div>
+        <div id="diag"></div>
+        <div class="out" id="out" style="margin-top:0.8rem">Заполните блоки и нажмите «Собрать промпт».</div>
+    </div>
+
+    <div class="foot">
+        Схема из пяти блоков — сокращённая версия того, что разбирается в узле
+        «Промпт-инжиниринг». Приёмы вроде few-shot, chain of thought, step-back и
+        ReAct подробно описаны в открытом документе Google
+        <a href="https://www.kaggle.com/whitepaper-prompt-engineering" target="_blank" rel="noopener">Prompt Engineering</a>.
+        Всё считается у вас в браузере, ничего никуда не отправляется.
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var FIELDS = [
+        { id: 'fRole', label: 'РОЛЬ И ЗАДАЧА', key: 'role', weight: 'critical' },
+        { id: 'fCtx',  label: 'КОНТЕКСТ',      key: 'ctx',  weight: 'critical' },
+        { id: 'fFmt',  label: 'ФОРМАТ ОТВЕТА', key: 'fmt',  weight: 'important' },
+        { id: 'fCrit', label: 'КРИТЕРИИ ПРИЁМКИ', key: 'crit', weight: 'important' },
+        { id: 'fEx',   label: 'ПРИМЕР',        key: 'ex',   weight: 'nice' }
+    ];
+
+    var KEY = 'medoeduz_tool_prompt';
+    try {
+        var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+        FIELDS.forEach(function (f) { if (saved[f.key]) $(f.id).value = saved[f.key]; });
+    } catch (e) {}
+
+    function save() {
+        var o = {};
+        FIELDS.forEach(function (f) { o[f.key] = $(f.id).value; });
+        try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+    }
+    FIELDS.forEach(function (f) { $(f.id).addEventListener('input', save); });
+
+    function build() {
+        var parts = [], missing = [], weak = [];
+
+        FIELDS.forEach(function (f) {
+            var v = $(f.id).value.trim();
+            if (!v) {
+                if (f.weight === 'critical') missing.push(f.label);
+                else if (f.weight === 'important') weak.push(f.label);
+                return;
+            }
+            parts.push('## ' + f.label + '\n' + v);
+        });
+
+        $('out').textContent = parts.length ? parts.join('\n\n') : 'Пока пусто — заполните хотя бы роль и задачу.';
+
+        // Диагностика: говорим о том, что реально ухудшит результат
+        var d = [];
+        if (missing.length) {
+            d.push('<div class="note note--err"><b>Без этого промпт не работает.</b> Не заполнено: ' +
+                missing.join(', ') + '. Без роли и задачи модель угадывает, что от неё хотят; без контекста — додумывает факты.</div>');
+        }
+        if (weak.length) {
+            d.push('<div class="note"><b>Скорее всего придётся переделывать.</b> Не заполнено: ' +
+                weak.join(', ') + '. Не задали формат — будете переформатировать руками. Не задали критерии — не сможете сказать, годен ответ или нет.</div>');
+        }
+        if (!$('fEx').value.trim()) {
+            d.push('<div class="note"><b>Нет примера.</b> Это самый дешёвый способ поднять качество: один образец задаёт тон и структуру точнее, чем абзац описаний.</div>');
+        }
+
+        var total = FIELDS.filter(function (f) { return $(f.id).value.trim(); }).length;
+        var words = parts.join(' ').split(/\s+/).filter(Boolean).length;
+        if (total === 5) {
+            d.push('<div class="note note--ok"><b>Все пять блоков на месте.</b> Если ответ всё равно мимо — чините не длину, а конкретику: замените описания примерами, а пожелания — критериями.</div>');
+        }
+        if (words > 400) {
+            d.push('<div class="note"><b>Промпт разросся (' + words + ' слов).</b> Длинный не значит точный. Проверьте, не описываете ли словами то, что короче показать примером.</div>');
+        }
+        $('diag').innerHTML = d.join('');
+        save();
+    }
+
+    $('build').addEventListener('click', build);
+    $('copy').addEventListener('click', function () {
+        var txt = $('out').textContent;
+        navigator.clipboard.writeText(txt).then(function () {
+            var b = $('copy'); b.textContent = 'Скопировано';
+            setTimeout(function () { b.textContent = 'Скопировать'; }, 1600);
+        }).catch(function () {
+            var b = $('copy'); b.textContent = 'Выделите текст вручную';
+        });
+    });
+    $('clear').addEventListener('click', function () {
+        FIELDS.forEach(function (f) { $(f.id).value = ''; });
+        $('out').textContent = 'Заполните блоки и нажмите «Собрать промпт».';
+        $('diag').innerHTML = '';
+        save();
+    });
+
+    if (FIELDS.some(function (f) { return $(f.id).value.trim(); })) build();
+})();
+</script>
+</body>
+</html>

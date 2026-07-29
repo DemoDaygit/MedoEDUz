@@ -576,5 +576,7 @@ window.MEDOEDUZ_I18N = { en: {
  "Сессия": "Session",
  "Путь": "Path",
  "Профиль": "Profile",
+ "<a class=\"btn btn--ghost btn--sm\" href=\"index.html\" style=\"width:100%;text-decoration:none\">Граф знаний и эволюция</a>": "<a class=\"btn btn--ghost btn--sm\" href=\"index.html\" style=\"width:100%;text-decoration:none\">Knowledge graph and evolution</a>",
+ "<a class=\"btn btn--ghost btn--sm\" href=\"../pages/artifacts.html\" style=\"width:100%;margin-top:8px;text-decoration:none\">Артефакты Медоеда</a></div>": "<a class=\"btn btn--ghost btn--sm\" href=\"../pages/artifacts.html\" style=\"width:100%;margin-top:8px;text-decoration:none\">Honey Badger Artifacts</a></div>",
  "Учебная сессия MedoEDUz: изучение, практика, проверка усвоения, рефлексия и интервальные повторения. Работает офлайн и внутри Telegram.": "MedoEDUz study session: learn, practice, comprehension checks, reflection, and spaced review. Works offline and inside Telegram."
 } };

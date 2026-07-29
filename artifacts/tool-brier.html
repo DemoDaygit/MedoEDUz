@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var d=document.documentElement;var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07080B">
+<title>Калибровщик прогнозов — Артефакт Медоеда</title>
+<link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="artifact.css">
+<style>
+    .pred { display: grid; grid-template-columns: 1fr 84px 92px 34px; gap: 0.45rem; align-items: center; margin-bottom: 0.45rem; }
+    .pred input[type="text"] { padding: 0.45rem 0.6rem; font-size: 0.85rem; }
+    .pred select { padding: 0.45rem 0.35rem; font-size: 0.8rem; }
+    .pred button { border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+        border-radius: 9px; cursor: pointer; font-size: 1rem; line-height: 1; height: 34px; }
+    .pred button:hover { border-color: var(--danger); color: var(--danger); }
+    .pred--head { font-family: var(--mono); font-size: 0.63rem; letter-spacing: 0.05em;
+        text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .zones td.bad { color: var(--danger); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="tool">
+    <header class="tool__head">
+        <div class="tool__kicker">Артефакт · инструмент</div>
+        <h1 class="tool__title">🎯 Калибровщик прогнозов</h1>
+        <p class="tool__sub">
+            Знать — половина дела. Вторая половина — понимать, где ваше знание
+            кончается. Записывайте прогнозы с процентом уверенности, отмечайте
+            исход, и оценка Брайера покажет, можно ли доверять вашему
+            «я уверен». Работает и для прогнозов о моделях, и о рынке, и о сроках.
+        </p>
+    </header>
+
+    <div class="card">
+        <div class="pred pred--head">
+            <span>Прогноз</span><span>Уверенность</span><span>Исход</span><span></span>
+        </div>
+        <div id="rows"></div>
+        <div class="row" style="margin-top:0.6rem">
+            <button class="btn btn--sm" id="add">+ Прогноз</button>
+            <button class="btn btn--sm" id="demo">Заполнить примером</button>
+            <button class="btn btn--sm" id="wipe">Очистить</button>
+        </div>
+    </div>
+
+    <div class="card card--accent">
+        <div class="stats" id="stats"></div>
+        <div id="verdict"></div>
+    </div>
+
+    <div class="card">
+        <div class="tool__kicker">Где именно вы себе врёте</div>
+        <table class="zones">
+            <thead><tr><th>Уверенность</th><th>Говорили</th><th>На деле</th><th>Прогнозов</th></tr></thead>
+            <tbody id="zoneBody"></tbody>
+        </table>
+        <p class="hint" style="margin-top:0.6rem">
+            Одно число Брайера скрывает разное: 0.18 бывает и у осторожного, который
+            всегда ставит 50%, и у самоуверенного, который врёт на 90%. Действия в этих
+            случаях противоположные, поэтому смотреть надо по зонам.
+        </p>
+    </div>
+
+    <div class="foot">
+        Соответствует узлу «Калибровка предсказаний (Brier)». Оценка Брайера —
+        средний квадрат отклонения прогноза от исхода: 0 — идеально, 0.25 —
+        как подбрасывание монеты. Данные хранятся у вас в браузере.
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var KEY = 'medoeduz_tool_brier';
+
+    var CONFS = [50, 60, 70, 80, 90, 95];
+    var rows;
+    try { rows = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { rows = null; }
+    if (!Array.isArray(rows)) rows = [{ text: '', conf: 70, out: '' }];
+
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(rows)); } catch (e) {} }
+
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+    }
+
+    function draw() {
+        $('rows').innerHTML = rows.map(function (r, i) {
+            return '<div class="pred">' +
+                '<input type="text" data-i="' + i + '" data-k="text" value="' + esc(r.text) + '" placeholder="Модель справится с этой задачей">' +
+                '<select data-i="' + i + '" data-k="conf">' +
+                    CONFS.map(function (c) { return '<option value="' + c + '"' + (r.conf === c ? ' selected' : '') + '>' + c + '%</option>'; }).join('') +
+                '</select>' +
+                '<select data-i="' + i + '" data-k="out">' +
+                    '<option value=""' + (!r.out ? ' selected' : '') + '>исход неизвестен</option>' +
+                    '<option value="1"' + (r.out === '1' ? ' selected' : '') + '>сбылось</option>' +
+                    '<option value="0"' + (r.out === '0' ? ' selected' : '') + '>не сбылось</option>' +
+                '</select>' +
+                '<button data-del="' + i + '" aria-label="Убрать">×</button>' +
+            '</div>';
+        }).join('');
+
+        $('rows').querySelectorAll('input,select').forEach(function (el) {
+            el.addEventListener('input', function () {
+                var i = +el.dataset.i, k = el.dataset.k;
+                rows[i][k] = k === 'conf' ? +el.value : el.value;
+                calc(); save();
+            });
+        });
+        $('rows').querySelectorAll('[data-del]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                rows.splice(+b.dataset.del, 1);
+                if (!rows.length) rows.push({ text: '', conf: 70, out: '' });
+                draw(); calc(); save();
+            });
+        });
+    }
+
+    function calc() {
+        var done = rows.filter(function (r) { return r.out === '0' || r.out === '1'; });
+        var n = done.length;
+
+        if (!n) {
+            $('stats').innerHTML = '<div class="stat"><b>—</b><span>нужны исходы</span></div>';
+            $('verdict').innerHTML = '<div class="note"><b>Пока нечего считать.</b> ' +
+                'Калибровка появляется, когда исходы известны. Записывайте прогноз ДО того, как узнаете ответ, — ' +
+                'иначе меряется не предсказание, а память.</div>';
+            $('zoneBody').innerHTML = '';
+            return;
+        }
+
+        var sum = 0, conf = 0, hits = 0;
+        done.forEach(function (r) {
+            var p = r.conf / 100, o = r.out === '1' ? 1 : 0;
+            sum += Math.pow(p - o, 2);
+            conf += p; hits += o;
+        });
+        var brier = sum / n, meanConf = conf / n, acc = hits / n, bias = meanConf - acc;
+
+        $('stats').innerHTML =
+            '<div class="stat"><b>' + brier.toFixed(3) + '</b><span>Брайер (0 — идеал)</span></div>' +
+            '<div class="stat"><b>' + Math.round(meanConf * 100) + '%</b><span>средняя уверенность</span></div>' +
+            '<div class="stat"><b>' + Math.round(acc * 100) + '%</b><span>фактическая точность</span></div>' +
+            '<div class="stat"><b>' + n + '</b><span>прогнозов с исходом</span></div>';
+
+        var v;
+        if (n < 8) {
+            v = '<div class="note"><b>Данных мало (' + n + ').</b> Числа уже считаются, но выводы делать рано: ' +
+                'на короткой серии удача выглядит как калибровка. Ориентир — от десяти прогнозов.</div>';
+        } else if (bias > 0.15) {
+            v = '<div class="note note--err"><b>Систематическая переоценка на ' + Math.round(bias * 100) + ' п.п.</b> ' +
+                'Заявленная уверенность выше фактической точности. Практический вывод: там, где вы говорите «уверен», ' +
+                'закладывайте проверку — уверенно принятое неверное решение никто не перепроверяет.</div>';
+        } else if (bias < -0.15) {
+            v = '<div class="note"><b>Недооценка на ' + Math.round(-bias * 100) + ' п.п.</b> ' +
+                'Вы знаете лучше, чем думаете. Это тоже стоит денег: лишние перепроверки и отложенные решения съедают время.</div>';
+        } else {
+            v = '<div class="note note--ok"><b>Калибровка в норме</b> (расхождение ' + Math.round(Math.abs(bias) * 100) + ' п.п.). ' +
+                'Вашему «я уверен» можно верить — это редкое и ценное свойство.</div>';
+        }
+        $('verdict').innerHTML = v;
+
+        // По зонам
+        var buckets = {};
+        done.forEach(function (r) {
+            var b = buckets[r.conf] || (buckets[r.conf] = { total: 0, ok: 0 });
+            b.total++; if (r.out === '1') b.ok++;
+        });
+        var keys = Object.keys(buckets).map(Number).sort(function (a, b) { return b - a; });
+        var worst = null;
+        keys.forEach(function (k) {
+            var b = buckets[k];
+            if (b.total < 2) return;
+            var gap = k / 100 - b.ok / b.total;
+            if (!worst || gap > worst.gap) worst = { k: k, gap: gap };
+        });
+        $('zoneBody').innerHTML = keys.map(function (k) {
+            var b = buckets[k];
+            var a = Math.round(b.ok / b.total * 100);
+            var bad = worst && worst.k === k && worst.gap > 0.15;
+            return '<tr>' +
+                '<td' + (bad ? ' class="bad"' : '') + '>' + k + '%</td>' +
+                '<td' + (bad ? ' class="bad"' : '') + '>' + k + '%</td>' +
+                '<td' + (bad ? ' class="bad"' : '') + '>' + a + '%</td>' +
+                '<td' + (bad ? ' class="bad"' : '') + '>' + b.total + '</td>' +
+            '</tr>';
+        }).join('');
+    }
+
+    $('add').addEventListener('click', function () {
+        rows.push({ text: '', conf: 70, out: '' });
+        draw(); calc(); save();
+    });
+    $('wipe').addEventListener('click', function () {
+        rows = [{ text: '', conf: 70, out: '' }];
+        draw(); calc(); save();
+    });
+    $('demo').addEventListener('click', function () {
+        rows = [
+            { text: 'Модель верно разберёт этот договор', conf: 90, out: '0' },
+            { text: 'Промпт заработает с первой попытки', conf: 80, out: '1' },
+            { text: 'Задача уложится в срок', conf: 70, out: '0' },
+            { text: 'Агент не сорвётся на длинном входе', conf: 90, out: '0' },
+            { text: 'Проверка пройдёт без правок', conf: 60, out: '1' },
+            { text: 'Коллега согласится с решением', conf: 70, out: '1' },
+            { text: 'Тест поймает регрессию', conf: 80, out: '1' },
+            { text: 'Модель не выдумает источник', conf: 90, out: '0' },
+            { text: 'Оценка объёма верна', conf: 50, out: '1' },
+            { text: 'Данные подойдут без чистки', conf: 60, out: '0' }
+        ];
+        draw(); calc(); save();
+    });
+
+    draw();
+    calc();
+})();
+</script>
+</body>
+</html>

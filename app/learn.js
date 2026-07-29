@@ -2600,7 +2600,8 @@ function startLearnApp() {
         '</div>';
 
         html += t('<div class="card card--quiet"><div class="kicker">Другие экраны</div>') +
-            t('<a class="btn btn--ghost btn--sm" href="index.html" style="width:100%;text-decoration:none">Граф знаний и эволюция</a></div>');
+            t('<a class="btn btn--ghost btn--sm" href="index.html" style="width:100%;text-decoration:none">Граф знаний и эволюция</a>') +
+            t('<a class="btn btn--ghost btn--sm" href="../pages/artifacts.html" style="width:100%;margin-top:8px;text-decoration:none">Артефакты Медоеда</a></div>');
 
         host.innerHTML = html;
         bindProfile();

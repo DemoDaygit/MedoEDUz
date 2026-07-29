@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var d=document.documentElement;var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07080B">
+<title>Разбор летальной триады — Артефакт Медоеда</title>
+<link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="artifact.css">
+<style>
+    .legs { display: grid; gap: 0.6rem; }
+    .leg {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.8rem 0.9rem;
+        cursor: pointer;
+        transition: border-color 0.16s ease, background 0.16s ease;
+    }
+    .leg:has(input:checked) { border-color: var(--danger); background: var(--tint-err); }
+    .leg__top { display: flex; gap: 0.6rem; align-items: flex-start; }
+    .leg__top input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--danger); flex: none; }
+    .leg__t { font-weight: 700; font-size: 0.94rem; }
+    .leg__d { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.2rem; line-height: 1.5; }
+    .verdict { border-radius: 12px; padding: 0.9rem 1rem; margin-top: 0.9rem; border: 1px solid var(--border); }
+    .verdict.is-danger { border-color: var(--danger); background: var(--tint-err); }
+    .verdict.is-ok { border-color: var(--success); background: var(--tint-ok); }
+    .verdict__h { font-weight: 800; margin-bottom: 0.3rem; }
+    .cuts { margin-top: 0.8rem; display: grid; gap: 0.5rem; }
+    .cut { border: 1px solid var(--border-hair); border-radius: 10px; padding: 0.6rem 0.75rem; font-size: 0.85rem; }
+    .cut b { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="tool">
+    <header class="tool__head">
+        <div class="tool__kicker">Артефакт · инструмент</div>
+        <h1 class="tool__title">🛡️ Разбор летальной триады</h1>
+        <p class="tool__sub">
+            Утечку создаёт не ИИ сам по себе, а совпадение трёх условий.
+            Пока присутствуют не все три — канала утечки нет. Отметьте, что
+            есть в вашем сценарии, и инструмент покажет, какую ногу дешевле
+            отрезать.
+        </p>
+    </header>
+
+    <div class="card">
+        <label class="lbl" for="scenario">Что вы собираете</label>
+        <p class="hint">Опишите одним предложением — текст остаётся у вас в браузере.</p>
+        <textarea class="field" id="scenario" rows="2" placeholder="Ассистент читает почту и по запросу отвечает клиентам от моего имени."></textarea>
+    </div>
+
+    <div class="card">
+        <div class="legs">
+            <label class="leg">
+                <span class="leg__top">
+                    <input type="checkbox" id="l1">
+                    <span>
+                        <span class="leg__t">1. Доступ к приватным данным</span>
+                        <span class="leg__d">Агент видит то, что не должно уйти наружу: переписку, документы, базу,
+                        ключи, персональные данные клиентов. Даже «только на чтение» считается.</span>
+                    </span>
+                </span>
+            </label>
+            <label class="leg">
+                <span class="leg__top">
+                    <input type="checkbox" id="l2">
+                    <span>
+                        <span class="leg__t">2. Обработка недоверенного содержимого</span>
+                        <span class="leg__d">В контекст попадает текст, который писали не вы: письма, веб-страницы,
+                        документы от контрагентов, комментарии, результаты поиска. Модель не отличает
+                        инструкцию от данных — команда внутри такого текста может быть исполнена.</span>
+                    </span>
+                </span>
+            </label>
+            <label class="leg">
+                <span class="leg__top">
+                    <input type="checkbox" id="l3">
+                    <span>
+                        <span class="leg__t">3. Возможность отправить наружу</span>
+                        <span class="leg__d">Агент может что-то передать во внешний мир: отправить письмо,
+                        сделать HTTP-запрос, записать в публичный документ, вставить картинку по ссылке
+                        с параметрами. Канал утечки — это и невинная ссылка тоже.</span>
+                    </span>
+                </span>
+            </label>
+        </div>
+        <div id="verdict"></div>
+    </div>
+
+    <div class="card">
+        <div class="tool__kicker">Что делать</div>
+        <div id="cuts"></div>
+    </div>
+
+    <div class="foot">
+        Разбор соответствует узлу «Летальная триада» и пунктам
+        <a href="https://genai.owasp.org/llm-top-10/" target="_blank" rel="noopener">OWASP Top 10 для LLM</a>:
+        LLM01 (инъекция промпта), LLM02 (утечка чувствительных данных) и
+        LLM06 (избыточные полномочия агента). Ничего не отправляется на сервер.
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var KEY = 'medoeduz_tool_triad';
+    var boxes = ['l1', 'l2', 'l3'];
+
+    try {
+        var s = JSON.parse(localStorage.getItem(KEY) || '{}');
+        boxes.forEach(function (id) { if (s[id]) $(id).checked = true; });
+        if (s.scenario) $('scenario').value = s.scenario;
+    } catch (e) {}
+
+    var CUTS = {
+        l1: {
+            name: 'доступ к данным',
+            how: [
+                'Сузьте область: отдельный аккаунт с доступом только к нужной папке или ярлыку, а не ко всей почте.',
+                'Обезличивайте на входе: подставляйте заглушки вместо имён, номеров договоров и сумм.',
+                'Передавайте фрагмент вместо файла целиком — модели почти никогда не нужен весь документ.'
+            ]
+        },
+        l2: {
+            name: 'недоверенный ввод',
+            how: [
+                'Разделите каналы: недоверенный текст идёт как ДАННЫЕ в отдельном блоке, а не подмешивается к инструкциям.',
+                'Ставьте проверку до модели: отсекайте содержимое с признаками инструкций («ignore previous», скрытый текст, служебные разметки).',
+                'Если источник читать обязательно — запретите агенту действовать по прочитанному без подтверждения человеком.'
+            ]
+        },
+        l3: {
+            name: 'канал наружу',
+            how: [
+                'Уберите исходящие действия из автоматического режима: черновик вместо отправки, предложение вместо коммита.',
+                'Ограничьте сеть списком разрешённых адресов, а не списком запрещённых.',
+                'Помните про тихие каналы: картинка по внешней ссылке с параметрами, переход по URL, вебхук — это тоже отправка.'
+            ]
+        }
+    };
+
+    function render() {
+        var on = boxes.filter(function (id) { return $(id).checked; });
+        var v = $('verdict');
+        var c = $('cuts');
+
+        if (on.length === 3) {
+            v.className = 'verdict is-danger';
+            v.innerHTML = '<div class="verdict__h">Триада собрана целиком</div>' +
+                '<div>Все три условия присутствуют одновременно — это рабочий канал утечки, ' +
+                'и для его срабатывания не нужен злоумышленник-профессионал. Достаточно письма, ' +
+                'внутри которого написано, что делать. Отрежьте хотя бы одну ногу, прежде чем запускать.</div>';
+        } else if (on.length === 2) {
+            v.className = 'verdict';
+            v.innerHTML = '<div class="verdict__h">Две ноги из трёх</div>' +
+                '<div>Пока не хватает третьего условия — утечки нет. Но это неустойчивое состояние: ' +
+                'третья нога добавляется одной строчкой конфигурации и одним «давайте ещё научим его отправлять». ' +
+                'Зафиксируйте письменно, чего именно этому агенту делать нельзя.</div>';
+        } else if (on.length <= 1) {
+            v.className = 'verdict is-ok';
+            v.innerHTML = '<div class="verdict__h">Триады нет</div>' +
+                '<div>' + (on.length === 0
+                    ? 'Ни одно из трёх условий не отмечено — по этой модели угроз сценарий безопасен. Проверьте ещё раз честно: доступ «только на чтение» и «просто ссылку открыть» тоже считаются.'
+                    : 'Одно условие из трёх. Держите остальные два выключенными — это и есть вся защита.') + '</div>';
+        }
+
+        if (!on.length) {
+            c.innerHTML = '<p class="hint" style="margin:0">Отметьте условия выше — здесь появятся способы разорвать связку.</p>';
+            return;
+        }
+        c.innerHTML = on.map(function (id) {
+            var cut = CUTS[id];
+            return '<div class="cut"><b>Отрезать: ' + cut.name + '</b><ul style="margin:0.4rem 0 0 1.1rem">' +
+                cut.how.map(function (h) { return '<li style="margin-bottom:0.25rem">' + h + '</li>'; }).join('') +
+                '</ul></div>';
+        }).join('') +
+        (on.length === 3
+            ? '<div class="note note--accent" style="margin-top:0.8rem"><b>Что резать в первую очередь.</b> ' +
+              'Обычно дешевле всего убрать канал наружу: черновик вместо отправки почти не мешает работе, ' +
+              'а сужение доступа к данным и фильтрация ввода требуют больше труда и чаще ломают полезный сценарий.</div>'
+            : '');
+    }
+
+    function save() {
+        var o = { scenario: $('scenario').value };
+        boxes.forEach(function (id) { o[id] = $(id).checked; });
+        try { localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+    }
+
+    boxes.forEach(function (id) { $(id).addEventListener('change', function () { render(); save(); }); });
+    $('scenario').addEventListener('input', save);
+    render();
+})();
+</script>
+</body>
+</html>

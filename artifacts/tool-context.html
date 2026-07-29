@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var d=document.documentElement;var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07080B">
+<title>Бюджет контекста — Артефакт Медоеда</title>
+<link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="artifact.css">
+<style>
+    .piece { display: grid; grid-template-columns: 1fr 92px 34px; gap: 0.5rem; align-items: start; margin-bottom: 0.5rem; }
+    .piece input[type="text"] { padding: 0.45rem 0.6rem; font-size: 0.85rem; }
+    .piece select { padding: 0.45rem 0.4rem; font-size: 0.8rem; }
+    .piece button { border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+        border-radius: 9px; cursor: pointer; font-size: 1rem; line-height: 1; }
+    .piece button:hover { border-color: var(--danger); color: var(--danger); }
+    .stack { display: flex; height: 30px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); margin: 0.7rem 0 0.4rem; }
+    .stack__seg { display: flex; align-items: center; justify-content: center; font-size: 0.62rem;
+        font-family: var(--mono); color: var(--on-accent); overflow: hidden; white-space: nowrap; }
+    .zone { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; margin-top: 0.6rem; }
+    .zone > div { border: 1px solid var(--border-hair); border-radius: 9px; padding: 0.5rem; font-size: 0.75rem; text-align: center; }
+    .zone b { display: block; font-family: var(--mono); font-size: 0.95rem; }
+</style>
+</head>
+<body>
+<div class="tool">
+    <header class="tool__head">
+        <div class="tool__kicker">Артефакт · инструмент</div>
+        <h1 class="tool__title">🧠 Бюджет контекста</h1>
+        <p class="tool__sub">
+            Контекстное окно конечно, и всё, что в него положено, конкурирует
+            за внимание модели. Инструмент показывает, из чего складывается ваш
+            запрос, что вытеснится первым и где лежит критичное — в начале,
+            в конце или в середине, откуда оно и теряется.
+        </p>
+    </header>
+
+    <div class="card">
+        <div class="lbl">Размер окна модели</div>
+        <p class="hint">Ориентировочно, в токенах. Точное число смотрите в документации своей модели — оно меняется от версии к версии.</p>
+        <select id="win">
+            <option value="8000">8 000 — компактные и локальные модели</option>
+            <option value="32000">32 000 — типовое окно среднего класса</option>
+            <option value="128000" selected>128 000 — большинство рабочих моделей</option>
+            <option value="200000">200 000</option>
+            <option value="1000000">1 000 000 — «длинный контекст»</option>
+        </select>
+    </div>
+
+    <div class="card">
+        <div class="lbl">Что кладём в контекст</div>
+        <p class="hint">Оценка по объёму текста: примерно один токен на три символа кириллицы. Это прикидка, а не подсчёт токенизатором.</p>
+        <div id="pieces"></div>
+        <button class="btn btn--sm" id="add">+ Добавить кусок</button>
+    </div>
+
+    <div class="card card--accent">
+        <div class="stats" id="stats"></div>
+        <div class="stack" id="stack"></div>
+        <div class="zone" id="zone"></div>
+        <div id="diag"></div>
+    </div>
+
+    <div class="foot">
+        Соответствует узлам «Контекст-инжиниринг» и «Context rot». Про эмбеддинги
+        и вынос знаний за пределы окна — открытый документ Google
+        <a href="https://www.kaggle.com/whitepaper-embeddings-and-vector-stores" target="_blank" rel="noopener">Embeddings &amp; Vector Stores</a>.
+        Расчёт идёт в браузере, текст никуда не уходит.
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var KEY = 'medoeduz_tool_ctx';
+
+    // Прикидка: ~3 символа кириллицы на токен. Не токенизатор, а порядок величины.
+    var CHARS_PER_TOKEN = 3;
+
+    var DEFAULTS = [
+        { name: 'Системная инструкция', chars: 900, role: 'head' },
+        { name: 'Документ целиком', chars: 42000, role: 'mid' },
+        { name: 'История диалога', chars: 12000, role: 'mid' },
+        { name: 'Сам вопрос', chars: 300, role: 'tail' }
+    ];
+
+    var pieces;
+    try { pieces = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { pieces = null; }
+    if (!Array.isArray(pieces) || !pieces.length) pieces = DEFAULTS.slice();
+
+    var COLORS = ['var(--accent)', 'var(--violet)', 'var(--signature)', 'var(--success)', 'var(--warning)', 'var(--danger)'];
+
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(pieces)); } catch (e) {} }
+
+    function drawPieces() {
+        $('pieces').innerHTML = pieces.map(function (p, i) {
+            return '<div class="piece">' +
+                '<input type="text" data-i="' + i + '" data-k="name" value="' + String(p.name).replace(/"/g, '&quot;') + '" placeholder="Что это">' +
+                '<input type="text" data-i="' + i + '" data-k="chars" value="' + p.chars + '" inputmode="numeric" placeholder="символов">' +
+                '<button data-del="' + i + '" aria-label="Убрать">×</button>' +
+            '</div>';
+        }).join('');
+
+        $('pieces').querySelectorAll('input').forEach(function (el) {
+            el.addEventListener('input', function () {
+                var i = +el.dataset.i, k = el.dataset.k;
+                pieces[i][k] = k === 'chars' ? (parseInt(el.value, 10) || 0) : el.value;
+                calc(); save();
+            });
+        });
+        $('pieces').querySelectorAll('[data-del]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                pieces.splice(+b.dataset.del, 1);
+                drawPieces(); calc(); save();
+            });
+        });
+    }
+
+    function calc() {
+        var win = parseInt($('win').value, 10);
+        var toks = pieces.map(function (p) { return Math.round((p.chars || 0) / CHARS_PER_TOKEN); });
+        var total = toks.reduce(function (a, b) { return a + b; }, 0);
+        var pct = win ? total / win : 0;
+
+        $('stats').innerHTML =
+            '<div class="stat"><b>' + total.toLocaleString('ru-RU') + '</b><span>токенов примерно</span></div>' +
+            '<div class="stat"><b>' + Math.round(pct * 100) + '%</b><span>окна занято</span></div>' +
+            '<div class="stat"><b>' + Math.max(0, win - total).toLocaleString('ru-RU') + '</b><span>остаётся на ответ</span></div>';
+
+        // Полоса состава
+        $('stack').innerHTML = total ? pieces.map(function (p, i) {
+            var w = toks[i] / total * 100;
+            if (w < 0.4) return '';
+            return '<div class="stack__seg" style="width:' + w + '%;background:' + COLORS[i % COLORS.length] + '" ' +
+                'title="' + String(p.name).replace(/"/g, '&quot;') + ': ' + toks[i] + ' т.">' +
+                (w > 11 ? Math.round(w) + '%' : '') + '</div>';
+        }).join('') : '';
+
+        // Зоны внимания: начало и конец удерживаются лучше середины
+        var third = Math.ceil(pieces.length / 3) || 1;
+        var head = toks.slice(0, third).reduce(function (a, b) { return a + b; }, 0);
+        var tail = toks.slice(-third).reduce(function (a, b) { return a + b; }, 0);
+        var mid = Math.max(0, total - head - tail);
+        $('zone').innerHTML =
+            '<div><b>' + Math.round(total ? head / total * 100 : 0) + '%</b>начало</div>' +
+            '<div><b>' + Math.round(total ? mid / total * 100 : 0) + '%</b>середина</div>' +
+            '<div><b>' + Math.round(total ? tail / total * 100 : 0) + '%</b>конец</div>';
+
+        var d = [];
+        if (pct > 1) {
+            d.push('<div class="note note--err"><b>Не влезает.</b> Вы просите положить в окно больше, чем в нём есть: ' +
+                'модель обрежет начало или вернёт ошибку. Выносите крупное наружу — поиском по документу, а не вставкой документа.</div>');
+        } else if (pct > 0.7) {
+            d.push('<div class="note"><b>Окно забито на ' + Math.round(pct * 100) + '%.</b> ' +
+                'Места под ответ почти не осталось, а точность падает задолго до формального предела. ' +
+                'Уберите то, что не относится к вопросу напрямую.</div>');
+        }
+        var biggest = toks.indexOf(Math.max.apply(null, toks));
+        if (total && toks[biggest] / total > 0.55) {
+            d.push('<div class="note"><b>Один кусок съедает ' + Math.round(toks[biggest] / total * 100) + '% контекста</b> — «' +
+                escapeHtml(pieces[biggest].name) + '». Почти всегда это документ, вставленный целиком. ' +
+                'Отберите одну-две относящиеся страницы и явно напишите, чего в источнике нет.</div>');
+        }
+        if (total && mid / total > 0.6) {
+            d.push('<div class="note"><b>Больше половины лежит в середине.</b> Именно оттуда информация теряется первой. ' +
+                'Критичное требование продублируйте в начале и в конце запроса.</div>');
+        }
+        if (pct <= 0.7 && total) {
+            d.push('<div class="note note--ok"><b>Бюджет в порядке.</b> Осталось проверить не объём, а состав: ' +
+                'каждый кусок должен отвечать на вопрос «зачем он здесь для ЭТОЙ задачи».</div>');
+        }
+        $('diag').innerHTML = d.join('');
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+    }
+
+    $('add').addEventListener('click', function () {
+        pieces.push({ name: 'Новый кусок', chars: 1000 });
+        drawPieces(); calc(); save();
+    });
+    $('win').addEventListener('change', calc);
+
+    drawPieces();
+    calc();
+})();
+</script>
+</body>
+</html>

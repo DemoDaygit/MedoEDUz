@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<script>(function(){try{var d=document.documentElement;var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07080B">
+<title>Карточка эвала — Артефакт Медоеда</title>
+<link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+<link rel="stylesheet" href="../fonts/fonts.css">
+<link rel="stylesheet" href="artifact.css">
+<style>
+    .case { border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 0.85rem; margin-bottom: 0.55rem; }
+    .case.is-pass { border-color: var(--success); background: var(--tint-ok); }
+    .case.is-fail { border-color: var(--danger); background: var(--tint-err); }
+    .case__top { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.45rem; }
+    .case__n { font-family: var(--mono); font-size: 0.66rem; color: var(--text-muted); flex: none; }
+    .case__top input { flex: 1; padding: 0.4rem 0.55rem; font-size: 0.85rem; }
+    .case__top button { border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+        border-radius: 8px; cursor: pointer; font-size: 0.95rem; line-height: 1; width: 30px; height: 30px; flex: none; }
+    .case__top button:hover { border-color: var(--danger); color: var(--danger); }
+    .case__row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+    .case__row textarea { font-size: 0.8rem; padding: 0.4rem 0.55rem; }
+    .case__verdict { display: flex; gap: 0.4rem; margin-top: 0.45rem; }
+    .case__verdict button { flex: 1; padding: 0.35rem; border-radius: 8px; border: 1px solid var(--border);
+        background: transparent; color: var(--text-muted); font-family: inherit; font-size: 0.76rem;
+        font-weight: 700; cursor: pointer; }
+    .case__verdict button.on-pass { border-color: var(--success); color: var(--success); background: var(--tint-ok); }
+    .case__verdict button.on-fail { border-color: var(--danger); color: var(--danger); background: var(--tint-err); }
+    @media (max-width: 520px) { .case__row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="tool">
+    <header class="tool__head">
+        <div class="tool__kicker">Артефакт · инструмент</div>
+        <h1 class="tool__title">📐 Карточка эвала</h1>
+        <p class="tool__sub">
+            «Вроде работает» — это не оценка качества, а отсутствие оценки.
+            Эвал превращает ощущение в число: набор кейсов, у каждого критерий
+            приёмки, на выходе доля пройденных. Прогоняйте один и тот же набор
+            после каждой правки промпта или смены модели.
+        </p>
+    </header>
+
+    <div class="card">
+        <label class="lbl" for="what">Что оцениваем</label>
+        <p class="hint">Одной строкой: какая функция и какой версии. Без этого через месяц не вспомните, к чему относились цифры.</p>
+        <input type="text" class="field" id="what" placeholder="Классификатор обращений, промпт v3, модель X">
+    </div>
+
+    <div class="card">
+        <div class="lbl">Кейсы</div>
+        <p class="hint">
+            Берите реальные входы, а не придуманные. Обязательно включите пограничные
+            и заведомо плохие: система, которая хорошо работает только на удобных
+            примерах, не работает.
+        </p>
+        <div id="cases"></div>
+        <div class="row" style="margin-top:0.6rem">
+            <button class="btn btn--sm" id="add">+ Кейс</button>
+            <button class="btn btn--sm" id="export">Выгрузить .md</button>
+        </div>
+    </div>
+
+    <div class="card card--accent">
+        <div class="stats" id="stats"></div>
+        <div class="bar"><div class="bar__fill" id="bar" style="width:0%"></div></div>
+        <div id="diag"></div>
+    </div>
+
+    <div class="foot">
+        Соответствует узлам «Эвалы вместо юнит-тестов» и «Двухрежимный эвал».
+        Про оценку агентов, наблюдаемость и LLM-as-a-Judge — открытый курс
+        <a href="https://www.kaggle.com/learn-guide/5-day-agents" target="_blank" rel="noopener">5-Day AI Agents Intensive</a>,
+        день «Agent Quality». Всё хранится в вашем браузере.
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var $ = function (id) { return document.getElementById(id); };
+    var KEY = 'medoeduz_tool_eval';
+
+    var state;
+    try { state = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { state = null; }
+    if (!state || !Array.isArray(state.cases)) {
+        state = { what: '', cases: [{ name: '', input: '', expect: '', verdict: '' }] };
+    }
+    if (state.what) $('what').value = state.what;
+
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+    function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+        });
+    }
+
+    function draw() {
+        $('cases').innerHTML = state.cases.map(function (c, i) {
+            var cls = c.verdict === 'pass' ? ' is-pass' : (c.verdict === 'fail' ? ' is-fail' : '');
+            return '<div class="case' + cls + '">' +
+                '<div class="case__top">' +
+                    '<span class="case__n">#' + (i + 1) + '</span>' +
+                    '<input type="text" data-i="' + i + '" data-k="name" value="' + esc(c.name) + '" placeholder="Короткое имя кейса">' +
+                    '<button data-del="' + i + '" aria-label="Убрать">×</button>' +
+                '</div>' +
+                '<div class="case__row">' +
+                    '<textarea data-i="' + i + '" data-k="input" rows="2" placeholder="Вход">' + esc(c.input) + '</textarea>' +
+                    '<textarea data-i="' + i + '" data-k="expect" rows="2" placeholder="Критерий приёмки — что делает ответ годным">' + esc(c.expect) + '</textarea>' +
+                '</div>' +
+                '<div class="case__verdict">' +
+                    '<button data-v="pass" data-i="' + i + '" class="' + (c.verdict === 'pass' ? 'on-pass' : '') + '">Прошёл</button>' +
+                    '<button data-v="fail" data-i="' + i + '" class="' + (c.verdict === 'fail' ? 'on-fail' : '') + '">Провалил</button>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+
+        $('cases').querySelectorAll('input,textarea').forEach(function (el) {
+            el.addEventListener('input', function () {
+                state.cases[+el.dataset.i][el.dataset.k] = el.value;
+                save(); calc();
+            });
+        });
+        $('cases').querySelectorAll('[data-v]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                var i = +b.dataset.i;
+                state.cases[i].verdict = state.cases[i].verdict === b.dataset.v ? '' : b.dataset.v;
+                draw(); calc(); save();
+            });
+        });
+        $('cases').querySelectorAll('[data-del]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                state.cases.splice(+b.dataset.del, 1);
+                if (!state.cases.length) state.cases.push({ name: '', input: '', expect: '', verdict: '' });
+                draw(); calc(); save();
+            });
+        });
+    }
+
+    function calc() {
+        var judged = state.cases.filter(function (c) { return c.verdict; });
+        var pass = state.cases.filter(function (c) { return c.verdict === 'pass'; }).length;
+        var noCrit = state.cases.filter(function (c) { return c.name && !c.expect.trim(); }).length;
+        var rate = judged.length ? pass / judged.length : 0;
+
+        $('stats').innerHTML =
+            '<div class="stat"><b>' + state.cases.length + '</b><span>кейсов</span></div>' +
+            '<div class="stat"><b>' + pass + '/' + judged.length + '</b><span>прошло</span></div>' +
+            '<div class="stat"><b>' + (judged.length ? Math.round(rate * 100) + '%' : '—') + '</b><span>доля прохождения</span></div>';
+        $('bar').style.width = (rate * 100) + '%';
+
+        var d = [];
+        if (state.cases.length < 5) {
+            d.push('<div class="note"><b>Кейсов мало.</b> На трёх примерах любое изменение выглядит как улучшение. ' +
+                'Рабочий минимум — десяток, включая пограничные и заведомо плохие входы.</div>');
+        }
+        if (noCrit) {
+            d.push('<div class="note note--err"><b>У ' + noCrit + ' кейсов нет критерия приёмки.</b> ' +
+                'Без него «прошёл» означает «мне понравилось», и завтра оценка будет другой. ' +
+                'Критерий — проверяемое условие, а не «ответ хороший».</div>');
+        }
+        if (judged.length && judged.length < state.cases.length) {
+            d.push('<div class="note"><b>Оценены не все кейсы.</b> Частичный прогон завышает долю: ' +
+                'обычно первыми проверяют те, что и так работают.</div>');
+        }
+        if (judged.length >= 5 && rate === 1) {
+            d.push('<div class="note"><b>Прошли все.</b> Это чаще признак лёгкого набора, чем идеальной системы. ' +
+                'Добавьте кейсы, на которых она должна ломаться, — иначе эвал не поймает деградацию.</div>');
+        }
+        if (judged.length >= 5 && rate < 1) {
+            d.push('<div class="note note--ok"><b>Есть база для сравнения.</b> Сохраните набор и прогоняйте его после ' +
+                'каждой правки промпта или смены модели. Ценность эвала не в числе, а в том, что число можно сравнить с прошлым.</div>');
+        }
+        $('diag').innerHTML = d.join('');
+    }
+
+    $('what').addEventListener('input', function () { state.what = $('what').value; save(); });
+    $('add').addEventListener('click', function () {
+        state.cases.push({ name: '', input: '', expect: '', verdict: '' });
+        draw(); calc(); save();
+    });
+    $('export').addEventListener('click', function () {
+        var out = ['# Эвал: ' + (state.what || 'без названия'), '',
+            'Дата прогона: ' + new Date().toLocaleDateString('ru-RU'), '',
+            '| # | Кейс | Критерий приёмки | Итог |', '|---|---|---|---|'];
+        state.cases.forEach(function (c, i) {
+            out.push('| ' + (i + 1) + ' | ' + (c.name || '—') + ' | ' + (c.expect || '—') + ' | ' +
+                (c.verdict === 'pass' ? 'прошёл' : c.verdict === 'fail' ? 'провалил' : 'не оценён') + ' |');
+        });
+        var judged = state.cases.filter(function (c) { return c.verdict; });
+        var pass = state.cases.filter(function (c) { return c.verdict === 'pass'; }).length;
+        out.push('', 'Прошло ' + pass + ' из ' + judged.length + ' оценённых.');
+        try {
+            var blob = new Blob([out.join('\n')], { type: 'text/markdown;charset=utf-8' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'eval-' + new Date().toISOString().slice(0, 10) + '.md';
+            document.body.appendChild(a); a.click();
+            setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+        } catch (e) {
+            alert('Браузер не дал сохранить файл.');
+        }
+    });
+
+    draw();
+    calc();
+})();
+</script>
+</body>
+</html>
