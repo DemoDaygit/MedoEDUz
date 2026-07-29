@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07080B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MedoEDUz">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Учебная сессия MedoEDUz: изучение, практика, проверка усвоения, рефлексия и интервальные повторения. Работает офлайн и внутри Telegram.">
+<title>Учебная сессия — MedoEDUz</title>
+
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="learn.css">
+
+<!-- Telegram Mini App SDK — опциональная надстройка, НЕ зависимость.
+     Обязательно async: обычный блокирующий <script> с внешнего домена
+     останавливает разбор страницы, и если сеть подвисает (а не отвечает
+     отказом), пользователь смотрит на белый экран, пока не истечёт
+     таймаут. learn.js стартует сам, подождав SDK не дольше секунды. -->
+<script async id="tg-sdk" src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ================= Шапка ================= -->
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand__mark" aria-hidden="true">🦡</span>
+            <span>MedoEDU<b>z</b></span>
+        </div>
+        <div class="topbar__right">
+            <span class="pill pill--streak" id="pillStreak" title="Дней подряд">🔥 <b>0</b></span>
+            <span class="pill pill--level" title="Уровень">⚡ <b id="pillLevel">1</b></span>
+        </div>
+    </header>
+
+    <!-- ================= Вкладка: СЕССИЯ ================= -->
+    <section class="view is-on" id="viewSession" role="tabpanel" aria-label="Сессия">
+        <div class="stepper" id="stepper" aria-hidden="true"></div>
+        <div id="sessionBody"></div>
+    </section>
+
+    <!-- ================= Вкладка: ПУТЬ ================= -->
+    <section class="view" id="viewPath" role="tabpanel" aria-label="Путь">
+        <div id="pathBody"></div>
+    </section>
+
+    <!-- ================= Вкладка: ДНЕВНИК ================= -->
+    <section class="view" id="viewJournal" role="tabpanel" aria-label="Дневник">
+        <div id="journalBody"></div>
+    </section>
+
+    <!-- ================= Вкладка: ПРОФИЛЬ ================= -->
+    <section class="view" id="viewProfile" role="tabpanel" aria-label="Профиль">
+        <div id="profileBody"></div>
+    </section>
+
+</div>
+
+<!-- ================= Нижняя навигация ================= -->
+<nav class="tabbar" role="tablist" aria-label="Разделы приложения">
+    <button data-tab="session" class="is-on" role="tab" aria-selected="true"><i aria-hidden="true">🎯</i>Сессия</button>
+    <button data-tab="path" role="tab" aria-selected="false"><i aria-hidden="true">🗺️</i>Путь</button>
+    <button data-tab="journal" role="tab" aria-selected="false"><i aria-hidden="true">📓</i>Дневник<span class="dot" id="journalDot" hidden></span></button>
+    <button data-tab="profile" role="tab" aria-selected="false"><i aria-hidden="true">🦡</i>Профиль</button>
+</nav>
+
+<!-- Тост -->
+<div class="toast" id="toast" role="status" aria-live="polite">
+    <div class="toast__l" id="toastLabel"></div>
+    <div class="toast__t" id="toastText"></div>
+</div>
+
+<noscript>
+    <p style="padding:24px;color:#9FADC0">Для учебной сессии нужен включённый JavaScript.</p>
+</noscript>
+
+<script src="config.js"></script>
+<script src="data/curriculum.js"></script>
+<script src="refs.js"></script>
+<script src="learn.js"></script>
+</body>
+</html>

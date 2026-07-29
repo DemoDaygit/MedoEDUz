@@ -40,4 +40,5 @@ rm -f "$OUT_DIR/$ZIP_NAME"
 
 SIZE=$(du -h "$OUT_DIR/$ZIP_NAME" | cut -f1)
 echo "✅ Готово: $OUT_DIR/$ZIP_NAME ($SIZE)"
-echo "   Распакуйте и откройте index.html — работает офлайн на Android, iOS и ПК."
+echo "   Распакуйте и откройте learn.html — учебная сессия (или index.html — карта)."
+echo "   Работает офлайн на Android, iOS и ПК."

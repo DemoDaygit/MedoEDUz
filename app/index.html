@@ -14,6 +14,13 @@
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <title>MedoEDUz — Игровая экосистема</title>
+
+<!-- Telegram Mini App SDK — опциональная надстройка, НЕ зависимость.
+     Обязательно async: блокирующий скрипт с внешнего домена
+     останавливает разбор страницы, и при подвисшей (а не отклонённой)
+     сети пользователь смотрит на белый экран до таймаута. -->
+<script async id="tg-sdk" src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
     :root {
         --bg: #07080B;
@@ -75,6 +82,24 @@
 
     .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1rem; }
     .brand b { color: var(--primary); }
+
+    /* Переход на экран учебной сессии */
+    .learn-cta {
+        display: flex; align-items: center; gap: 11px;
+        margin: 4px 0 14px;
+        padding: 13px 14px;
+        border: 1px solid rgba(34, 224, 200, 0.34);
+        border-radius: var(--radius);
+        background: linear-gradient(180deg, rgba(34, 224, 200, 0.10), rgba(158, 173, 196, 0.04));
+        color: var(--text);
+        text-decoration: none;
+    }
+    .learn-cta:active { transform: scale(0.99); }
+    .learn-cta__e { font-size: 1.4rem; flex: none; }
+    .learn-cta__b { flex: 1; min-width: 0; }
+    .learn-cta__t { display: block; font-weight: 800; font-size: 0.98rem; }
+    .learn-cta__s { display: block; font-size: 0.76rem; color: var(--text-dim); margin-top: 2px; line-height: 1.35; }
+    .learn-cta__go { flex: none; color: var(--primary); font-weight: 700; }
 
     .level-pill {
         display: flex;
@@ -434,7 +459,6 @@
 </style>
 </head>
 <body>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="config.js"></script>
 <script src="data/curriculum.js"></script>
 <canvas id="fx"></canvas>
@@ -466,6 +490,18 @@
         </button>
     </div>
 
+    <!-- Учебная сессия — отдельный экран, где идёт собственно обучение:
+         повторение, изучение, практика, проверка с оценкой уверенности
+         и рефлексия. Здесь остаётся карта и эволюция. -->
+    <a class="learn-cta" href="learn.html">
+        <span class="learn-cta__e">🎯</span>
+        <span class="learn-cta__b">
+            <span class="learn-cta__t">Учебная сессия</span>
+            <span class="learn-cta__s">Повтор → изучение → практика → проверка → рефлексия</span>
+        </span>
+        <span class="learn-cta__go">→</span>
+    </a>
+
     <div class="sec-label">Граф знаний<span class="sec-count" id="graphCount">0 / 0</span></div>
 
     <!-- Граф растёт по мере освоения: закрытые узлы скрыты, соседние
@@ -495,7 +531,7 @@
 </div>
 
 <script>
-(function () {
+function startMedoApp() {
     'use strict';
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -552,12 +588,16 @@
                 if (legacy) { raw = legacy; localStorage.setItem(KEY, legacy); }
             }
             var d = JSON.parse(raw || '{}');
-            return {
+            // Незнакомые поля переносим как есть. Учебная сессия (learn.html)
+            // пишет в ТОТ ЖЕ ключ свои разделы (рефлексия, повторения,
+            // калибровка, серия). Без Object.assign первый же save() отсюда
+            // затирал бы их — прогресс молча терялся бы между страницами.
+            return Object.assign({}, d, {
                 xp: d.xp || 0, level: d.level || 1,
                 skills: d.skills || [], quests: d.quests || {}, checks: d.checks || {},
                 syn: d.syn || [],
                 profile: d.profile || { track: null, onboardedAt: null },
-            };
+            });
         } catch (e) {
             return { xp: 0, level: 1, skills: [], quests: {}, checks: {}, syn: [], profile: { track: null, onboardedAt: null } };
         }
@@ -1304,6 +1344,22 @@
     // затем строим граф. Приложение НЕ блокируется: при недоступной сети
     // syncPull сразу вызывает start() и работает локально.
     syncPull(start);
+}
+
+// Ждём Telegram SDK, но не дольше секунды: от него зависит user_id
+// (а значит ключ хранения), но вне Telegram он не придёт никогда,
+// и приложение обязано открыться как обычная страница.
+(function telegramGate() {
+    'use strict';
+    var started = false;
+    function go() { if (started) return; started = true; startMedoApp(); }
+    if (window.Telegram && window.Telegram.WebApp) { go(); return; }
+    // Вне Telegram ждать нечего: клиент всегда передаёт tgWebApp-параметры
+    // и заводит TelegramWebviewProxy. Нет их — это обычный браузер.
+    if (!(/tgWebApp/.test(location.hash || '') || /tgWebApp/.test(location.search || '') || window.TelegramWebviewProxy)) { go(); return; }
+    var sdk = document.getElementById('tg-sdk');
+    if (sdk) { sdk.addEventListener('load', go); sdk.addEventListener('error', go); }
+    setTimeout(go, 1200);
 })();
 </script>
 </body>

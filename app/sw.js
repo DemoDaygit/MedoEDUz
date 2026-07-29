@@ -6,10 +6,15 @@
 
 'use strict';
 
-var CACHE = 'medoeduz-app-v4';
+var CACHE = 'medoeduz-app-v5';
 var ASSETS = [
     './',
     './index.html',
+    './learn.html',
+    './learn.css',
+    './learn.js',
+    './refs.js',
+    './config.js',
     './manifest.webmanifest',
     './icon.svg',
     './data/curriculum.js',
@@ -55,20 +60,31 @@ self.addEventListener('activate', function (event) {
 
 // Запросы — cache-first, затем сеть (с дозаписью в кэш)
 self.addEventListener('fetch', function (event) {
-    if (event.request.method !== 'GET') return;
+    var req = event.request;
+    if (req.method !== 'GET') return;
+
+    // Чужие источники не трогаем вообще. Иначе при недоступном
+    // telegram.org мы отдавали бы вместо его скрипта HTML-оболочку,
+    // и браузер падал бы на разборе с «Unexpected token '<'».
+    var sameOrigin = false;
+    try { sameOrigin = new URL(req.url).origin === self.location.origin; } catch (e) {}
+    if (!sameOrigin) return;
+
     event.respondWith(
-        caches.match(event.request).then(function (cached) {
+        caches.match(req).then(function (cached) {
             if (cached) return cached;
-            return fetch(event.request).then(function (resp) {
+            return fetch(req).then(function (resp) {
                 // кэшируем только успешные ответы того же origin
                 if (resp && resp.status === 200 && resp.type === 'basic') {
                     var copy = resp.clone();
-                    caches.open(CACHE).then(function (cache) { cache.put(event.request, copy); });
+                    caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
                 }
                 return resp;
             }).catch(function () {
-                // офлайн-фолбэк на оболочку
-                return caches.match('./index.html');
+                // Офлайн-фолбэк — только для переходов по страницам.
+                // Для скриптов и стилей отдавать HTML нельзя.
+                if (req.mode === 'navigate') return caches.match('./index.html');
+                return Response.error();
             });
         })
     );

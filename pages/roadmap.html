@@ -100,8 +100,11 @@
         </div>
     </footer>
 
-    <!-- Telegram Mini App SDK (опционально; вне Telegram — просто ничего не делает) -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Telegram Mini App SDK (опционально; вне Telegram — просто ничего не делает).
+         async обязателен: блокирующий тег с внешнего домена останавливает
+         разбор страницы, если сеть подвисает, а не отвечает отказом.
+         Карта не зависит от SDK — он только даёт тему и хаптику. -->
+    <script async src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <!-- Игровой движок -->
     <script src="../js/animations.js"></script>
@@ -121,8 +124,14 @@
     <script src="../js/course-view.js"></script>
     <script src="../js/skill-tree.js"></script>
     <script>
-        // Инициализируем Telegram-контекст до старта движка.
-        if (window.TG) TG.init();
+        // SDK грузится асинхронно и может не приехать вовсе. Инициализируем
+        // сразу (обычно к этому моменту он уже есть) и повторяем по его
+        // загрузке — карта работает в любом случае, SDK лишь добавляет
+        // тему клиента и хаптику.
+        if (window.TG) {
+            TG.init();
+            window.addEventListener('load', function () { if (!TG.ready) TG.init(); });
+        }
     </script>
 
     <!-- Легенда из модели -->
