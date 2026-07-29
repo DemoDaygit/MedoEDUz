@@ -143,7 +143,8 @@ function startLearnApp() {
         streak: { days: [] },
         weekly: [],       // недельные обзоры
         sessions: [],     // завершённые сессии
-        session: null     // текущая незавершённая сессия
+        session: null,    // текущая незавершённая сессия
+        week: null        // прохождение «первой недели»: {track, startedAt, done:[], mode, finishedAt}
     };
 
     var S = load();
@@ -498,9 +499,80 @@ function startLearnApp() {
     }
 
     // ============================================================
+    //  ПЕРВАЯ НЕДЕЛЯ
+    //
+    //  Те 20% программы, что дают 80% практического результата за
+    //  семь дней. Отбор жёсткий: узел попадает в неделю, только если
+    //  даёт видимый результат в РАБОЧЕЙ задаче за один заход,
+    //  применяется часто, и его отсутствие стоит дорого.
+    //
+    //  Это не отдельный курс, а порядок прохождения тех же узлов
+    //  плюс задание дня — сформулированное так, чтобы человек делал
+    //  его на своём материале, а не на учебном примере.
+    //  Режим всегда можно выключить: путь остаётся его.
+    // ============================================================
+    var FW = C.FIRST_WEEK || {};
+
+    function weekPlan() {
+        var t = S.profile.track;
+        return (t && FW[t]) ? FW[t] : null;
+    }
+    /** Идёт ли сейчас режим первой недели */
+    function weekActive() {
+        var p = weekPlan();
+        if (!p || !S.week || S.week.mode !== 'week') return false;
+        return (S.week.done || []).length < p.days.length;
+    }
+    function weekFinished() {
+        var p = weekPlan();
+        return !!(p && S.week && (S.week.done || []).length >= p.days.length);
+    }
+    /** Следующий невыполненный день плана */
+    function weekNextDay() {
+        var p = weekPlan();
+        if (!p) return null;
+        var done = (S.week && S.week.done) || [];
+        for (var i = 0; i < p.days.length; i++) {
+            if (done.indexOf(p.days[i].day) === -1) return p.days[i];
+        }
+        return null;
+    }
+    function weekDayByNum(num) {
+        var p = weekPlan();
+        if (!p) return null;
+        for (var i = 0; i < p.days.length; i++) if (p.days[i].day === num) return p.days[i];
+        return null;
+    }
+    /** Заводим неделю при выборе трека; смена трека начинает её заново */
+    function ensureWeek() {
+        var t = S.profile.track;
+        if (!t || !FW[t]) { return; }
+        if (!S.week || S.week.track !== t) {
+            S.week = { track: t, startedAt: new Date().toISOString(), done: [], mode: 'week', finishedAt: null };
+        }
+    }
+
+    // ============================================================
     //  Что учить дальше — персональный вектор
     // ============================================================
     function recommend() {
+        // В режиме первой недели вектор задан планом: он уже отобран
+        // по практической отдаче, и метаться между узлами не нужно.
+        if (weekActive()) {
+            var d = weekNextDay();
+            if (d && BY_ID[d.node] && !isDone(d.node)) {
+                return { node: BY_ID[d.node], why: 'День ' + d.day + ' первой недели', day: d };
+            }
+            if (d && BY_ID[d.node] && isDone(d.node)) {
+                // Узел уже освоен раньше — день засчитываем и идём дальше
+                markWeekDay(d.day, true);
+                return recommend();
+            }
+        }
+        return recommendFree();
+    }
+
+    function recommendFree() {
         // 1. Проваленная проверка на освоенном узле — вернуться.
         for (var i = 0; i < NODES.length; i++) {
             var n = NODES[i];
@@ -541,6 +613,19 @@ function startLearnApp() {
         };
     }
 
+    /** Отметить день недели пройденным (silent — без сохранения, вызов внутри рендера) */
+    function markWeekDay(num, silent) {
+        if (!S.week) return;
+        S.week.done = S.week.done || [];
+        if (S.week.done.indexOf(num) !== -1) return;
+        S.week.done.push(num);
+        var p = weekPlan();
+        if (p && S.week.done.length >= p.days.length && !S.week.finishedAt) {
+            S.week.finishedAt = new Date().toISOString();
+        }
+        if (!silent) save();
+    }
+
     // ============================================================
     //  Сессия: конечный автомат
     // ============================================================
@@ -553,6 +638,7 @@ function startLearnApp() {
         return {
             node: nodeId || null,
             mode: opts.mode || 'learn',       // learn | review-only
+            day: opts.day || null,            // день плана первой недели, если идём по нему
             stage: 'plan',
             reviews: due,
             rIdx: 0,
@@ -671,6 +757,10 @@ function startLearnApp() {
 
         var html = '';
 
+        // Разбор недели — самое важное на экране, поэтому первым.
+        var weekReviewPending = weekFinished() && S.week && !S.week.reviewed;
+        if (weekReviewPending) html += weekReviewCard();
+
         html += '<div class="card card--accent">' +
             '<div class="kicker">Сегодня</div>' +
             '<div class="h2">' + (si.today ? 'Сессия на сегодня уже пройдена' : 'Учебная сессия') + '</div>' +
@@ -683,7 +773,25 @@ function startLearnApp() {
                 '<div class="stat stat--plain"><b>' + si.thisWeek + '/' + si.weekGoal + '</b><span>сессий за неделю</span></div>' +
             '</div></div>';
 
-        if (rec.node) {
+        if (rec.node && rec.day) {
+            // Режим первой недели: показываем день целиком — фокус,
+            // задание на своей задаче и ловушку. Человек должен видеть,
+            // ЧТО он сегодня сделает, а не только какой узел откроет.
+            var wn = rec.node, wd = rec.day, wp = weekPlan();
+            html += '<div class="card card--accent">' +
+                '<div class="kicker">Первая неделя · день ' + wd.day + ' из ' + wp.days.length + '</div>' +
+                weekDots() +
+                nodeHead(wn, BY_ID[wd.node] ? BY_ID[wd.node].desc : '') +
+                '<div class="note note--violet" style="margin-bottom:9px"><b>Фокус.</b> ' + esc(wd.focus) + '</div>' +
+                '<div class="kicker">Сегодня вы сделаете</div>' +
+                '<p class="task">' + esc(wd.practice) + '</p>' +
+                '<p class="tiny" style="margin-top:8px">Займёт около ' + wd.min + ' минут. Делайте на своей рабочей задаче — на учебном примере навык не приживается.</p>' +
+                '<div class="btn-row" style="margin-top:12px">' +
+                    '<button class="btn btn--primary" id="startBtn">Начать день ' + wd.day + '</button>' +
+                '</div>' +
+                '<button class="btn btn--ghost btn--sm" id="freeMode" style="width:100%;margin-top:8px">Свободный режим — выбирать самому</button>' +
+            '</div>';
+        } else if (rec.node) {
             var n = rec.node;
             html += '<div class="card">' +
                 '<div class="kicker">Рекомендация</div>' +
@@ -693,6 +801,8 @@ function startLearnApp() {
                     '<button class="btn btn--primary" id="startBtn">Начать сессию</button>' +
                 '</div>' +
                 '<button class="btn btn--ghost btn--sm" id="pickOther" style="width:100%;margin-top:8px">Выбрать другой навык</button>' +
+                (weekPlan() && !weekActive() && !weekFinished()
+                    ? '<button class="btn btn--ghost btn--sm" id="weekMode" style="width:100%;margin-top:8px">Вернуться к плану первой недели</button>' : '') +
             '</div>';
         } else if (due.length) {
             html += '<div class="card card--violet">' +
@@ -720,13 +830,71 @@ function startLearnApp() {
         return html;
     }
 
+    /** Точки-дни: видно, сколько пройдено и сколько осталось */
+    function weekDots() {
+        var p = weekPlan();
+        if (!p) return '';
+        var done = (S.week && S.week.done) || [];
+        return '<div class="stepper" style="margin-bottom:10px">' + p.days.map(function (d) {
+            var cls = done.indexOf(d.day) !== -1 ? 'is-done' : (d === weekNextDay() ? 'is-now' : '');
+            return '<span class="' + cls + '" title="День ' + d.day + '"></span>';
+        }).join('') + '</div>';
+    }
+
+    /** Разбор первой недели — показывается один раз по её завершении */
+    function weekReviewCard() {
+        var p = weekPlan();
+        if (!p) return '';
+        var learned = p.days.filter(function (d) { return isDone(d.node); });
+        var st = calibStats();
+        var applied = S.intents.filter(function (i) { return i.done === true; }).length;
+        return '<div class="card card--accent" id="weekReview">' +
+            '<div class="kicker">Первая неделя пройдена</div>' +
+            '<div class="h2">Что изменилось за эти дни</div>' +
+            '<p class="task" style="margin-top:6px">' + esc(p.outcome) + '</p>' +
+            '<p class="tiny" style="margin-top:7px">Это не обещание из рекламы, а описание того, что вы сделали руками. Ниже — по фактам.</p>' +
+            '<div class="stats" style="margin-top:12px">' +
+                '<div class="stat"><b>' + learned.length + '/' + p.days.length + '</b><span>узлов освоено</span></div>' +
+                '<div class="stat stat--violet"><b>' + (st ? st.brier.toFixed(2) : '—') + '</b><span>калибровка</span></div>' +
+                '<div class="stat stat--plain"><b>' + applied + '</b><span>намерений доведено</span></div>' +
+            '</div>' +
+            '<div class="kicker" style="margin-top:14px">Что вы теперь умеете</div>' +
+            '<ul class="list">' + learned.map(function (d) {
+                return '<li>' + esc(BY_ID[d.node] ? BY_ID[d.node].apply.now : d.node) + '</li>';
+            }).join('') + '</ul>' +
+            (learned.length < p.days.length
+                ? '<div class="note" style="margin-top:10px"><b>Незакрытое.</b> ' +
+                  esc(p.days.filter(function (d) { return !isDone(d.node); })
+                        .map(function (d) { return BY_ID[d.node] ? BY_ID[d.node].title : d.node; }).join(', ')) +
+                  ' — проверка не пройдена. Это не провал недели, а точный список, куда вернуться.</div>'
+                : '') +
+            '<button class="btn btn--primary" id="weekReviewOk" style="margin-top:12px">Дальше — свободный путь</button>' +
+        '</div>';
+    }
+
     function bindPlanIdle() {
         var b = $('startBtn');
         if (b) b.addEventListener('click', function () {
             var rec = recommend();
             if (!rec.node) return;
-            S.session = newSession(rec.node.id);
+            S.session = newSession(rec.node.id, { day: rec.day || null });
             save(); haptic(); renderSession();
+        });
+        var fm = $('freeMode');
+        if (fm) fm.addEventListener('click', function () {
+            if (S.week) { S.week.mode = 'free'; save(); }
+            toast('Свободный режим', 'План недели остался в разделе «Путь» — вернуться можно в любой момент.');
+            renderSession();
+        });
+        var wm = $('weekMode');
+        if (wm) wm.addEventListener('click', function () {
+            if (S.week) { S.week.mode = 'week'; save(); }
+            renderSession();
+        });
+        var wr = $('weekReviewOk');
+        if (wr) wr.addEventListener('click', function () {
+            if (S.week) { S.week.reviewed = true; S.week.mode = 'free'; save(); }
+            renderSession();
         });
         var r = $('startReview');
         if (r) r.addEventListener('click', function () {
@@ -894,6 +1062,13 @@ function startLearnApp() {
             '<div class="chips">' + n.tools.map(function (t) { return '<span class="chip">' + esc(t) + '</span>'; }).join('') + '</div>' +
         '</div>';
 
+        // Фокус дня: из всего узла сегодня берём одну мысль — так
+        // за 30 минут получается результат, а не обзорная экскурсия.
+        if (s.day) {
+            html += '<div class="card card--accent"><div class="kicker">Фокус дня ' + s.day.day + '</div>' +
+                '<div class="h3">' + esc(s.day.focus) + '</div></div>';
+        }
+
         html += '<div class="card"><div class="kicker">Что осваиваем</div>' +
             '<ul class="list">' + n.learn.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul></div>';
 
@@ -939,6 +1114,17 @@ function startLearnApp() {
         var n = BY_ID[s.node];
         var done = S.quests[n.id] || [];
         var html = '<div class="stage-label">Шаг ' + (visibleSteps().indexOf('practice') + 1) + ' · Практика</div>';
+
+        // Задание дня идёт ПЕРВЫМ и на своём материале. Миссия узла
+        // ниже — как разбивка на шаги, а не как отдельная работа.
+        if (s.day) {
+            html += '<div class="card card--accent">' +
+                '<div class="kicker">Задание дня ' + s.day.day + ' · ~' + s.day.min + ' мин</div>' +
+                '<p class="task">' + esc(s.day.practice) + '</p>' +
+                '<div class="note note--accent" style="margin-top:11px"><b>Доказательство.</b> ' + esc(s.day.proof) + '</div>' +
+                '<div class="note" style="margin-top:8px"><b>Здесь заваливаются.</b> ' + esc(s.day.trap) + '</div>' +
+            '</div>';
+        }
 
         html += '<div class="card">' +
             '<div class="kicker">Миссия</div>' +
@@ -1294,10 +1480,16 @@ function startLearnApp() {
             newSyn.push(sy);
         });
 
+        // День первой недели засчитываем за ПРОЙДЕННУЮ работу, а не за
+        // безошибочность: если проверка не сдалась, узел вернётся сам
+        // через повторение, а неделя не должна вставать колом.
+        if (s.day) markWeekDay(s.day.day, true);
+
         touchStreak();
         S.sessions.push({
             at: new Date().toISOString(), node: n.id,
-            reviews: s.reviews.length, xp: s.gainedXP, mastered: mastered
+            reviews: s.reviews.length, xp: s.gainedXP, mastered: mastered,
+            weekDay: s.day ? s.day.day : null
         });
         var gained = refreshAchievements();
 
@@ -1418,6 +1610,43 @@ function startLearnApp() {
                 (tr ? 'Сменить трек' : 'Выбрать трек') + '</button>' +
         '</div>';
 
+        // План первой недели — тот самый отобранный минимум
+        var wp = weekPlan();
+        if (wp) {
+            var wdone = (S.week && S.week.done) || [];
+            html += '<div class="card"><div class="kicker">Первая неделя</div>' +
+                '<div class="h3">' + esc(wp.outcome) + '</div>' +
+                '<p class="tiny" style="margin:5px 0 11px">Отобрано по одному правилу: даёт видимый результат в рабочей задаче за один заход. Остальное важно, но не в первые семь дней.</p>' +
+                wp.days.map(function (d) {
+                    var nd = BY_ID[d.node];
+                    var isDoneDay = wdone.indexOf(d.day) !== -1;
+                    var isNext = weekNextDay() && weekNextDay().day === d.day;
+                    return '<button class="node-row' + (isDoneDay ? ' is-done' : '') + (isNext ? ' is-due' : '') + '" data-week-day="' + d.day + '">' +
+                        '<span class="node-row__e">' + (isDoneDay ? '✓' : d.day) + '</span>' +
+                        '<span class="node-row__b"><span class="node-row__t">' + esc(nd ? nd.title : d.node) + '</span>' +
+                        '<span class="node-row__m">' + esc(d.focus) + '</span></span>' +
+                        '<span class="node-row__s">' + (isDoneDay ? '' : '→') + '</span></button>';
+                }).join('') +
+                (S.week && S.week.mode === 'free' && !weekFinished()
+                    ? '<button class="btn btn--ghost btn--sm" id="weekBack" style="width:100%;margin-top:9px">Вести меня по плану недели</button>'
+                    : '') +
+            '</div>';
+        }
+
+        // Ключевая идея каждого уровня сложности
+        if (C.LEVEL_KEYS) {
+            html += '<div class="card card--quiet"><div class="kicker">Что главное на каждом уровне</div>' +
+                Object.keys(LEVELS).map(function (lk) {
+                    var K2 = C.LEVEL_KEYS[lk];
+                    if (!K2) return '';
+                    return '<div style="margin-bottom:11px">' +
+                        '<div class="h3">' + LEVELS[lk].emoji + ' ' + esc(LEVELS[lk].name) + '</div>' +
+                        '<p class="muted" style="font-size:.85rem">' + esc(K2.key) + '</p>' +
+                        '<p class="tiny" style="margin-top:3px">Признак усвоения: ' + esc(K2.evidence) + '</p>' +
+                    '</div>';
+                }).join('') + '</div>';
+        }
+
         // Прогресс по уровням сложности
         html += '<div class="card"><div class="kicker">По сложности</div>';
         Object.keys(LEVELS).forEach(function (lk) {
@@ -1524,6 +1753,26 @@ function startLearnApp() {
         });
         var ct = $('changeTrack');
         if (ct) ct.addEventListener('click', function () { openOnboarding(true); });
+
+        document.querySelectorAll('[data-week-day]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                var d = weekDayByNum(+b.dataset.weekDay);
+                if (!d || !BY_ID[d.node]) return;
+                if (isDone(d.node)) { startWithNode(d.node); return; }
+                if (!isAvailable(BY_ID[d.node])) {
+                    toast('Ещё рано', 'Сначала предыдущие дни: этот узел опирается на них.');
+                    return;
+                }
+                S.session = newSession(d.node, { day: d });
+                save(); switchTab('session'); renderSession();
+            });
+        });
+        var wb = $('weekBack');
+        if (wb) wb.addEventListener('click', function () {
+            if (S.week) { S.week.mode = 'week'; save(); }
+            toast('План недели', 'Веду по плану. Выключить можно на экране сессии.');
+            renderPath(); renderSession();
+        });
     }
 
     function startWithNode(id) {
@@ -2200,6 +2449,7 @@ function startLearnApp() {
             S.profile.experience = onbDraft.experience || null;
         }
         S.profile.onboardedAt = S.profile.onboardedAt || new Date().toISOString();
+        ensureWeek();          // выбран трек — заводим план первой недели
         save();
         closeOnboarding();
         renderAll();
@@ -2319,6 +2569,7 @@ function startLearnApp() {
     function boot() {
         if (booted) return;          // защита от двойного старта: syncPull и таймер
         booted = true;
+        ensureWeek();          // трек мог быть выбран раньше, чем появился план
         refreshAchievements();
         renderAll();
         if (!S.profile.onboardedAt) openOnboarding(false);

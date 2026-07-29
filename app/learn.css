@@ -327,6 +327,14 @@ body {
     opacity: 0.75;
 }
 
+/* Задание дня: длинный текст, который надо реально прочитать —
+   кегль чуть крупнее основного, интерлиньяж свободнее */
+.task {
+    font-size: 0.93rem;
+    line-height: 1.58;
+    color: var(--text);
+}
+
 .note {
     border-left: 2px solid var(--warning);
     padding: 6px 0 6px 11px;
