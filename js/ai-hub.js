@@ -319,8 +319,10 @@
     function paintCount() {
         var el = document.getElementById('aiCount');
         if (!el) return;
-        var shown = M.LIST.filter(matches).length;
-        el.innerHTML = L('Показано ', 'Showing ') + '<b>' + shown + '</b>' + L(' из ', ' of ') + '<b>' + M.LIST.length + '</b>';
+        // Именно «найдено», а не «показано»: на экране первая страница из 18,
+        // и подпись «показано 79» противоречила бы кнопке «показать все 79».
+        var found = M.LIST.filter(matches).length;
+        el.innerHTML = L('Найдено ', 'Found ') + '<b>' + found + '</b>' + L(' из ', ' of ') + '<b>' + M.LIST.length + '</b>';
     }
 
     function renderDynamic(keepFocus) {
