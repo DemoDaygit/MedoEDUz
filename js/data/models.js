@@ -5,10 +5,8 @@
  *
  *  ФАЙЛ ГЕНЕРИРУЕТСЯ. Хаб отвечает на вопрос ученика «а чем мне
  *  работать?»: раскладывает известные LLM и ИИ-инструменты по СЕМИ
- *  трекам обучения (те же ключи, что в CURRICULUM.TRACKS) и по
- *  модальностям. Так выбор трека на карте знаний превращается в
- *  конкретный список инструментов, которыми ученик доводит задачу
- *  до результата.
+ *  трекам обучения (те же ключи, что в CURRICULUM.TRACKS), по
+ *  модальностям и по происхождению.
  *
  *  ЧЕСТНОСТЬ (правило проекта):
  *  - Каждый адрес ОТКРЫВАЛСЯ при сборке. Битая ссылка на витрине
@@ -16,6 +14,8 @@
  *  - access определён по странице тарифов, а не на глаз:
  *    open = открытый код/веса, freemium = есть бесплатный тариф,
  *    paid = бесплатного тарифа нет.
+ *  - origin говорит, КТО ДЕЛАЕТ инструмент. Это не обещание, что он
+ *    доступен из вашей страны и оплачивается вашей картой.
  *  - Никаких рейтингов и «лучших»: сборщик отбраковывает такие слова.
  *  - Это не партнёрство и не реклама. Товарные знаки принадлежат их
  *    владельцам; здесь СТИЛИЗОВАННЫЕ векторные метки (GLYPHS в
@@ -24,7 +24,6 @@
  *    запрещены, сборщик их заменяет.
  *
  *  flagship — только для узнаваемых марок: они идут в бегущую ленту.
- *  Полная лента из всех сервисов читается как шум.
  */
 
 'use strict';
@@ -110,12 +109,23 @@ window.AI_MODELS = (function () {
             }
     };
 
+    // ---------- Происхождение ----------
+    // Отвечает на вопрос «кто делает», а НЕ «работает ли это у вас
+    // без VPN и зарубежной карты»: доступность меняется чаще, чем мы
+    // успеваем её проверять, и обещать её на витрине нельзя.
+    const ORIGINS = {
+        ru: { ru: 'Россия', en: 'Russia' },
+        cn: { ru: 'Китай', en: 'China' },
+        global: { ru: 'Мировые', en: 'Global' },
+    };
+
     // ---------- Реестр ----------
     // brand — тон стилизованной метки; glyph — id формы из GLYPHS.
     const LIST = [
         {
             id: "chatgpt", name: "ChatGPT", vendor: "OpenAI",
             glyph: "ring", brand: "#10A37F", url: "https://chatgpt.com",
+            origin: "global",
             cats: ["chat","code","image","audio","research"],
             tracks: ["generalist","developer","ai-analyst","agent-architect"],
             access: "freemium",
@@ -128,6 +138,7 @@ window.AI_MODELS = (function () {
         {
             id: "claude", name: "Claude", vendor: "Anthropic",
             glyph: "spark", brand: "#C86C4A", url: "https://claude.ai",
+            origin: "global",
             cats: ["chat","code","agent"],
             tracks: ["generalist","developer","agent-architect","memory-eng","security-eng","quant"],
             access: "freemium",
@@ -140,6 +151,7 @@ window.AI_MODELS = (function () {
         {
             id: "gemini", name: "Gemini", vendor: "Google",
             glyph: "gem", brand: "#3E7BF6", url: "https://gemini.google.com",
+            origin: "global",
             cats: ["chat","code","image","research"],
             tracks: ["generalist","developer","ai-analyst"],
             access: "freemium",
@@ -152,6 +164,7 @@ window.AI_MODELS = (function () {
         {
             id: "copilot", name: "GitHub Copilot", vendor: "GitHub",
             glyph: "chevrons", brand: "#4C8DFF", url: "https://github.com/features/copilot",
+            origin: "global",
             cats: ["code","agent"],
             tracks: ["developer"],
             access: "freemium",
@@ -164,6 +177,7 @@ window.AI_MODELS = (function () {
         {
             id: "cursor", name: "Cursor", vendor: "Anysphere",
             glyph: "caret", brand: "#6E7BFF", url: "https://cursor.com",
+            origin: "global",
             cats: ["code","agent"],
             tracks: ["developer","agent-architect"],
             access: "freemium",
@@ -176,6 +190,7 @@ window.AI_MODELS = (function () {
         {
             id: "llama", name: "Llama", vendor: "Meta",
             glyph: "layers", brand: "#4A6DF0", url: "https://www.llama.com",
+            origin: "global",
             cats: ["chat","code","local"],
             tracks: ["developer","memory-eng","security-eng","quant"],
             access: "open",
@@ -188,6 +203,7 @@ window.AI_MODELS = (function () {
         {
             id: "mistral", name: "Mistral · Le Chat", vendor: "Mistral AI",
             glyph: "pixel", brand: "#E9642A", url: "https://mistral.ai",
+            origin: "global",
             cats: ["chat","code","local"],
             tracks: ["generalist","developer","memory-eng","security-eng"],
             access: "open",
@@ -200,6 +216,7 @@ window.AI_MODELS = (function () {
         {
             id: "deepseek", name: "DeepSeek", vendor: "DeepSeek",
             glyph: "orbit", brand: "#4D6BFE", url: "https://www.deepseek.com",
+            origin: "cn",
             cats: ["chat","code","local"],
             tracks: ["developer","memory-eng","quant","security-eng"],
             access: "open",
@@ -212,6 +229,7 @@ window.AI_MODELS = (function () {
         {
             id: "qwen", name: "Qwen", vendor: "Alibaba",
             glyph: "petals", brand: "#615CED", url: "https://chat.qwen.ai",
+            origin: "cn",
             cats: ["chat","code","local"],
             tracks: ["developer","memory-eng","quant"],
             access: "open",
@@ -224,6 +242,7 @@ window.AI_MODELS = (function () {
         {
             id: "grok", name: "Grok", vendor: "xAI",
             glyph: "comet", brand: "#7A8699", url: "https://x.ai",
+            origin: "global",
             cats: ["chat","research"],
             tracks: ["generalist","ai-analyst"],
             access: "freemium",
@@ -236,6 +255,7 @@ window.AI_MODELS = (function () {
         {
             id: "perplexity", name: "Perplexity", vendor: "Perplexity",
             glyph: "loop", brand: "#20B8CD", url: "https://www.perplexity.ai",
+            origin: "global",
             cats: ["research","chat"],
             tracks: ["generalist","ai-analyst","quant"],
             access: "freemium",
@@ -248,6 +268,7 @@ window.AI_MODELS = (function () {
         {
             id: "huggingface", name: "Hugging Face", vendor: "Hugging Face",
             glyph: "hub", brand: "#FF6F43", url: "https://huggingface.co",
+            origin: "global",
             cats: ["local","code","agent"],
             tracks: ["developer","memory-eng","ai-analyst","agent-architect","security-eng"],
             access: "open",
@@ -260,6 +281,7 @@ window.AI_MODELS = (function () {
         {
             id: "langchain", name: "LangChain · LangGraph", vendor: "LangChain",
             glyph: "chain", brand: "#1F9E7A", url: "https://www.langchain.com",
+            origin: "global",
             cats: ["agent","code"],
             tracks: ["agent-architect","developer","memory-eng"],
             access: "open",
@@ -271,6 +293,7 @@ window.AI_MODELS = (function () {
         {
             id: "cohere", name: "Cohere", vendor: "Cohere",
             glyph: "shield", brand: "#7D5CE0", url: "https://cohere.com",
+            origin: "global",
             cats: ["chat","code","research"],
             tracks: ["developer","ai-analyst","memory-eng"],
             access: "freemium",
@@ -282,6 +305,7 @@ window.AI_MODELS = (function () {
         {
             id: "stable-diffusion", name: "Stable Diffusion", vendor: "Stability AI",
             glyph: "venn", brand: "#8A63D2", url: "https://stability.ai",
+            origin: "global",
             cats: ["image","local"],
             tracks: ["generalist","developer"],
             access: "open",
@@ -294,6 +318,7 @@ window.AI_MODELS = (function () {
         {
             id: "midjourney", name: "Midjourney", vendor: "Midjourney",
             glyph: "prism", brand: "#5560D6", url: "https://www.midjourney.com",
+            origin: "global",
             cats: ["image"],
             tracks: ["generalist"],
             access: "paid",
@@ -306,10 +331,10 @@ window.AI_MODELS = (function () {
         {
             id: "runway", name: "Runway", vendor: "Runway",
             glyph: "film", brand: "#5A8DEE", url: "https://runwayml.com",
+            origin: "global",
             cats: ["video"],
             tracks: ["generalist"],
             access: "paid",
-            flagship: true,
             tagline: {
                 ru: "Генерация и монтаж видео по тексту и картинке — для роликов и раскадровок.",
                 en: "Text- and image-to-video generation and editing — for clips and storyboards.",
@@ -318,6 +343,7 @@ window.AI_MODELS = (function () {
         {
             id: "elevenlabs", name: "ElevenLabs", vendor: "ElevenLabs",
             glyph: "waveform", brand: "#5B72E0", url: "https://elevenlabs.io",
+            origin: "global",
             cats: ["audio"],
             tracks: ["generalist"],
             access: "freemium",
@@ -330,6 +356,7 @@ window.AI_MODELS = (function () {
         {
             id: "gemini-notebook", name: "Gemini Notebook", vendor: "Google",
             glyph: "notebook", brand: "#4285F4", url: "https://notebooklm.google",
+            origin: "global",
             cats: ["research","audio","code"],
             tracks: ["generalist"],
             access: "freemium",
@@ -342,10 +369,10 @@ window.AI_MODELS = (function () {
         {
             id: "notion-ai", name: "Notion AI", vendor: "Notion Labs, Inc.",
             glyph: "stack", brand: "#8F8B85", url: "https://www.notion.com/product/ai",
+            origin: "global",
             cats: ["agent","automation","research"],
             tracks: ["generalist"],
             access: "freemium",
-            flagship: true,
             tagline: {
                 ru: "ИИ внутри рабочего пространства: агенты по расписанию, поиск по Slack и Drive, конспекты встреч.",
                 en: "AI inside your workspace: scheduled agents, search across Slack and Drive, automatic meeting notes.",
@@ -354,10 +381,10 @@ window.AI_MODELS = (function () {
         {
             id: "deepl", name: "DeepL", vendor: "DeepL SE",
             glyph: "prism", brand: "#1E5EFF", url: "https://www.deepl.com",
+            origin: "global",
             cats: ["automation","audio"],
             tracks: ["generalist","developer"],
             access: "freemium",
-            flagship: true,
             tagline: {
                 ru: "Перевод текста и документов с сохранением вёрстки, 100+ языков, есть API и бесплатный уровень.",
                 en: "Translates text and documents while keeping layout, 100+ languages, with an API and a free tier.",
@@ -366,6 +393,7 @@ window.AI_MODELS = (function () {
         {
             id: "claude-code", name: "Claude Code", vendor: "Anthropic",
             glyph: "terminal", brand: "#D97757", url: "https://claude.com/product/claude-code",
+            origin: "global",
             cats: ["code","agent","automation"],
             tracks: ["developer","agent-architect"],
             access: "paid",
@@ -378,10 +406,10 @@ window.AI_MODELS = (function () {
         {
             id: "openai-codex", name: "Codex", vendor: "OpenAI",
             glyph: "loop", brand: "#10A37F", url: "https://github.com/openai/codex",
+            origin: "global",
             cats: ["code","agent","automation"],
             tracks: ["developer","agent-architect"],
             access: "freemium",
-            flagship: true,
             tagline: {
                 ru: "Агент пишет и правит код в CLI, IDE и облаке; исходники CLI открыты под Apache-2.0.",
                 en: "Agent writes and edits code in the CLI, IDE and cloud; the CLI source is open under Apache-2.0.",
@@ -390,10 +418,10 @@ window.AI_MODELS = (function () {
         {
             id: "replit", name: "Replit", vendor: "Replit, Inc.",
             glyph: "cube", brand: "#FF3C00", url: "https://replit.com",
+            origin: "global",
             cats: ["code","agent"],
             tracks: ["generalist","developer"],
             access: "freemium",
-            flagship: true,
             tagline: {
                 ru: "Облачная среда с ИИ-агентом: описываешь приложение словами — он пишет код, поднимает базу и хостинг.",
                 en: "Cloud IDE with an AI agent: describe an app in words, it writes code and sets up database and hosting.",
@@ -402,6 +430,7 @@ window.AI_MODELS = (function () {
         {
             id: "lovable", name: "Lovable", vendor: "Lovable",
             glyph: "spark", brand: "#FF66F4", url: "https://lovable.dev",
+            origin: "global",
             cats: ["code","agent"],
             tracks: ["generalist","developer"],
             access: "freemium",
@@ -413,6 +442,7 @@ window.AI_MODELS = (function () {
         {
             id: "v0", name: "v0", vendor: "Vercel",
             glyph: "layers", brand: "#0070F3", url: "https://v0.app",
+            origin: "global",
             cats: ["code","agent"],
             tracks: ["generalist","developer"],
             access: "freemium",
@@ -424,6 +454,7 @@ window.AI_MODELS = (function () {
         {
             id: "n8n", name: "n8n", vendor: "n8n GmbH",
             glyph: "flow", brand: "#EA4B71", url: "https://n8n.io",
+            origin: "global",
             cats: ["automation","agent"],
             tracks: ["generalist","developer","agent-architect"],
             access: "open",
@@ -435,6 +466,7 @@ window.AI_MODELS = (function () {
         {
             id: "model-context-protocol", name: "Model Context Protocol", vendor: "LF Projects · Anthropic",
             glyph: "plug", brand: "#6E7B91", url: "https://modelcontextprotocol.io",
+            origin: "global",
             cats: ["agent","automation"],
             tracks: ["generalist","developer","agent-architect","security-eng"],
             access: "open",
@@ -446,6 +478,7 @@ window.AI_MODELS = (function () {
         {
             id: "llamaindex", name: "LlamaIndex", vendor: "LlamaIndex, Inc.",
             glyph: "tree", brand: "#FF8DF2", url: "https://www.llamaindex.ai",
+            origin: "global",
             cats: ["memory","agent","research"],
             tracks: ["developer","memory-eng"],
             access: "open",
@@ -457,6 +490,7 @@ window.AI_MODELS = (function () {
         {
             id: "pinecone", name: "Pinecone", vendor: "Pinecone",
             glyph: "radar", brand: "#002BFF", url: "https://www.pinecone.io",
+            origin: "global",
             cats: ["memory"],
             tracks: ["memory-eng","developer"],
             access: "freemium",
@@ -468,6 +502,7 @@ window.AI_MODELS = (function () {
         {
             id: "langsmith", name: "LangSmith", vendor: "LangChain, Inc.",
             glyph: "graph", brand: "#006DDD", url: "https://www.langchain.com/langsmith",
+            origin: "global",
             cats: ["eval","agent"],
             tracks: ["developer","agent-architect","ai-analyst","quant"],
             access: "freemium",
@@ -479,6 +514,7 @@ window.AI_MODELS = (function () {
         {
             id: "whisper", name: "Whisper", vendor: "OpenAI",
             glyph: "waveform", brand: "#10A37F", url: "https://github.com/openai/whisper",
+            origin: "global",
             cats: ["audio","local"],
             tracks: ["generalist","developer"],
             access: "open",
@@ -490,6 +526,7 @@ window.AI_MODELS = (function () {
         {
             id: "suno", name: "Suno", vendor: "Suno, Inc.",
             glyph: "music", brand: "#8E8B99", url: "https://suno.com",
+            origin: "global",
             cats: ["audio"],
             tracks: ["generalist"],
             access: "freemium",
@@ -501,6 +538,7 @@ window.AI_MODELS = (function () {
         {
             id: "flux", name: "FLUX", vendor: "Black Forest Labs",
             glyph: "gem", brand: "#E0DDFF", url: "https://bfl.ai",
+            origin: "global",
             cats: ["image","local"],
             tracks: ["generalist","developer"],
             access: "open",
@@ -512,6 +550,7 @@ window.AI_MODELS = (function () {
         {
             id: "kling-ai", name: "Kling AI", vendor: "Kuaishou Technology",
             glyph: "film", brand: "#74FF52", url: "https://kling.ai",
+            origin: "cn",
             cats: ["video","image"],
             tracks: ["generalist"],
             access: "freemium",
@@ -523,6 +562,7 @@ window.AI_MODELS = (function () {
         {
             id: "comfyui", name: "ComfyUI", vendor: "Comfy Org",
             glyph: "grid", brand: "#AEE02A", url: "https://www.comfy.org",
+            origin: "global",
             cats: ["image","video","local","automation"],
             tracks: ["generalist","developer"],
             access: "open",
@@ -534,6 +574,7 @@ window.AI_MODELS = (function () {
         {
             id: "ollama", name: "Ollama", vendor: "Ollama Inc.",
             glyph: "vault", brand: "#A8ADBD", url: "https://ollama.com",
+            origin: "global",
             cats: ["local","chat"],
             tracks: ["generalist","developer"],
             access: "open",
@@ -545,6 +586,7 @@ window.AI_MODELS = (function () {
         {
             id: "groq", name: "Groq", vendor: "Groq, Inc.",
             glyph: "bolt", brand: "#F55036", url: "https://groq.com",
+            origin: "global",
             cats: ["chat","agent"],
             tracks: ["developer","agent-architect"],
             access: "freemium",
@@ -556,6 +598,7 @@ window.AI_MODELS = (function () {
         {
             id: "kaggle", name: "Kaggle", vendor: "Google",
             glyph: "target", brand: "#008ABC", url: "https://www.kaggle.com",
+            origin: "global",
             cats: ["research","eval","code"],
             tracks: ["generalist","developer","ai-analyst","quant"],
             access: "freemium",
@@ -567,6 +610,7 @@ window.AI_MODELS = (function () {
         {
             id: "google-colab", name: "Google Colab", vendor: "Google",
             glyph: "beaker", brand: "#B45309", url: "https://colab.research.google.com",
+            origin: "global",
             cats: ["code","research","agent"],
             tracks: ["generalist","developer","ai-analyst","quant"],
             access: "freemium",
@@ -578,6 +622,7 @@ window.AI_MODELS = (function () {
         {
             id: "gamma", name: "Gamma", vendor: "Gamma",
             glyph: "palette", brand: "#7B61FF", url: "https://gamma.app",
+            origin: "global",
             cats: ["automation","image"],
             tracks: ["generalist"],
             access: "freemium",
@@ -589,6 +634,7 @@ window.AI_MODELS = (function () {
         {
             id: "bolt-new", name: "Bolt.new", vendor: "StackBlitz",
             glyph: "comet", brand: "#1488FC", url: "https://bolt.new",
+            origin: "global",
             cats: ["code","agent"],
             tracks: ["generalist","developer"],
             access: "freemium",
@@ -600,6 +646,7 @@ window.AI_MODELS = (function () {
         {
             id: "devin-desktop", name: "Devin Desktop", vendor: "Cognition",
             glyph: "hub", brand: "#317CFF", url: "https://devin.ai/desktop",
+            origin: "global",
             cats: ["code","agent"],
             tracks: ["developer","agent-architect"],
             access: "freemium",
@@ -611,6 +658,7 @@ window.AI_MODELS = (function () {
         {
             id: "cline", name: "Cline", vendor: "Cline Bot Inc.",
             glyph: "plug", brand: "#9F58FA", url: "https://cline.bot",
+            origin: "global",
             cats: ["code","agent","local"],
             tracks: ["developer","agent-architect"],
             access: "open",
@@ -622,6 +670,7 @@ window.AI_MODELS = (function () {
         {
             id: "aider", name: "Aider", vendor: "Aider-AI",
             glyph: "terminal", brand: "#4C6EF5", url: "https://aider.chat",
+            origin: "global",
             cats: ["code","agent","local"],
             tracks: ["developer"],
             access: "open",
@@ -633,6 +682,7 @@ window.AI_MODELS = (function () {
         {
             id: "jetbrains-ai-assistant", name: "JetBrains AI Assistant", vendor: "JetBrains",
             glyph: "wand", brand: "#FE315D", url: "https://www.jetbrains.com/ai-ides/",
+            origin: "global",
             cats: ["code","chat"],
             tracks: ["developer"],
             access: "freemium",
@@ -644,6 +694,7 @@ window.AI_MODELS = (function () {
         {
             id: "amazon-q-developer", name: "Amazon Q Developer", vendor: "Amazon Web Services (AWS)",
             glyph: "cube", brand: "#527FFF", url: "https://aws.amazon.com/q/developer/",
+            origin: "global",
             cats: ["code","agent","chat"],
             tracks: ["developer"],
             access: "freemium",
@@ -655,6 +706,7 @@ window.AI_MODELS = (function () {
         {
             id: "sourcegraph-cody", name: "Cody", vendor: "Sourcegraph",
             glyph: "graph", brand: "#A112FF", url: "https://sourcegraph.com/docs/cody",
+            origin: "global",
             cats: ["code","chat"],
             tracks: ["developer"],
             access: "paid",
@@ -666,6 +718,7 @@ window.AI_MODELS = (function () {
         {
             id: "tabnine", name: "Tabnine", vendor: "Tabnine",
             glyph: "chevrons", brand: "#1A73E8", url: "https://www.tabnine.com/",
+            origin: "global",
             cats: ["code","agent","local"],
             tracks: ["developer"],
             access: "paid",
@@ -677,6 +730,7 @@ window.AI_MODELS = (function () {
         {
             id: "crewai", name: "CrewAI", vendor: "CrewAI, Inc.",
             glyph: "orbit", brand: "#EB6658", url: "https://www.crewai.com",
+            origin: "global",
             cats: ["agent","automation"],
             tracks: ["developer","agent-architect"],
             access: "open",
@@ -688,6 +742,7 @@ window.AI_MODELS = (function () {
         {
             id: "microsoft-agent-framework", name: "Microsoft Agent Framework", vendor: "Microsoft",
             glyph: "chain", brand: "#0078D4", url: "https://learn.microsoft.com/en-us/agent-framework/",
+            origin: "global",
             cats: ["agent","automation"],
             tracks: ["developer","agent-architect"],
             access: "open",
@@ -699,6 +754,7 @@ window.AI_MODELS = (function () {
         {
             id: "openai-agents-sdk", name: "OpenAI Agents SDK", vendor: "OpenAI",
             glyph: "loop", brand: "#10A37F", url: "https://openai.github.io/openai-agents-python/",
+            origin: "global",
             cats: ["agent","automation"],
             tracks: ["developer","agent-architect"],
             access: "open",
@@ -710,6 +766,7 @@ window.AI_MODELS = (function () {
         {
             id: "qdrant", name: "Qdrant", vendor: "Qdrant",
             glyph: "gem", brand: "#8547FF", url: "https://qdrant.tech",
+            origin: "global",
             cats: ["memory","local"],
             tracks: ["memory-eng","developer"],
             access: "open",
@@ -721,6 +778,7 @@ window.AI_MODELS = (function () {
         {
             id: "chroma", name: "Chroma", vendor: "Chroma",
             glyph: "prism", brand: "#1E88FF", url: "https://www.trychroma.com",
+            origin: "global",
             cats: ["memory","local"],
             tracks: ["memory-eng","developer"],
             access: "open",
@@ -732,6 +790,7 @@ window.AI_MODELS = (function () {
         {
             id: "weaviate", name: "Weaviate", vendor: "Weaviate",
             glyph: "venn", brand: "#43E2C5", url: "https://weaviate.io",
+            origin: "global",
             cats: ["memory","agent","local"],
             tracks: ["memory-eng","developer","agent-architect"],
             access: "open",
@@ -743,6 +802,7 @@ window.AI_MODELS = (function () {
         {
             id: "pgvector", name: "pgvector", vendor: "pgvector (Andrew Kane)",
             glyph: "plug", brand: "#336791", url: "https://github.com/pgvector/pgvector",
+            origin: "global",
             cats: ["memory","local"],
             tracks: ["memory-eng","developer"],
             access: "open",
@@ -754,6 +814,7 @@ window.AI_MODELS = (function () {
         {
             id: "mem0", name: "Mem0", vendor: "Mem0 (mem0ai)",
             glyph: "brain", brand: "#5C6B8A", url: "https://mem0.ai",
+            origin: "global",
             cats: ["memory","agent"],
             tracks: ["memory-eng","agent-architect","developer"],
             access: "open",
@@ -765,6 +826,7 @@ window.AI_MODELS = (function () {
         {
             id: "langfuse", name: "Langfuse", vendor: "Langfuse GmbH",
             glyph: "pulse", brand: "#8A80E6", url: "https://langfuse.com",
+            origin: "global",
             cats: ["eval","agent","local"],
             tracks: ["developer","agent-architect","ai-analyst"],
             access: "open",
@@ -776,6 +838,7 @@ window.AI_MODELS = (function () {
         {
             id: "ragas", name: "Ragas", vendor: "Vibrant Labs AI",
             glyph: "beaker", brand: "#E2703A", url: "https://www.ragas.io",
+            origin: "global",
             cats: ["eval","code"],
             tracks: ["ai-analyst","memory-eng","developer"],
             access: "open",
@@ -787,6 +850,7 @@ window.AI_MODELS = (function () {
         {
             id: "wandb-weave", name: "W&B Weave", vendor: "Weights & Biases",
             glyph: "gauge", brand: "#C0700A", url: "https://wandb.ai/site/weave",
+            origin: "global",
             cats: ["eval","agent"],
             tracks: ["ai-analyst","developer","agent-architect"],
             access: "freemium",
@@ -798,6 +862,7 @@ window.AI_MODELS = (function () {
         {
             id: "arize-phoenix", name: "Arize Phoenix", vendor: "Arize AI",
             glyph: "eye", brand: "#009DD2", url: "https://arize.com/phoenix",
+            origin: "global",
             cats: ["eval","agent","local"],
             tracks: ["ai-analyst","developer","agent-architect"],
             access: "open",
@@ -809,6 +874,7 @@ window.AI_MODELS = (function () {
         {
             id: "deepeval", name: "DeepEval", vendor: "Confident AI",
             glyph: "target", brand: "#6D28D9", url: "https://deepeval.com",
+            origin: "global",
             cats: ["eval","code"],
             tracks: ["ai-analyst","developer"],
             access: "open",
@@ -820,6 +886,7 @@ window.AI_MODELS = (function () {
         {
             id: "garak", name: "garak", vendor: "NVIDIA",
             glyph: "radar", brand: "#76B900", url: "https://github.com/NVIDIA/garak",
+            origin: "global",
             cats: ["security","eval","local"],
             tracks: ["security-eng","ai-analyst","developer"],
             access: "open",
@@ -831,6 +898,7 @@ window.AI_MODELS = (function () {
         {
             id: "pyrit", name: "PyRIT", vendor: "Microsoft",
             glyph: "bolt", brand: "#0078D4", url: "https://github.com/microsoft/PyRIT",
+            origin: "global",
             cats: ["security","eval","local"],
             tracks: ["security-eng","ai-analyst","developer"],
             access: "open",
@@ -842,6 +910,7 @@ window.AI_MODELS = (function () {
         {
             id: "llama-guard", name: "Llama Guard", vendor: "Meta",
             glyph: "shield", brand: "#0064E0", url: "https://developer.meta.com/ai/llama-protections/",
+            origin: "global",
             cats: ["security","local"],
             tracks: ["security-eng","developer","agent-architect"],
             access: "open",
@@ -853,6 +922,7 @@ window.AI_MODELS = (function () {
         {
             id: "nemo-guardrails", name: "NeMo Guardrails", vendor: "NVIDIA",
             glyph: "flow", brand: "#76B900", url: "https://github.com/NVIDIA-NeMo/Guardrails",
+            origin: "global",
             cats: ["security","agent","local"],
             tracks: ["security-eng","agent-architect","developer"],
             access: "open",
@@ -864,6 +934,7 @@ window.AI_MODELS = (function () {
         {
             id: "guardrails-ai", name: "Guardrails AI", vendor: "Guardrails AI",
             glyph: "layers", brand: "#0E7490", url: "https://www.guardrailsai.com/",
+            origin: "global",
             cats: ["security","code","local"],
             tracks: ["security-eng","developer","agent-architect"],
             access: "open",
@@ -875,6 +946,7 @@ window.AI_MODELS = (function () {
         {
             id: "lakera", name: "Lakera", vendor: "Check Point (Lakera)",
             glyph: "lock", brand: "#C8007A", url: "https://www.lakera.ai/",
+            origin: "global",
             cats: ["security","agent"],
             tracks: ["security-eng","agent-architect"],
             access: "freemium",
@@ -886,6 +958,7 @@ window.AI_MODELS = (function () {
         {
             id: "descript", name: "Descript", vendor: "Descript",
             glyph: "film", brand: "#5B4BF5", url: "https://www.descript.com",
+            origin: "global",
             cats: ["video","audio"],
             tracks: ["generalist"],
             access: "freemium",
@@ -897,6 +970,7 @@ window.AI_MODELS = (function () {
         {
             id: "ideogram", name: "Ideogram", vendor: "Ideogram AI",
             glyph: "feather", brand: "#5B5BD6", url: "https://ideogram.ai",
+            origin: "global",
             cats: ["image"],
             tracks: ["generalist"],
             access: "freemium",
@@ -908,6 +982,7 @@ window.AI_MODELS = (function () {
         {
             id: "heygen", name: "HeyGen", vendor: "HeyGen",
             glyph: "mic", brand: "#00C3FF", url: "https://www.heygen.com",
+            origin: "global",
             cats: ["video","audio"],
             tracks: ["generalist"],
             access: "freemium",
@@ -919,6 +994,7 @@ window.AI_MODELS = (function () {
         {
             id: "synthesia", name: "Synthesia", vendor: "Synthesia",
             glyph: "petals", brand: "#3E57DA", url: "https://www.synthesia.io",
+            origin: "global",
             cats: ["video"],
             tracks: ["generalist"],
             access: "freemium",
@@ -930,6 +1006,7 @@ window.AI_MODELS = (function () {
         {
             id: "lm-studio", name: "LM Studio", vendor: "Element Labs, Inc.",
             glyph: "cube", brand: "#6E56CF", url: "https://lmstudio.ai",
+            origin: "global",
             cats: ["local","chat","agent","audio"],
             tracks: ["generalist","developer"],
             access: "freemium",
@@ -941,6 +1018,7 @@ window.AI_MODELS = (function () {
         {
             id: "vllm", name: "vLLM", vendor: "vLLM · PyTorch Foundation",
             glyph: "hub", brand: "#2E6FD9", url: "https://vllm.ai",
+            origin: "global",
             cats: ["local"],
             tracks: ["developer","agent-architect"],
             access: "open",
@@ -952,6 +1030,7 @@ window.AI_MODELS = (function () {
         {
             id: "openrouter", name: "OpenRouter", vendor: "OpenRouter, Inc.",
             glyph: "chevrons", brand: "#5B6EF5", url: "https://openrouter.ai",
+            origin: "global",
             cats: ["chat","agent"],
             tracks: ["generalist","developer","agent-architect"],
             access: "freemium",
@@ -963,6 +1042,7 @@ window.AI_MODELS = (function () {
         {
             id: "together-ai", name: "Together AI", vendor: "Together AI",
             glyph: "grid", brand: "#0F6FFF", url: "https://www.together.ai",
+            origin: "global",
             cats: ["chat","agent"],
             tracks: ["developer","agent-architect"],
             access: "freemium",
@@ -974,6 +1054,7 @@ window.AI_MODELS = (function () {
         {
             id: "openbb", name: "OpenBB", vendor: "OpenBB Inc.",
             glyph: "gauge", brand: "#0190D8", url: "https://openbb.co",
+            origin: "global",
             cats: ["research","agent","code"],
             tracks: ["quant","developer"],
             access: "freemium",
@@ -985,6 +1066,7 @@ window.AI_MODELS = (function () {
         {
             id: "quantconnect", name: "QuantConnect", vendor: "QuantConnect",
             glyph: "graph", brand: "#8A5A2B", url: "https://www.quantconnect.com",
+            origin: "global",
             cats: ["code","automation","research"],
             tracks: ["quant","developer"],
             access: "freemium",
@@ -996,6 +1078,7 @@ window.AI_MODELS = (function () {
         {
             id: "nautilus-trader", name: "NautilusTrader", vendor: "Nautech Systems",
             glyph: "pulse", brand: "#00CFBE", url: "https://nautilustrader.io",
+            origin: "global",
             cats: ["code","automation","local"],
             tracks: ["quant","developer"],
             access: "open",
@@ -1004,7 +1087,292 @@ window.AI_MODELS = (function () {
                 en: "Open-source trading engine with a Rust core and Python strategies: one codebase for tests and live.",
             },
         },
+        {
+            id: "gigachat", name: "ГигаЧат", vendor: "Сбер",
+            glyph: "spark", brand: "#21A038", url: "https://giga.chat/",
+            origin: "ru",
+            cats: ["chat","code","image"],
+            tracks: ["generalist","developer","agent-architect"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Российская модель Сбера: текст, код и картинки, работает без зарубежной карты и VPN.",
+                en: "Sber’s Russian model: text, code, and images, usable without a foreign card or VPN.",
+            },
+        },
+        {
+            id: "yandex-ai", name: "Нейросети Яндекса", vendor: "Яндекс",
+            glyph: "radar", brand: "#FC3F1D", url: "https://ya.ru/ai",
+            origin: "ru",
+            cats: ["chat","research","code"],
+            tracks: ["generalist","developer"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Семейство сервисов Яндекса: поиск с ответами, работа с текстом и API в облаке.",
+                en: "Yandex’s family of services: answer-style search, text work, and a cloud API.",
+            },
+        },
+        {
+            id: "alice-ai", name: "Алиса AI", vendor: "Яндекс",
+            glyph: "pulse", brand: "#D9407A", url: "https://alice.yandex.ru/",
+            origin: "ru",
+            cats: ["chat","audio","image"],
+            tracks: ["generalist"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Ассистент Яндекса с голосом и генерацией картинок; есть бесплатный доступ.",
+                en: "Yandex’s assistant with voice and image generation; a free tier is available.",
+            },
+        },
+        {
+            id: "gigacode", name: "GigaCode", vendor: "Сбер · GitVerse",
+            glyph: "bolt", brand: "#1F8A4C", url: "https://gitverse.ru/features/gigacode",
+            origin: "ru",
+            cats: ["code"],
+            tracks: ["developer"],
+            access: "freemium",
+            tagline: {
+                ru: "Российский ассистент разработчика: автодополнение и объяснение кода в IDE.",
+                en: "A Russian developer assistant: code completion and explanation inside the IDE.",
+            },
+        },
+        {
+            id: "kandinsky", name: "Kandinsky", vendor: "Sber AI",
+            glyph: "palette", brand: "#7B61FF", url: "https://huggingface.co/ai-forever",
+            origin: "ru",
+            cats: ["image","local"],
+            tracks: ["generalist","developer"],
+            access: "open",
+            flagship: true,
+            tagline: {
+                ru: "Открытая российская модель генерации изображений: веса выложены, можно поднять у себя.",
+                en: "An open Russian image-generation model: weights published, self-hosting possible.",
+            },
+        },
+        {
+            id: "salutespeech", name: "SaluteSpeech", vendor: "Сбер",
+            glyph: "mic", brand: "#0E9F6E", url: "https://developers.sber.ru/portal/products/smartspeech",
+            origin: "ru",
+            cats: ["audio"],
+            tracks: ["generalist","developer"],
+            access: "freemium",
+            tagline: {
+                ru: "Синтез и распознавание речи на русском: озвучка, расшифровка звонков и встреч.",
+                en: "Russian speech synthesis and recognition: voice-over plus call and meeting transcription.",
+            },
+        },
+        {
+            id: "cotype", name: "Cotype", vendor: "MTS AI",
+            glyph: "grid", brand: "#E30611", url: "https://mts.ai/product/cotype/",
+            origin: "ru",
+            cats: ["chat","code","automation"],
+            tracks: ["generalist","developer","agent-architect"],
+            access: "paid",
+            tagline: {
+                ru: "Корпоративная языковая модель MTS AI: разворачивается в контуре компании.",
+                en: "MTS AI’s enterprise language model: deployable inside a company’s own perimeter.",
+            },
+        },
+        {
+            id: "vikhr", name: "Vikhr", vendor: "Vikhr models",
+            glyph: "feather", brand: "#5B7FD4", url: "https://huggingface.co/Vikhrmodels",
+            origin: "ru",
+            cats: ["chat","local"],
+            tracks: ["developer","memory-eng"],
+            access: "open",
+            tagline: {
+                ru: "Открытые русскоязычные модели: веса на Hugging Face, запуск на своём железе.",
+                en: "Open Russian-language models: weights on Hugging Face, run on your own hardware.",
+            },
+        },
+        {
+            id: "kimi", name: "Kimi", vendor: "Moonshot AI",
+            glyph: "target", brand: "#4D5BF5", url: "https://www.kimi.com/",
+            origin: "cn",
+            cats: ["chat","code","agent","research"],
+            tracks: ["generalist","developer","agent-architect"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Ассистент с длинным контекстом и агентными сценариями; часть моделей с открытыми весами.",
+                en: "Long-context assistant with agent workflows; several models ship with open weights.",
+            },
+        },
+        {
+            id: "glm-zai", name: "GLM · Z.ai", vendor: "Zhipu AI",
+            glyph: "brain", brand: "#2E6BE6", url: "https://z.ai/",
+            origin: "cn",
+            cats: ["chat","code","agent","local"],
+            tracks: ["developer","agent-architect","generalist"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Семейство GLM: чат, код и агенты, старшие версии выкладываются с открытыми весами.",
+                en: "The GLM family: chat, code, and agents, with senior versions released as open weights.",
+            },
+        },
+        {
+            id: "doubao", name: "Doubao", vendor: "ByteDance",
+            glyph: "venn", brand: "#3B7CFF", url: "https://www.doubao.com/",
+            origin: "cn",
+            cats: ["chat","image","audio"],
+            tracks: ["generalist"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Массовый китайский ассистент ByteDance: текст, картинки и голос в одном приложении.",
+                en: "ByteDance’s mass-market Chinese assistant: text, images, and voice in one app.",
+            },
+        },
+        {
+            id: "ernie", name: "ERNIE", vendor: "Baidu",
+            glyph: "eye", brand: "#2932E1", url: "https://yiyan.baidu.com/",
+            origin: "cn",
+            cats: ["chat","image","research"],
+            tracks: ["generalist"],
+            access: "freemium",
+            tagline: {
+                ru: "Ассистент Baidu на моделях ERNIE: поиск, работа с текстом и генерация изображений.",
+                en: "Baidu’s assistant on ERNIE models: search, text work, and image generation.",
+            },
+        },
+        {
+            id: "hunyuan", name: "Hunyuan", vendor: "Tencent",
+            glyph: "gem", brand: "#0052D9", url: "https://hunyuan.tencent.com/",
+            origin: "cn",
+            cats: ["chat","image","video","local"],
+            tracks: ["generalist","developer"],
+            access: "open",
+            tagline: {
+                ru: "Модели Tencent для текста, картинок и видео; часть семейства выложена с открытыми весами.",
+                en: "Tencent’s models for text, images, and video; part of the family is released as open weights.",
+            },
+        },
+        {
+            id: "minimax", name: "MiniMax", vendor: "MiniMax",
+            glyph: "beaker", brand: "#E8452C", url: "https://www.minimax.io/",
+            origin: "cn",
+            cats: ["chat","audio","agent"],
+            tracks: ["developer","agent-architect"],
+            access: "freemium",
+            tagline: {
+                ru: "Платформа MiniMax: длинный контекст, синтез речи и API для агентных сценариев.",
+                en: "The MiniMax platform: long context, speech synthesis, and an API for agent workflows.",
+            },
+        },
+        {
+            id: "hailuo", name: "Hailuo AI", vendor: "MiniMax",
+            glyph: "film", brand: "#FF5C39", url: "https://hailuoai.video/",
+            origin: "cn",
+            cats: ["video","image"],
+            tracks: ["generalist"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Генерация видео по тексту и изображению — один из заметных китайских видеосервисов.",
+                en: "Text- and image-to-video generation — one of the notable Chinese video services.",
+            },
+        },
+        {
+            id: "manus", name: "Manus", vendor: "Manus AI",
+            glyph: "graph", brand: "#6B5BD2", url: "https://manus.im/",
+            origin: "cn",
+            cats: ["agent","automation","research"],
+            tracks: ["generalist","agent-architect"],
+            access: "freemium",
+            flagship: true,
+            tagline: {
+                ru: "Автономный агент: получает задачу целиком и сам доводит её до готового результата.",
+                en: "An autonomous agent: takes a whole task and carries it through to a finished result.",
+            },
+        },
+        {
+            id: "vidu", name: "Vidu", vendor: "Shengshu Technology",
+            glyph: "prism", brand: "#4A7CFF", url: "https://www.vidu.com/",
+            origin: "cn",
+            cats: ["video"],
+            tracks: ["generalist"],
+            access: "freemium",
+            tagline: {
+                ru: "Видео по тексту, картинке и референсу — с удержанием персонажа между кадрами.",
+                en: "Video from text, image, or reference — keeping a character consistent across shots.",
+            },
+        },
+        {
+            id: "wan", name: "Wan", vendor: "Alibaba",
+            glyph: "wand", brand: "#FF6A00", url: "https://wan.video/",
+            origin: "cn",
+            cats: ["video","image","local"],
+            tracks: ["generalist","developer"],
+            access: "open",
+            tagline: {
+                ru: "Открытая видеомодель Alibaba: веса доступны, можно запускать и дообучать у себя.",
+                en: "Alibaba’s open video model: weights available for self-hosting and fine-tuning.",
+            },
+        },
+        {
+            id: "jimeng", name: "Jimeng AI", vendor: "ByteDance",
+            glyph: "petals", brand: "#8B5CF6", url: "https://jimeng.jianying.com/",
+            origin: "cn",
+            cats: ["image","video"],
+            tracks: ["generalist"],
+            access: "freemium",
+            tagline: {
+                ru: "Сервис ByteDance для генерации изображений и коротких видео, связан с видеоредактором.",
+                en: "ByteDance’s service for image and short-video generation, tied to its video editor.",
+            },
+        },
+        {
+            id: "stepfun", name: "StepFun", vendor: "StepFun",
+            glyph: "comet", brand: "#1A73E8", url: "https://www.stepfun.com/",
+            origin: "cn",
+            cats: ["chat","audio","local"],
+            tracks: ["developer"],
+            access: "open",
+            tagline: {
+                ru: "Мультимодальные модели Step: текст, речь и изображение, часть — с открытыми весами.",
+                en: "The Step multimodal models: text, speech, and vision, several with open weights.",
+            },
+        },
+        {
+            id: "iflytek-spark", name: "iFlytek Spark", vendor: "iFlytek",
+            glyph: "spark", brand: "#0B5FD9", url: "https://xinghuo.xfyun.cn/",
+            origin: "cn",
+            cats: ["chat","audio"],
+            tracks: ["generalist"],
+            access: "freemium",
+            tagline: {
+                ru: "Ассистент iFlytek с сильной речевой частью: распознавание и синтез речи.",
+                en: "iFlytek’s assistant with a strong speech stack: recognition and synthesis.",
+            },
+        },
+        {
+            id: "baichuan", name: "Baichuan", vendor: "Baichuan Intelligence",
+            glyph: "vault", brand: "#FF6B35", url: "https://www.baichuan-ai.com/",
+            origin: "cn",
+            cats: ["chat","local"],
+            tracks: ["developer"],
+            access: "open",
+            tagline: {
+                ru: "Китайские открытые модели Baichuan: веса доступны для локального запуска.",
+                en: "Baichuan’s open Chinese models: weights available for local deployment.",
+            },
+        },
+        {
+            id: "yi-01ai", name: "Yi", vendor: "01.AI",
+            glyph: "pixel", brand: "#22A06B", url: "https://www.01.ai/",
+            origin: "cn",
+            cats: ["chat","local"],
+            tracks: ["developer"],
+            access: "open",
+            tagline: {
+                ru: "Открытое двуязычное семейство Yi: китайский и английский, запуск на своём железе.",
+                en: "The open bilingual Yi family: Chinese and English, runnable on your own hardware.",
+            },
+        },
     ];
 
-    return { CATS: CATS, ACCESS: ACCESS, LIST: LIST };
+    return { CATS: CATS, ACCESS: ACCESS, ORIGINS: ORIGINS, LIST: LIST };
 })();

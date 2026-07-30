@@ -145,6 +145,7 @@
     var state = {
         track: (myTrack && TRACKS[myTrack]) ? myTrack : 'all',
         cat: 'all',
+        origin: 'all',
         sort: 'default',
         q: '',
         limit: PAGE_SIZE,
@@ -161,6 +162,7 @@
     function matches(model) {
         if (state.track !== 'all' && model.tracks.indexOf(state.track) === -1) return false;
         if (state.cat !== 'all' && model.cats.indexOf(state.cat) === -1) return false;
+        if (state.origin !== 'all' && (model.origin || 'global') !== state.origin) return false;
         if (state.q && haystack(model).indexOf(state.q.toLowerCase().trim()) === -1) return false;
         return true;
     }
@@ -225,9 +227,23 @@
             return '<option value="' + o[0] + '"' + (state.sort === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>';
         }).join('');
 
+        // Происхождение: для российской аудитории это первый вопрос после
+        // «что умеет» — доступ к зарубежным сервисам ограничен. Метка
+        // говорит, КТО ДЕЛАЕТ, и ничего не обещает про доступность.
+        var origins = '<option value="all">' + L('Любое происхождение', 'Any origin') + '</option>';
+        var OR = (M.ORIGINS || {});
+        ['ru', 'cn', 'global'].forEach(function (id) {
+            if (!OR[id]) return;
+            var n = M.LIST.filter(function (m) { return (m.origin || 'global') === id; }).length;
+            origins += '<option value="' + id + '"' + (state.origin === id ? ' selected' : '') + '>' +
+                esc(OR[id][LANG]) + ' (' + n + ')</option>';
+        });
+
         return '<div class="ai-controls">' +
             '<div class="ai-tracks">' + chips + '</div>' +
             '<div class="ai-tools">' +
+                '<label class="ai-field">' + L('Откуда', 'Origin') +
+                    '<select id="aiOrigin">' + origins + '</select></label>' +
                 '<label class="ai-field ai-field--search">' +
                     '<span class="ai-field__icon" aria-hidden="true">🔍</span>' +
                     '<input type="search" id="aiQ" value="' + esc(state.q) + '" ' +
@@ -254,6 +270,14 @@
         '</div>';
     }
 
+    /** Метка происхождения у вендора. Мировые не помечаем: метка нужна
+     *  там, где она несёт информацию, а «мировой» — это фон. */
+    function originTag(model) {
+        var o = model.origin || 'global';
+        if (o === 'global' || !M.ORIGINS || !M.ORIGINS[o]) return '';
+        return ' <span class="ai-origin ai-origin--' + esc(o) + '">' + esc(M.ORIGINS[o][LANG]) + '</span>';
+    }
+
     function card(model) {
         var dots = model.tracks.map(function (key) {
             var tr = track(key);
@@ -274,7 +298,7 @@
                 '<span class="ai-logo" style="--brand:' + esc(model.brand) + '">' + glyph(model.glyph) + '</span>' +
                 '<div class="ai-card__id">' +
                     '<h3 class="ai-card__name">' + esc(model.name) + '</h3>' +
-                    '<span class="ai-card__vendor">' + esc(model.vendor) + '</span>' +
+                    '<span class="ai-card__vendor">' + esc(model.vendor) + originTag(model) + '</span>' +
                 '</div>' +
                 '<span class="ai-access ai-access--' + esc(model.access) + '" title="' + esc(accTitle) + '">' + esc(accLabel) + '</span>' +
             '</div>' +
@@ -346,6 +370,8 @@
         });
         var catSel = document.getElementById('aiCat');
         if (catSel) catSel.addEventListener('change', function () { state.cat = catSel.value; state.limit = PAGE_SIZE; renderDynamic(); });
+        var orgSel = document.getElementById('aiOrigin');
+        if (orgSel) orgSel.addEventListener('change', function () { state.origin = orgSel.value; state.limit = PAGE_SIZE; renderDynamic(); });
         var sortSel = document.getElementById('aiSort');
         if (sortSel) sortSel.addEventListener('change', function () { state.sort = sortSel.value; renderDynamic(); });
 
@@ -362,7 +388,7 @@
         var reset = document.getElementById('aiReset');
         if (reset) {
             reset.addEventListener('click', function () {
-                state.track = 'all'; state.cat = 'all'; state.q = ''; state.limit = PAGE_SIZE;
+                state.track = 'all'; state.cat = 'all'; state.origin = 'all'; state.q = ''; state.limit = PAGE_SIZE;
                 renderDynamic();
             });
         }

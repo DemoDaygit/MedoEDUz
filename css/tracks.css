@@ -360,6 +360,197 @@
 .tr-shared span { display: block; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.7rem; }
 
 /* ============================================================
+ *  Секция «Направления» на главной: семь реальных треков.
+ *  Карточка отвечает на вопрос «что я смогу делать», поэтому её
+ *  смысловой центр — список компетенций с доказательствами, а не
+ *  список тем. Оттого карточка высокая: сокращать её значит
+ *  возвращаться к «ИИ для маркетологов, 6 недель».
+ * ============================================================ */
+.tracks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.25rem;
+}
+
+.trk-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--trk, var(--accent));
+    background:
+        linear-gradient(180deg, var(--lift-a), var(--lift-b)),
+        var(--bg-elevated);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.trk-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+/* Свой трек выделяем кольцом, а не мёдом: мёд — подпись бренда */
+.trk-card.is-mine {
+    border-color: var(--border-accent);
+    box-shadow: 0 0 0 1px var(--border-accent);
+}
+
+.trk-card__head { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.9rem; }
+.trk-card__emoji { font-size: 2rem; line-height: 1; flex: none; }
+.trk-card__name {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.trk-mine {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    border-radius: 5px;
+    padding: 1px 5px;
+}
+[data-theme="light"] .trk-mine { color: var(--accent-deep); }
+.trk-card__level {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.trk-card__promise {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 0.4rem;
+}
+
+.trk-sub {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 1.25rem 0 0.6rem;
+}
+
+/* Компетенция + доказательство. Доказательство обязано быть видно
+   рядом: «освоил промптинг» проверить нельзя, «показал два шаблона» — можно. */
+.trk-comps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.65rem; }
+.trk-comps li {
+    position: relative;
+    padding-left: 1.1rem;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+.trk-comps li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--trk, var(--accent));
+}
+.trk-comps b { color: var(--text-primary); font-weight: 700; display: block; }
+.trk-proof {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.trk-tasks { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.trk-task {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--border-hair);
+    background: var(--surface-tint);
+}
+
+.trk-tools { margin-top: 1.1rem; display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+.trk-tools__label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    width: 100%;
+    margin-bottom: 0.25rem;
+}
+.trk-tool {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid var(--border-hair);
+}
+
+/* Честная граница. Стоит ДО кнопок намеренно: человек, пришедший
+   не за тем, должен узнать это раньше, чем нажмёт «начать». */
+.trk-notfor {
+    margin: 1.1rem 0 0;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--border-radius-sm);
+    border-left: 2px solid var(--warning);
+    background: var(--surface-tint);
+    font-size: 0.83rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+.trk-notfor b { color: var(--text-secondary); }
+
+.trk-card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-top: auto;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border-hair);
+}
+.trk-fact {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+}
+.trk-fact b { color: var(--text-secondary); font-weight: 700; }
+.trk-card__links { margin-left: auto; display: flex; gap: 0.9rem; align-items: center; }
+.trk-card__links a {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
+}
+.trk-card__links a:hover { color: var(--accent); text-decoration: underline; }
+.trk-card__links .trk-go { color: var(--accent); }
+[data-theme="light"] .trk-card__links .trk-go,
+[data-theme="light"] .trk-card__links a:hover { color: var(--accent-deep); }
+
+@media (max-width: 640px) {
+    .tracks-grid { grid-template-columns: 1fr; }
+    .trk-card { padding: 1.25rem; }
+    .trk-card__links { margin-left: 0; width: 100%; }
+}
+
+/* ============================================================
  *  Выжимка обоснования на ГЛАВНОЙ (под карточками направлений).
  *  Живёт в этом файле, потому что делит визуальный язык карточки
  *  доказательства (.tr-kind) со страницей обоснования — дублировать

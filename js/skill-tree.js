@@ -28,7 +28,36 @@ const SkillTree = (() => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let host, svg, viewport, tooltip, summaryEl;
+    let habitatLayer, fogMask, biomeLayer;
     let model;
+
+    // ============================================================
+    //  АРЕАЛ ОБИТАНИЯ
+    //
+    //  Карта знаний — не схема, а территория медоеда. Освоенный узел
+    //  не «загорается», а РАСШИРЯЕТ ареал: вокруг него прирастает
+    //  область, которая сливается с соседними в одно пятно.
+    //
+    //  Почему именно так, а не подсветка узлов:
+    //  - Прирост площади виден боковым зрением и накапливается —
+    //    в отличие от галочки, которая живёт секунду.
+    //  - Туман войны превращает «ещё 40 узлов» в «неизведанное»:
+    //    непройденное перестаёт читаться как долг и начинает
+    //    читаться как место, куда можно пойти.
+    //  - Слияние областей награждает за ПОСЛЕДОВАТЕЛЬНОСТЬ: два
+    //    соседних узла дают связную территорию, два случайных —
+    //    два острова. Это подталкивает достраивать ветку, не
+    //    запрещая разбегаться.
+    //  - Биом = ветка. «Открыт новый биом» — событие масштаба ветки,
+    //    которого раньше на карте не было вообще.
+    //
+    //  Радиус подобран под сетку: ROW_GAP=165, значит соседние по
+    //  вертикали узлы сливаются (110+110 > 165), а дальние остаются
+    //  отдельными островами, пока между ними не освоят промежуточный.
+    // ============================================================
+    const TERRITORY_R = 110;   // радиус притязаний освоенного узла
+    const FRONTIER_R = 62;     // разведанная кромка вокруг доступного
+    const FOG_R = 150;         // радиус, на который узел раздвигает туман
     const nodeEls = new Map();   // id -> { group, circle }
     const edgeEls = [];          // { path, from, to }
     let view = { x: 0, y: 0, scale: 1 };
@@ -81,11 +110,20 @@ const SkillTree = (() => {
         viewport = el('g', { class: 'st-viewport' });
         svg.appendChild(viewport);
 
-        // Рёбра (под узлами)
+        buildHabitatDefs();
+
+        // Порядок слоёв снизу вверх: туман → ареал → тропы → узлы.
+        // Ареал лежит ПОД рёбрами намеренно: тропы должны читаться
+        // поверх освоенной территории, как дороги на карте.
+        const fogLayer = el('g', { class: 'st-fog' });
+        habitatLayer = el('g', { class: 'st-habitat' });
         const edgeLayer = el('g', { class: 'st-edges' });
         const nodeLayer = el('g', { class: 'st-nodes' });
+        viewport.appendChild(fogLayer);
+        viewport.appendChild(habitatLayer);
         viewport.appendChild(edgeLayer);
         viewport.appendChild(nodeLayer);
+        buildFog(fogLayer, contentW, contentH);
 
         // Рисуем рёбра по предшественникам
         model.NODES.forEach((node) => {
@@ -178,6 +216,166 @@ const SkillTree = (() => {
         render();
     }
 
+    /**
+     * Фильтр слияния («метаболы»): размываем круги и жёстко поднимаем
+     * контраст альфы — соприкасающиеся пятна сливаются в одну органичную
+     * форму вместо гирлянды кружков. Это и даёт ощущение territории,
+     * а не набора маркеров.
+     */
+    function buildHabitatDefs() {
+        const defs = el('defs');
+
+        const goo = el('filter', {
+            id: 'st-goo', x: '-25%', y: '-25%', width: '150%', height: '150%',
+            'color-interpolation-filters': 'sRGB',
+        });
+        goo.appendChild(el('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '26', result: 'b' }));
+        goo.appendChild(el('feColorMatrix', {
+            in: 'b', mode: 'matrix',
+            values: '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8', result: 'goo',
+        }));
+        defs.appendChild(goo);
+
+        // Тот же приём для маски тумана: дыры сливаются в одну поляну
+        const gooSoft = el('filter', {
+            id: 'st-goo-soft', x: '-25%', y: '-25%', width: '150%', height: '150%',
+            'color-interpolation-filters': 'sRGB',
+        });
+        gooSoft.appendChild(el('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: '34', result: 'b' }));
+        gooSoft.appendChild(el('feColorMatrix', {
+            in: 'b', mode: 'matrix',
+            values: '1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 14 -5',
+        }));
+        defs.appendChild(gooSoft);
+
+        svg.appendChild(defs);
+    }
+
+    /**
+     * Туман войны. Прямоугольник поверх всего, в маске которого
+     * освоенные и доступные узлы прорезают «поляны». Непройденное
+     * не исчезает — оно приглушается, поэтому карта остаётся картой,
+     * а не списком заданий.
+     */
+    function buildFog(layer, contentW, contentH) {
+        const pad = 400;
+        // Область маски задаём ЯВНО в пользовательских единицах. Без x/y/
+        // width/height регион считается процентами от bbox элемента, и
+        // туман обрезается в прямоугольник с острыми краями — ровно это
+        // и было видно на карте до правки.
+        const mask = el('mask', {
+            id: 'st-fog-mask',
+            maskUnits: 'userSpaceOnUse',
+            x: -pad, y: -pad,
+            width: contentW + pad * 2,
+            height: contentH + pad * 2,
+        });
+        // белое = туман виден, чёрное = дыра
+        mask.appendChild(el('rect', {
+            x: -pad, y: -pad, width: contentW + pad * 2, height: contentH + pad * 2, fill: '#fff',
+        }));
+        fogMask = el('g', { filter: 'url(#st-goo-soft)' });
+        mask.appendChild(fogMask);
+
+        const defs = svg.querySelector('defs');
+        defs.appendChild(mask);
+
+        layer.appendChild(el('rect', {
+            class: 'st-fog__veil',
+            x: -pad, y: -pad, width: contentW + pad * 2, height: contentH + pad * 2,
+            mask: 'url(#st-fog-mask)',
+        }));
+    }
+
+    /**
+     * Пересчёт ареала. Вызывается из render(), то есть при каждом
+     * изменении прогресса.
+     */
+    function updateHabitat(mastered) {
+        if (!habitatLayer || !fogMask) return;
+
+        habitatLayer.innerHTML = '';
+        fogMask.innerHTML = '';
+
+        const claimed = el('g', { class: 'st-habitat__claimed', filter: 'url(#st-goo)' });
+        const frontier = el('g', { class: 'st-habitat__frontier' });
+        habitatLayer.appendChild(claimed);
+        habitatLayer.appendChild(frontier);
+
+        const biomeCenters = {};   // branch -> { x, y, n }
+
+        model.NODES.forEach((node) => {
+            const st = stateOf(node, mastered);
+            const pt = pos(node);
+
+            if (st === 'mastered') {
+                const branch = model.BRANCHES[node.branch];
+                const c = el('circle', {
+                    class: 'st-territory',
+                    cx: pt.x, cy: pt.y, r: TERRITORY_R,
+                    fill: branch.color,
+                });
+                claimed.appendChild(c);
+
+                const b = biomeCenters[node.branch] || (biomeCenters[node.branch] = { x: 0, y: 0, n: 0, color: branch.color, name: branch.name });
+                b.x += pt.x; b.y += pt.y; b.n += 1;
+
+                fogMask.appendChild(el('circle', { cx: pt.x, cy: pt.y, r: FOG_R, fill: '#000' }));
+            } else if (st === 'available') {
+                // Разведанная кромка: видно, куда ареал может прирасти
+                frontier.appendChild(el('circle', {
+                    class: 'st-frontier', cx: pt.x, cy: pt.y, r: FRONTIER_R,
+                }));
+                fogMask.appendChild(el('circle', { cx: pt.x, cy: pt.y, r: FOG_R * 0.72, fill: '#000' }));
+            }
+        });
+
+        // Подписи биомов — как на настоящей карте: по центру освоенной
+        // части ветки, разрядкой, приглушённо.
+        const labels = el('g', { class: 'st-biomes' });
+        Object.keys(biomeCenters).forEach((key) => {
+            const b = biomeCenters[key];
+            // Порог намеренно ОДИН узел: сводка считает биомы по наличию
+            // территории, и если подписывать только крупные, счётчик
+            // «10 биомов» расходился бы с пятью подписями на карте.
+            // Подпись поднята над центром масс: в самом центре она легла бы
+            // на подписи узлов, а биом читается и по верхней кромке пятна.
+            const txtEl = el('text', {
+                class: 'st-biome__label',
+                x: Math.round(b.x / b.n),
+                y: Math.round(b.y / b.n - TERRITORY_R * 0.78),
+                'text-anchor': 'middle',
+                fill: b.color,
+            });
+            txtEl.textContent = b.name;
+            labels.appendChild(txtEl);
+        });
+        habitatLayer.appendChild(labels);
+
+        updateHabitatStats(mastered, Object.keys(biomeCenters).length);
+    }
+
+    /**
+     * Сводка ареала. Показывает МЕНЬШЕЕ из «сделано/осталось» —
+     * то же правило, что и в учебной сессии: два счётчика сразу
+     * превращают прогресс в долг.
+     */
+    function updateHabitatStats(mastered, biomes) {
+        const box = document.getElementById('habitatStats');
+        if (!box) return;
+        const total = model.NODES.length;
+        const done = model.NODES.filter((n) => mastered.has(n.id)).length;
+        const totalBiomes = Object.keys(model.BRANCHES).length;
+        const pct = total ? Math.round((done / total) * 100) : 0;
+
+        box.innerHTML =
+            '<span class="hb-stat"><b>' + pct + '%</b> ' + t('ареала освоено') + '</span>' +
+            '<span class="hb-stat"><b>' + biomes + '</b> / ' + totalBiomes + ' ' + t('биомов') + '</span>' +
+            '<span class="hb-stat hb-stat--hint">' + (done === 0
+                ? t('Медоед ещё не выходил из норы')
+                : t('Осваивайте соседние узлы — участки сливаются в один ареал')) + '</span>';
+    }
+
     function edgePath(from, to) {
         const x1 = from.x;
         const y1 = from.y + R;
@@ -243,6 +441,7 @@ const SkillTree = (() => {
             );
         });
 
+        updateHabitat(mastered);
         updateSummary(mastered);
         updateRecoBanner(reco);
     }

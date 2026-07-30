@@ -1121,3 +1121,97 @@
     .onb__sheet { padding: 1.5rem 1.2rem; }
     .onb__title { font-size: 1.35rem; }
 }
+
+/* ============================================================
+ *  АРЕАЛ ОБИТАНИЯ МЕДОЕДА
+ *
+ *  Карта знаний — территория, а не схема. Освоенный узел прирастает
+ *  участком ареала; соседние участки СЛИВАЮТСЯ (фильтр #st-goo),
+ *  поэтому за последовательное прохождение ветки платят связной
+ *  областью, а за разрозненное — россыпью островов.
+ *
+ *  Мёд здесь не используется: территория красится цветом ВЕТКИ,
+ *  а мёд остаётся подписью бренда.
+ * ============================================================ */
+
+/* Туман войны: неизведанное приглушается, но не исчезает —
+   карта должна оставаться картой, а не списком заданий. */
+.st-fog__veil {
+    fill: var(--bg-deep);
+    opacity: 0.82;
+    pointer-events: none;
+}
+[data-theme="light"] .st-fog__veil { opacity: 0.66; }
+
+/* Участок ареала. Заливка полупрозрачная: под ней должна
+   просматриваться сетка, иначе территория читается как клякса. */
+.st-territory {
+    opacity: 0.42;
+    transition: opacity 0.5s ease;
+}
+[data-theme="light"] .st-territory { opacity: 0.26; }
+
+/* Разведанная кромка: куда ареал может прирасти следующим шагом. */
+.st-frontier {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 5 9;
+    opacity: 0.4;
+}
+@media (prefers-reduced-motion: no-preference) {
+    .st-frontier { animation: st-frontier-drift 26s linear infinite; }
+}
+@keyframes st-frontier-drift {
+    to { stroke-dashoffset: -140; }
+}
+
+/* Подпись биома — как на бумажной карте: разрядка, приглушённо,
+   поверх territории и под узлами. */
+.st-biome__label {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    pointer-events: none;
+    /* Подпись лежит поверх пёстрой территории — обводка фоном держит
+       её читаемой в обеих темах без подложки-плашки */
+    paint-order: stroke;
+    stroke: var(--bg-deep);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+}
+
+/* Сводка ареала над картой */
+.habitat-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem 1.4rem;
+    margin: 0 auto 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+.hb-stat b {
+    color: var(--accent);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+[data-theme="light"] .hb-stat b { color: var(--accent-deep); }
+.hb-stat--hint {
+    font-family: var(--font-body);
+    letter-spacing: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+    .habitat-stats { gap: 0.35rem 0.9rem; font-size: 0.72rem; }
+    .hb-stat--hint { width: 100%; text-align: center; }
+    .st-biome__label { font-size: 18px; letter-spacing: 0.16em; }
+}

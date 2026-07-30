@@ -322,6 +322,24 @@
     color: var(--text-muted);
 }
 
+/* Метка происхождения рядом с вендором. Нейтральная по цвету:
+   это справка «кто делает», а не оценка и не рекомендация. */
+.ai-origin {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    margin-left: 4px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    vertical-align: 1px;
+}
+
 .ai-access {
     flex: none;
     font-family: var(--font-mono);
