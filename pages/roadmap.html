@@ -43,6 +43,7 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
                      В 360 px не влезают ни логотип, ни переключатели, ни три
                      подписи — раньше они просто уезжали за край и были
                      недоступны вовсе. Оба раздела достижимы с главной. -->
+                <a href="cabinet.html" class="back-to-home back-to-home--extra">Кабинет</a>
                 <a href="tracks.html" class="back-to-home back-to-home--extra">Обоснование треков</a>
                 <a href="artifacts.html" class="back-to-home back-to-home--extra">Артефакты</a>
                 <a href="../index.html" class="back-to-home">← На главную</a>
@@ -151,6 +152,11 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
     <script src="../js/data/curriculum.js"></script>
     <script src="../js/data/curriculum.en.js"></script>
     <script>if (window.MEDOEDUZ_LANG === "en" && window.CURRICULUM_EN) window.CURRICULUM = window.CURRICULUM_EN;</script>
+    <!-- Правки администратора поверх базовой модели. Идут ПОСЛЕ подмены
+         модели на английскую: иначе в EN оверлей лёг бы на русскую копию
+         и был бы затёрт. И строго ДО потребителей модели. -->
+    <script src="../js/api.js"></script>
+    <script src="../js/model-overlay.js"></script>
     <script src="../js/telegram.js"></script>
     <script src="../js/reco.js"></script>
     <script src="../js/onboarding.js"></script>

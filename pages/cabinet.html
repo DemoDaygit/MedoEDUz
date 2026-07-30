@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+<!-- Тема применяется ДО первой отрисовки -->
+<script>(function(){try{var d=document.documentElement;
+var c=localStorage.getItem('medoeduz_theme')||'dark';
+var t=c==='auto'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):c;
+d.setAttribute('data-theme',t==='light'?'light':'dark');}catch(e){}})();</script>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Личный кабинет ученика MedoEDUz: прогресс, управление треком обучения и синхронизация между устройствами.">
+    <meta name="theme-color" content="#07080B">
+    <title>Личный кабинет | MedoEDUz</title>
+    <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/cabinet.css">
+    <link rel="stylesheet" href="../fonts/fonts.css">
+</head>
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="../index.html" class="logo">
+                    <img src="../images/logo-medoed.svg" alt="" class="logo-icon" width="38" height="38">
+                    <span class="logo-text">MedoEDU<span class="logo-accent">z</span></span>
+                </a>
+                <div class="nav-switches">
+                    <button class="switch-btn" id="themeBtn" type="button" aria-label="Тема">☀️</button>
+                </div>
+                <a href="roadmap.html" class="back-to-home back-to-home--extra">Карта знаний</a>
+                <a href="../index.html" class="back-to-home">← На главную</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="cab-wrap" id="cab"></main>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/data/curriculum.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/model-overlay.js"></script>
+    <script src="../js/cabinet.js"></script>
+    <script src="../js/theme.js"></script>
+</body>
+</html>

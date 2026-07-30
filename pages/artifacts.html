@@ -101,6 +101,12 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
     <script src="../js/data/curriculum.js"></script>
     <script src="../js/data/curriculum.en.js"></script>
     <script>if (window.MEDOEDUZ_LANG === "en" && window.CURRICULUM_EN) window.CURRICULUM = window.CURRICULUM_EN;</script>
+    <!-- Правки администратора поверх базовой модели. Идут ПОСЛЕ подмены
+         модели на английскую: иначе в EN оверлей лёг бы на русскую копию
+         и был бы затёрт. И строго ДО потребителей модели. -->
+    <script src="../js/config.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/model-overlay.js"></script>
     <script src="../js/data/artifacts.js"></script>
     <script src="../js/artifacts-page.js"></script>
     <script src="../js/theme.js"></script>

@@ -1,16 +1,24 @@
-# Конфигурация Cloudflare Worker для синхронизации прогресса MedoEDUz.
+# Конфигурация Cloudflare Worker платформы MedoEDUz.
 # Развёртывание: см. worker/README.md.
 
-name = "medoeduz-sync"
+name = "medoeduz-platform"
 main = "index.js"
 compatibility_date = "2024-11-01"
 
-# KV-хранилище прогресса. ID подставляется после создания:
-#   npx wrangler kv namespace create PROGRESS
+# Единое KV-хранилище: прогресс, ученики, оверлей курса, сессии, журнал.
+# ID подставляется после создания:
+#   npx wrangler kv namespace create DATA
 [[kv_namespaces]]
-binding = "PROGRESS"
+binding = "DATA"
 id = "ЗАМЕНИТЬ_НА_ID_ПОСЛЕ_СОЗДАНИЯ"
 
-# BOT_TOKEN задаётся как секрет, НЕ здесь:
-#   npx wrangler secret put BOT_TOKEN
-# Токен никогда не хранится в репозитории и не отдаётся клиенту.
+[vars]
+# Telegram user_id администраторов через запятую. Узнать свой: /start у бота,
+# затем в ответе бота или через @userinfobot.
+ADMIN_IDS = ""
+# Домены, которым разрешён доступ к API. Через запятую, без слеша на конце.
+ALLOWED_ORIGINS = "https://demodaygit.github.io,http://127.0.0.1:8099"
+
+# СЕКРЕТЫ задаются отдельно и НИКОГДА не хранятся в репозитории:
+#   npx wrangler secret put BOT_TOKEN        # токен бота от @BotFather
+#   npx wrangler secret put WEBHOOK_SECRET   # любая длинная случайная строка
