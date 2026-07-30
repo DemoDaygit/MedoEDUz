@@ -185,6 +185,64 @@
 }
 .ai-field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+/* Поиск: реестр вырос до нескольких десятков сервисов, и без поиска
+   фильтрами по треку уже не обойтись. */
+.ai-field--search {
+    position: relative;
+    gap: 0;
+    flex: 1 1 240px;
+    max-width: 320px;
+}
+.ai-field__icon {
+    position: absolute;
+    left: 10px;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    pointer-events: none;
+}
+.ai-field--search input {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    background: var(--bg-inset);
+    border: 1px solid var(--border-strong);
+    border-radius: 9px;
+    padding: 0.42rem 0.6rem 0.42rem 2rem;
+}
+.ai-field--search input::placeholder { color: var(--text-muted); }
+.ai-field--search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Нативный крестик очистки в Chrome на тёмном фоне почти не виден */
+.ai-field--search input::-webkit-search-cancel-button {
+    filter: invert(1) opacity(0.5);
+    cursor: pointer;
+}
+[data-theme="light"] .ai-field--search input::-webkit-search-cancel-button { filter: opacity(0.5); }
+
+/* «Показать все»: 60+ карточек разом растянули бы главную и утопили
+   секции ниже, поэтому по умолчанию показываем первую страницу. */
+.ai-more { display: flex; justify-content: center; margin-top: 1.5rem; }
+.ai-more__btn,
+.ai-reset {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-ghost);
+    border: 1px solid var(--border-accent);
+    border-radius: 999px;
+    padding: 0.6rem 1.4rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+.ai-more__btn:hover, .ai-reset:hover { background: var(--surface-tint); }
+.ai-more__btn:active, .ai-reset:active { transform: scale(0.97); }
+.ai-more__btn:focus-visible,
+.ai-reset:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[data-theme="light"] .ai-more__btn,
+[data-theme="light"] .ai-reset { color: var(--accent-deep); }
+.ai-reset { margin-top: 1rem; }
+
 .ai-count {
     font-family: var(--font-mono);
     font-size: 0.78rem;

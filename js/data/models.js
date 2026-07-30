@@ -29,14 +29,18 @@
 window.AI_MODELS = (function () {
     // ---------- Модальности (по чему фильтруем во вторую очередь) ----------
     const CATS = {
-        chat:     { ru: 'Чат-ассистент',     en: 'Chat assistant' },
-        code:     { ru: 'Код',                en: 'Coding' },
-        agent:    { ru: 'Агенты',             en: 'Agents' },
-        research: { ru: 'Поиск и ресёрч',     en: 'Search & research' },
-        image:    { ru: 'Изображения',        en: 'Images' },
-        video:    { ru: 'Видео',              en: 'Video' },
-        audio:    { ru: 'Аудио и голос',      en: 'Audio & voice' },
-        local:    { ru: 'Локально / веса',    en: 'Local / weights' },
+        chat:       { ru: 'Чат-ассистент',      en: 'Chat assistant' },
+        code:       { ru: 'Код',                 en: 'Coding' },
+        agent:      { ru: 'Агенты',              en: 'Agents' },
+        research:   { ru: 'Поиск и ресёрч',      en: 'Search & research' },
+        memory:     { ru: 'Память и RAG',        en: 'Memory & RAG' },
+        eval:       { ru: 'Эвалы и наблюдаемость', en: 'Evals & observability' },
+        security:   { ru: 'Безопасность',        en: 'Security' },
+        automation: { ru: 'Автоматизация',       en: 'Automation' },
+        image:      { ru: 'Изображения',         en: 'Images' },
+        video:      { ru: 'Видео',               en: 'Video' },
+        audio:      { ru: 'Аудио и голос',       en: 'Audio & voice' },
+        local:      { ru: 'Локально / веса',     en: 'Local / weights' },
     };
 
     // ---------- Доступность (честная метка, без цен) ----------

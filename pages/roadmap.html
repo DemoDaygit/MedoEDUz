@@ -33,7 +33,18 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
                     <img src="../images/logo-medoed.svg" alt="" class="logo-icon" width="38" height="38">
                     <span class="logo-text">MedoEDU<span class="logo-accent">z</span></span>
                 </a>
-                <a href="artifacts.html" class="back-to-home">Артефакты</a>
+                <!-- Переключатели нужны и здесь: карта — частая точка входа,
+                     а без кнопок ученик не может сменить тему и язык. -->
+                <div class="nav-switches">
+                    <button class="switch-btn" id="langBtn" type="button" aria-label="Язык / Language">RU</button>
+                    <button class="switch-btn" id="themeBtn" type="button" aria-label="Тема">☀️</button>
+                </div>
+                <!-- --extra: перекрёстные ссылки прячутся на узком экране.
+                     В 360 px не влезают ни логотип, ни переключатели, ни три
+                     подписи — раньше они просто уезжали за край и были
+                     недоступны вовсе. Оба раздела достижимы с главной. -->
+                <a href="tracks.html" class="back-to-home back-to-home--extra">Обоснование треков</a>
+                <a href="artifacts.html" class="back-to-home back-to-home--extra">Артефакты</a>
                 <a href="../index.html" class="back-to-home">← На главную</a>
             </div>
         </div>
