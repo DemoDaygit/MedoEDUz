@@ -40,6 +40,9 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/game-ui.css">
     <link rel="stylesheet" href="css/ai-hub.css">
+    <!-- Общий с pages/tracks.html: карточки доказательств и метки
+         природы данных должны выглядеть одинаково в обоих местах -->
+    <link rel="stylesheet" href="css/tracks.css">
     <link rel="stylesheet" href="fonts/fonts.css">
     <script src="js/data/site-i18n.js"></script>
     <script src="js/t.js"></script>
@@ -331,6 +334,9 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
                     </div>
                 </div>
             </div>
+
+            <!-- Обоснование треков: наполняется js/tracks-teaser.js -->
+            <div class="tracks-teaser" id="tracksTeaser"></div>
         </div>
     </section>
 
@@ -498,6 +504,7 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
                 <div class="footer-section">
                     <h4>Направления</h4>
                     <ul>
+                        <li><a href="pages/tracks.html">Обоснование треков</a></li>
                         <li><a href="#courses">Контент-мейкинг</a></li>
                         <li><a href="#courses">Разработка</a></li>
                         <li><a href="#courses">Аналитика</a></li>
@@ -553,6 +560,10 @@ d.setAttribute('data-lang',l);d.lang=l;}catch(e){}})();</script>
     <script>if (window.MEDOEDUZ_LANG === "en" && window.CURRICULUM_EN) window.CURRICULUM = window.CURRICULUM_EN;</script>
     <script src="js/data/models.js"></script>
     <script src="js/ai-hub.js"></script>
+
+    <!-- Выжимка обоснования треков под карточками направлений -->
+    <script src="js/data/track-research.js"></script>
+    <script src="js/tracks-teaser.js"></script>
 
     <script src="js/theme.js"></script>
     <script src="js/i18n-site.js"></script>

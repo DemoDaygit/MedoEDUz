@@ -1,0 +1,466 @@
+/* ============================================================
+ *  MedoEDUz — страница «Треки обучения: обоснование»
+ *
+ *  Задача страницы: показать, что треки выбраны не на вкус, а по
+ *  данным. Поэтому вёрстка подчинена доказательству: у каждого
+ *  утверждения на виду ЦИФРА, ПРИРОДА данных (опрос это или
+ *  телеметрия), ИСТОЧНИК с датой и ОГОВОРКА о том, чего цифра не
+ *  доказывает. Оговорка — не мелкий шрифт внизу, а часть карточки.
+ *
+ *  Мёд (--signature) остаётся подписью бренда: состояния UI,
+ *  активные чипы и ссылки идут на agent-cyan / inference-violet.
+ * ============================================================ */
+
+.tr-wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 7rem 1.5rem 5rem;
+}
+
+.tr-header { text-align: center; margin-bottom: 2.5rem; }
+.tr-header h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 4vw, 2.7rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+.tr-header > p {
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+/* Метод: как читать страницу. Стоит ДО данных намеренно — иначе
+   читатель принимает опрос самооценки за измеренный факт. */
+.tr-method {
+    margin: 2rem auto 0;
+    max-width: 760px;
+    padding: 1.1rem 1.3rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--violet);
+    background: var(--violet-ghost);
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
+    text-align: left;
+}
+.tr-method b { color: var(--text-primary); }
+
+/* ------------------------------------------------------------
+ *  Навигация по трекам
+ * ---------------------------------------------------------- */
+.tr-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+.tr-nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface-tint);
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+.tr-nav a:hover { border-color: var(--border-strong); color: var(--text-primary); }
+
+/* ------------------------------------------------------------
+ *  Блок трека
+ * ---------------------------------------------------------- */
+.tr-track {
+    margin-bottom: 4.5rem;
+    scroll-margin-top: 90px;   /* фиксированная навигация не должна накрывать заголовок */
+}
+
+.tr-track__head {
+    padding: 1.5rem 1.6rem;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--tr-color, var(--accent));
+    background:
+        linear-gradient(180deg, var(--lift-a), var(--lift-b)),
+        var(--bg-elevated);
+    margin-bottom: 1.75rem;
+}
+.tr-track__title {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem;
+}
+.tr-track__emoji { font-size: 1.6rem; line-height: 1; }
+.tr-track__goal { color: var(--text-secondary); margin: 0 0 0.9rem; font-size: 0.98rem; }
+.tr-track__lede {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.65;
+}
+
+/* Полоска «что в треке»: узлы, первая неделя, ссылка на карту */
+.tr-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    align-items: center;
+    margin-top: 1.1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-hair);
+}
+.tr-fact {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+}
+.tr-fact b { color: var(--text-secondary); font-weight: 700; }
+.tr-facts a {
+    font-family: var(--font-body);
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-decoration: none;
+    margin-left: auto;
+    white-space: nowrap;
+}
+[data-theme="light"] .tr-facts a { color: var(--accent-deep); }
+.tr-facts a:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------
+ *  Подзаголовки внутри трека
+ * ---------------------------------------------------------- */
+.tr-sub {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 2rem 0 1rem;
+}
+.tr-sub::before {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: var(--accent);
+    flex: none;
+    transform: translateY(-3px);
+}
+
+/* ------------------------------------------------------------
+ *  Карточка доказательства
+ * ---------------------------------------------------------- */
+.tr-evidence {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+.tr-ev {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+}
+
+.tr-ev__figure {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+    line-height: 1.2;
+}
+[data-theme="light"] .tr-ev__figure { color: var(--accent-deep); }
+
+.tr-ev__claim { color: var(--text-primary); margin: 0; font-size: 0.96rem; line-height: 1.6; }
+
+/* Природа данных — обязательная метка. Опрос самооценки и телеметрия
+   имеют разную силу, и читатель должен видеть разницу до вывода. */
+.tr-kind {
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface-tint);
+    color: var(--text-muted);
+}
+.tr-kind--experiment,
+.tr-kind--telemetry { color: var(--accent); border-color: var(--border-accent); background: var(--accent-ghost); }
+.tr-kind--survey,
+.tr-kind--vendor { color: var(--violet); border-color: var(--violet-ghost); background: var(--violet-ghost); }
+[data-theme="light"] .tr-kind--experiment,
+[data-theme="light"] .tr-kind--telemetry { color: var(--accent-deep); }
+
+.tr-ev__caveat {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+    margin: 0;
+    padding-left: 0.7rem;
+    border-left: 2px solid var(--border);
+}
+
+.tr-src {
+    margin-top: auto;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--border-hair);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+.tr-src a { color: var(--text-secondary); text-decoration: none; font-weight: 600; }
+.tr-src a:hover { color: var(--accent); text-decoration: underline; }
+[data-theme="light"] .tr-src a:hover { color: var(--accent-deep); }
+.tr-src span { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.72rem; }
+
+/* ------------------------------------------------------------
+ *  Механика: процесс → что делает ИИ → что измерили
+ * ---------------------------------------------------------- */
+.tr-mech {
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    margin-bottom: 1rem;
+}
+.tr-mech__process {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 0.6rem;
+}
+.tr-mech__pattern { color: var(--text-primary); margin: 0 0 0.7rem; font-size: 0.98rem; line-height: 1.62; }
+.tr-mech__outcome {
+    color: var(--text-secondary);
+    margin: 0 0 0.6rem;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    padding-left: 0.75rem;
+    border-left: 2px solid var(--accent);
+}
+.tr-mech__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.9rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--border-hair);
+}
+
+/* ------------------------------------------------------------
+ *  Роли и навыки
+ * ---------------------------------------------------------- */
+.tr-cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.tr-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.8rem; }
+.tr-list li {
+    padding-left: 1.1rem;
+    position: relative;
+    font-size: 0.94rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+.tr-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+.tr-list b { color: var(--text-primary); font-weight: 700; }
+
+/* Первоисточники */
+.tr-anchors { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+.tr-anchors li { font-size: 0.92rem; line-height: 1.6; color: var(--text-secondary); }
+.tr-anchors a { color: var(--accent); text-decoration: none; font-weight: 700; }
+[data-theme="light"] .tr-anchors a { color: var(--accent-deep); }
+.tr-anchors a:hover { text-decoration: underline; }
+.tr-anchors span { color: var(--text-muted); font-family: var(--font-mono); font-size: 0.72rem; }
+
+/* Оговорка трека — заметная, а не спрятанная */
+.tr-caveat {
+    margin-top: 1.5rem;
+    padding: 1rem 1.2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--warning);
+    background: var(--surface-tint);
+    font-size: 0.92rem;
+    line-height: 1.62;
+    color: var(--text-secondary);
+}
+.tr-caveat b { color: var(--text-primary); }
+
+/* ------------------------------------------------------------
+ *  Финал: пробелы, натяжения, общий список источников
+ * ---------------------------------------------------------- */
+.tr-end {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+}
+.tr-end h2 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+}
+.tr-end p { color: var(--text-secondary); line-height: 1.7; margin: 0 0 1rem; }
+.tr-shared {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.7rem;
+    list-style: none;
+    padding: 0;
+    margin: 1.2rem 0 0;
+}
+.tr-shared li { font-size: 0.88rem; line-height: 1.5; }
+.tr-shared a { color: var(--text-secondary); font-weight: 600; text-decoration: none; }
+.tr-shared a:hover { color: var(--accent); text-decoration: underline; }
+[data-theme="light"] .tr-shared a:hover { color: var(--accent-deep); }
+.tr-shared span { display: block; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.7rem; }
+
+/* ============================================================
+ *  Выжимка обоснования на ГЛАВНОЙ (под карточками направлений).
+ *  Живёт в этом файле, потому что делит визуальный язык карточки
+ *  доказательства (.tr-kind) со страницей обоснования — дублировать
+ *  метки природы данных в двух файлах значит однажды их рассинхронить.
+ * ============================================================ */
+.tracks-teaser {
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+}
+.tt-head { text-align: center; margin-bottom: 1.75rem; }
+.tt-head h3 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 0.6rem;
+}
+.tt-head p {
+    color: var(--text-secondary);
+    font-size: 0.98rem;
+    max-width: 660px;
+    margin: 0 auto;
+}
+
+.tt-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+}
+.tt-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+    background:
+        linear-gradient(180deg, var(--lift-a), var(--lift-b)),
+        var(--bg-elevated);
+}
+.tt-card__figure {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--accent);
+}
+[data-theme="light"] .tt-card__figure { color: var(--accent-deep); }
+.tt-card .tr-kind { align-self: flex-start; }
+.tt-card__claim {
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+}
+.tt-card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem 0.8rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--border-hair);
+    font-size: 0.78rem;
+}
+.tt-card__track { color: var(--text-muted); font-weight: 600; }
+.tt-card__foot a {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-decoration: none;
+}
+.tt-card__foot a:hover { color: var(--accent); text-decoration: underline; }
+[data-theme="light"] .tt-card__foot a:hover { color: var(--accent-deep); }
+
+.tt-cta {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 1.75rem auto 0;
+    padding: 0.7rem 1.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-accent);
+    background: var(--accent-ghost);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-align: center;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+.tt-cta:hover { background: var(--surface-tint); }
+[data-theme="light"] .tt-cta { color: var(--accent-deep); }
+
+@media (max-width: 640px) {
+    .tr-wrap { padding: 6rem 1rem 4rem; }
+    .tr-evidence { grid-template-columns: 1fr; }
+    .tr-facts a { margin-left: 0; }
+    .tt-cards { grid-template-columns: 1fr; }
+}

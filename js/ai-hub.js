@@ -249,8 +249,8 @@
         var goal = (TRACKS[state.track] && TRACKS[state.track].goal) ? TRACKS[state.track].goal : '';
         return '<div class="ai-trackbar">' +
             '<p class="ai-trackbar__goal"><b>' + esc(tr.emoji + ' ' + tr.name) + '.</b> ' + esc(goal) + '</p>' +
-            '<a class="ai-trackbar__link" href="pages/roadmap.html">' +
-                L('Открыть трек на карте знаний →', 'Open this track on the map →') + '</a>' +
+            '<a class="ai-trackbar__link" href="pages/tracks.html#' + esc(state.track) + '">' +
+                L('Обоснование трека и данные рынка →', 'Track rationale and market data →') + '</a>' +
         '</div>';
     }
 
