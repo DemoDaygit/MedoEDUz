@@ -433,7 +433,7 @@ window.AI_MODELS = (function () {
             },
         },
         {
-            id: "model-context-protocol", name: "Model Context Protocol", vendor: "Проект MCP под LF Projects, LLC (стандарт создан в Anthropic)",
+            id: "model-context-protocol", name: "Model Context Protocol", vendor: "LF Projects · Anthropic",
             glyph: "plug", brand: "#6E7B91", url: "https://modelcontextprotocol.io",
             cats: ["agent","automation"],
             tracks: ["generalist","developer","agent-architect","security-eng"],
@@ -466,7 +466,7 @@ window.AI_MODELS = (function () {
             },
         },
         {
-            id: "langsmith", name: "LangSmith", vendor: "LangChain (LangChain, Inc.)",
+            id: "langsmith", name: "LangSmith", vendor: "LangChain, Inc.",
             glyph: "graph", brand: "#006DDD", url: "https://www.langchain.com/langsmith",
             cats: ["eval","agent"],
             tracks: ["developer","agent-architect","ai-analyst","quant"],
@@ -741,7 +741,7 @@ window.AI_MODELS = (function () {
             },
         },
         {
-            id: "pgvector", name: "pgvector", vendor: "Открытый проект pgvector (осн. вклад — @ankane)",
+            id: "pgvector", name: "pgvector", vendor: "pgvector (Andrew Kane)",
             glyph: "plug", brand: "#336791", url: "https://github.com/pgvector/pgvector",
             cats: ["memory","local"],
             tracks: ["memory-eng","developer"],
@@ -785,7 +785,7 @@ window.AI_MODELS = (function () {
             },
         },
         {
-            id: "wandb-weave", name: "W&B Weave", vendor: "Weights & Biases (входит в CoreWeave)",
+            id: "wandb-weave", name: "W&B Weave", vendor: "Weights & Biases",
             glyph: "gauge", brand: "#C0700A", url: "https://wandb.ai/site/weave",
             cats: ["eval","agent"],
             tracks: ["ai-analyst","developer","agent-architect"],
@@ -939,7 +939,7 @@ window.AI_MODELS = (function () {
             },
         },
         {
-            id: "vllm", name: "vLLM", vendor: "Сообщество vLLM под эгидой PyTorch Foundation (изначально Sky Computing Lab, UC Berkeley)",
+            id: "vllm", name: "vLLM", vendor: "vLLM · PyTorch Foundation",
             glyph: "hub", brand: "#2E6FD9", url: "https://vllm.ai",
             cats: ["local"],
             tracks: ["developer","agent-architect"],
