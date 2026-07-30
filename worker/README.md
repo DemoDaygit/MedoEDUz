@@ -5,26 +5,26 @@ Cloudflare Worker + KV: идентификация через Telegram, прог
 
 Почему устроено именно так — `docs/ARCHITECTURE-TRIZ.md`.
 
-## Что нужно один раз
+## Развёртывание одной командой
+
+Бот авторизации: **@ogcyberbot** (id 8674094118).
 
 ```bash
-cd worker
-npm install
-npx wrangler login
+bash worker/deploy.sh
+```
 
-# 1. Хранилище
-npx wrangler kv namespace create DATA
-# полученный id вписать в wrangler.toml → kv_namespaces.id
+Скрипт сам: войдёт в Cloudflare, создаст KV, спросит токен бота **скрытым
+вводом**, сгенерирует секрет вебхука, задеплоит воркер и подключит вебхук.
+Токен нигде не сохраняется — уходит прямо в секреты Cloudflare.
 
-# 2. Секреты (в репозиторий НЕ попадают)
-npx wrangler secret put BOT_TOKEN        # токен от @BotFather
-npx wrangler secret put WEBHOOK_SECRET   # любая длинная случайная строка
+Если хочется вручную:
 
-# 3. Свой Telegram user_id — в wrangler.toml → vars.ADMIN_IDS
-#    Узнать: напишите боту /start после деплоя, id будет в логах,
-#    либо спросите у @userinfobot.
-
-# 4. Деплой
+```bash
+cd worker && npm install && npx wrangler login
+npx wrangler kv namespace create DATA     # id → wrangler.toml
+npx wrangler secret put BOT_TOKEN         # токен @ogcyberbot
+npx wrangler secret put WEBHOOK_SECRET    # длинная случайная строка
+# свой Telegram user_id → wrangler.toml → vars.ADMIN_IDS (узнать у @userinfobot)
 npx wrangler deploy
 ```
 
@@ -37,14 +37,21 @@ window.MEDOEDUZ_SYNC_URL = 'https://medoeduz-platform.ВАШ.workers.dev';
 Пока строка пуста, сайт работает в **демо-режиме**: кабинеты живут на
 localStorage браузера и честно пишут об этом.
 
-## Подключить вебхук бота
+## Вебхук
+
+`deploy.sh` подключает его сам. Вручную:
 
 ```bash
 curl "https://api.telegram.org/bot<BOT_TOKEN>/setWebhook?url=https://<воркер>/tg/webhook?s=<WEBHOOK_SECRET>"
 ```
 
-Команды бота: `/login` — код входа в кабинет, `/progress` — краткий прогресс,
-`/forget` — удалить свои данные с сервера, `/help`.
+Команды бота уже зарегистрированы в @BotFather-профиле: `/login` — код входа
+в кабинет, `/progress` — краткий прогресс, `/forget` — удалить свои данные,
+`/help`.
+
+**Если токен утёк** (например, был отправлен обычным сообщением): отзовите его
+в @BotFather → `/mybots` → бот → API Token → Revoke, затем прогоните
+`deploy.sh` заново с новым токеном. Старый вебхук перестанет работать сам.
 
 ## Проверка
 

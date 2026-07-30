@@ -82,7 +82,7 @@
                 (API.isDemo
                     ? '<p class="login__demo"><b>Демо-режим.</b> Бэкенд не подключён, поэтому данные живут в этом браузере и никуда не уходят. ' +
                       'Введите <code>ADMIN</code>, чтобы войти администратором. После развёртывания воркера код будет выдавать бот.</p>'
-                    : '<p>Откройте бота, отправьте <code>/login</code> и введите полученный код.</p>') +
+                    : '<p>Откройте бота <a href="https://t.me/ogcyberbot" target="_blank" rel="noopener">@ogcyberbot</a>, отправьте <code>/login</code> и введите полученный код.</p>') +
                 (message ? '<p class="login__err">' + esc(message) + '</p>' : '') +
                 '<label class="fld"><span>Код входа</span>' +
                     '<input id="code" type="text" autocomplete="one-time-code" placeholder="' + (API.isDemo ? 'ADMIN' : 'например, K7F2QW9B') + '"></label>' +

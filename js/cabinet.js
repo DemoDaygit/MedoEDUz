@@ -61,7 +61,7 @@
                 (API.isDemo
                     ? '<p class="cab-demo"><b>Демо-режим.</b> Бэкенд не подключён: данные живут в этом браузере. ' +
                       'Введите любой код, чтобы посмотреть кабинет. После развёртывания воркера код будет выдавать бот.</p>'
-                    : '<p>Откройте бота <a href="https://t.me/Medo_cyberbot" target="_blank" rel="noopener">@Medo_cyberbot</a>, ' +
+                    : '<p>Откройте бота <a href="https://t.me/ogcyberbot" target="_blank" rel="noopener">@ogcyberbot</a>, ' +
                       'отправьте <code>/login</code> и введите полученный код.</p>') +
                 (err ? '<p class="cab-err">' + esc(err) + '</p>' : '') +
                 '<label class="fld"><span>Код входа</span>' +
